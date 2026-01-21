@@ -1,10 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Solo usar export estático en build de producción para GitHub Pages
+  // Configuración para GitHub Pages con SPA mode
   ...(process.env.BUILD_STATIC === 'true' && {
     output: 'export',
     basePath: '/TrackingCF',
     assetPrefix: '/TrackingCF/',
+    trailingSlash: true,
   }),
   images: {
     unoptimized: true,
