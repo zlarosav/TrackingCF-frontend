@@ -140,16 +140,18 @@ export default function LatestSubmissions({ submissions, loading, sortBy, sortOr
                   className="flex items-center gap-2 hover:underline"
                 >
                   {sub.avatar_url ? (
-                    <Image
-                      src={sub.avatar_url}
-                      alt={sub.handle}
-                      width={24}
-                      height={24}
-                      className="rounded-full"
-                      unoptimized
-                    />
+                    <div className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0">
+                      <Image
+                        src={sub.avatar_url}
+                        alt={sub.handle}
+                        width={24}
+                        height={24}
+                        className="w-full h-full object-cover"
+                        unoptimized
+                      />
+                    </div>
                   ) : (
-                    <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center">
+                    <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
                       <User className="h-3 w-3 text-muted-foreground" />
                     </div>
                   )}

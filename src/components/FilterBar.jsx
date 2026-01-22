@@ -30,13 +30,12 @@ export default function FilterBar({ filters, setFilters }) {
       dateFrom: '',
       dateTo: '',
       sortBy: 'submission_time',
-      order: 'desc',
-      noRating: false
+      order: 'desc'
     })
     setRatingRange([0, 4000])
   }
 
-  const hasActiveFilters = filters.ratingMin || filters.ratingMax || filters.dateFrom || filters.dateTo || filters.noRating
+  const hasActiveFilters = filters.ratingMin || filters.ratingMax || filters.dateFrom || filters.dateTo
 
   return (
     <Card>
@@ -84,18 +83,6 @@ export default function FilterBar({ filters, setFilters }) {
               onValueChange={handleRatingChange}
               className="w-full"
             />
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="noRating"
-                checked={filters.noRating}
-                onChange={(e) => setFilters({ ...filters, noRating: e.target.checked })}
-                className="h-4 w-4 rounded border-gray-300"
-              />
-              <label htmlFor="noRating" className="text-sm cursor-pointer">
-                Incluir solo problemas sin rating
-              </label>
-            </div>
           </div>
 
           {/* Date Filters */}

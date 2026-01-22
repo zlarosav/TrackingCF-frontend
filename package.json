@@ -5,7 +5,6 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "build:static": "cross-env BUILD_STATIC=true next build",
     "start": "next start",
     "lint": "next lint"
   },
@@ -28,7 +27,6 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.4.20",
-    "cross-env": "^10.1.0",
     "eslint": "^8.57.1",
     "eslint-config-next": "14.2.18",
     "postcss": "^8.4.49",

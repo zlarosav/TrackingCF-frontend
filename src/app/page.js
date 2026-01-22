@@ -18,6 +18,8 @@ import { Badge } from "@/components/ui/badge"
 import { Trophy, Users, RefreshCw, User, Clock, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
 import LatestSubmissions from '@/components/LatestSubmissions'
 import PeriodFilter from '@/components/PeriodFilter'
+import StreakBadge from '@/components/StreakBadge'
+import { getRatingColorClass } from '@/lib/utils'
 
 export default function HomePage() {
   const [users, setUsers] = useState([])
@@ -25,7 +27,7 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true)
   const [loadingSubmissions, setLoadingSubmissions] = useState(true)
   const [error, setError] = useState(null)
-  const [lastUpdate, setLastUpdate] = useState(new Date())
+  const [lastTrackerRun, setLastTrackerRun] = useState(null)
   const [period, setPeriod] = useState('month')
   const [sortBy, setSortBy] = useState('submission_time')
   const [sortOrder, setSortOrder] = useState('desc')
@@ -39,7 +41,12 @@ export default function HomePage() {
       const response = await apiClient.getUsers(period)
       if (response.success) {
         setUsers(response.data)
-        setLastUpdate(new Date())
+        // Update tracker timestamp with fallback (already formatted by backend)
+        const trackerTime = response.lastTrackerRun || 
+                           (response.data.length > 0 ? response.data[0].last_updated : null)
+        if (trackerTime) {
+          setLastTrackerRun(trackerTime) // Already a formatted string from backend
+        }
       }
     } catch (err) {
       setError('Error al cargar los usuarios. Verifica que el backend esté corriendo.')
@@ -81,19 +88,6 @@ export default function HomePage() {
   useEffect(() => {
     fetchUsers()
     fetchSubmissions()
-
-    // Auto-refresh cada 5 minutos
-    const interval = setInterval(() => {
-      fetchUsers()
-      fetchSubmissions()
-    }, 5 * 60 * 1000)
-
-    return () => clearInterval(interval)
-  }, [])
-
-  useEffect(() => {
-    fetchUsers()
-    fetchSubmissions()
   }, [period, sortBy, sortOrder])
 
   if (loading && users.length === 0) {
@@ -124,10 +118,6 @@ export default function HomePage() {
     )
   }
 
-  const totalUsers = sortedUsers.length
-  const totalScore = sortedUsers.reduce((sum, u) => sum + (parseInt(u.total_score) || 0), 0)
-  const topUser = sortedUsers[0]
-
   const SortableHeader = ({ column, children }) => {
     const isActive = userSortBy === column
     return (
@@ -152,49 +142,7 @@ export default function HomePage() {
       {/* Filtro de Período */}
       <PeriodFilter period={period} onPeriodChange={setPeriod} />
 
-      {/* Stats Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Usuarios</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalUsers}</div>
-            <p className="text-xs text-muted-foreground">
-              Trackeando problemas
-            </p>
-          </CardContent>
-        </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Score Total</CardTitle>
-            <Trophy className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalScore}</div>
-            <p className="text-xs text-muted-foreground">
-              Puntos acumulados
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Líder Actual</CardTitle>
-            <Trophy className="h-4 w-4 text-yellow-500" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {topUser?.handle || '-'}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {topUser?.total_score || 0} puntos
-            </p>
-          </CardContent>
-        </Card>
-      </div>
 
       {/* Main Table */}
       <Card>
@@ -208,7 +156,7 @@ export default function HomePage() {
             </div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <RefreshCw className="h-4 w-4" />
-              Actualizado: {lastUpdate.toLocaleTimeString('es-PE')}
+              Actualizado: {lastTrackerRun || 'Cargando...'}
             </div>
           </div>
         </CardHeader>
@@ -219,31 +167,26 @@ export default function HomePage() {
                 <TableRow>
                   <TableHead className="w-[50px]">#</TableHead>
                   <TableHead>Usuario</TableHead>
+                  <SortableHeader column="count_no_rating">
+                    Sin rating
+                  </SortableHeader>
+                  <SortableHeader column="count_800_900">
+                    800-900
+                  </SortableHeader>
+                  <SortableHeader column="count_1000">
+                    1000
+                  </SortableHeader>
+                  <SortableHeader column="count_1100">
+                    1100
+                  </SortableHeader>
+                  <SortableHeader column="count_1200_plus">
+                    1200+
+                  </SortableHeader>
                   <SortableHeader column="total_submissions">
                     Total
                   </SortableHeader>
-                  <SortableHeader column="count_no_rating">
-                    <div>Sin rating</div>
-                    <div className="text-xs font-normal text-muted-foreground">×1</div>
-                  </SortableHeader>
-                  <SortableHeader column="count_800_900">
-                    <div>800-900</div>
-                    <div className="text-xs font-normal text-muted-foreground">×1</div>
-                  </SortableHeader>
-                  <SortableHeader column="count_1000">
-                    <div>1000</div>
-                    <div className="text-xs font-normal text-muted-foreground">×2</div>
-                  </SortableHeader>
-                  <SortableHeader column="count_1100">
-                    <div>1100</div>
-                    <div className="text-xs font-normal text-muted-foreground">×3</div>
-                  </SortableHeader>
-                  <SortableHeader column="count_1200_plus">
-                    <div>1200+</div>
-                    <div className="text-xs font-normal text-muted-foreground">×5</div>
-                  </SortableHeader>
                   <SortableHeader column="total_score">
-                    <div className="font-bold">Score</div>
+                    Score
                   </SortableHeader>
                 </TableRow>
               </TableHeader>
@@ -259,21 +202,26 @@ export default function HomePage() {
                         className="flex items-center gap-3 hover:underline"
                       >
                         {user.avatar_url ? (
-                          <Image
-                            src={user.avatar_url}
-                            alt={user.handle}
-                            width={32}
-                            height={32}
-                            className="rounded-full"
-                            unoptimized
-                          />
+                          <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+                            <Image
+                              src={user.avatar_url}
+                              alt={user.handle}
+                              width={32}
+                              height={32}
+                              className="w-full h-full object-cover"
+                              unoptimized
+                            />
+                          </div>
                         ) : (
-                          <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                          <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
                             <User className="h-4 w-4 text-muted-foreground" />
                           </div>
                         )}
                         <div>
-                          <div className="font-semibold text-primary">{user.handle}</div>
+                          <div className="flex items-center gap-2">
+                            <span className={getRatingColorClass(user.rating)}>{user.handle}</span>
+                            <StreakBadge streak={user.current_streak} isActive={user.streak_active} />
+                          </div>
                           {user.rating && (
                             <div className="text-xs text-muted-foreground">
                               {user.rank} • {user.rating}
@@ -283,37 +231,37 @@ export default function HomePage() {
                       </Link>
                     </TableCell>
                     <TableCell className="text-center">
-                      <Badge variant="outline">
-                        {user.total_submissions || 0}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Badge variant="secondary">
+                      <Badge variant="secondary" className="text-base">
                         {user.count_no_rating || 0}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-center">
-                      <Badge variant="secondary">
+                      <Badge variant="secondary" className="text-base">
                         {user.count_800_900 || 0}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-center">
-                      <Badge variant="secondary">
+                      <Badge variant="secondary" className="text-base">
                         {user.count_1000 || 0}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-center">
-                      <Badge variant="secondary">
+                      <Badge variant="secondary" className="text-base">
                         {user.count_1100 || 0}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-center">
-                      <Badge variant="secondary">
+                      <Badge variant="secondary" className="text-base">
                         {user.count_1200_plus || 0}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-center">
-                      <Badge className="font-bold">
+                      <Badge variant="outline" className="text-base">
+                        {user.total_submissions || 0}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Badge className="font-bold text-base">
                         {user.total_score || 0}
                       </Badge>
                     </TableCell>

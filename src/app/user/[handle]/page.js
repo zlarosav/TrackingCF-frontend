@@ -11,8 +11,9 @@ import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, Trophy, User } from 'lucide-react'
 import FilterBar from '@/components/FilterBar'
 import UserGrid from '@/components/UserGrid'
-import StatsCard from '@/components/StatsCard'
 import ChartView from '@/components/ChartView'
+import StreakBadge from '@/components/StreakBadge'
+import { getRatingColorClass } from '@/lib/utils'
 
 export default function UserPage({ params }) {
   const { handle } = params
@@ -101,21 +102,26 @@ export default function UserPage({ params }) {
             </Button>
           </Link>
           {user?.avatar_url ? (
-            <Image
-              src={user.avatar_url}
-              alt={handle}
-              width={64}
-              height={64}
-              className="rounded-full"
-              unoptimized
-            />
+            <div className="w-16 h-16 rounded-full overflow-hidden flex-shrink-0">
+              <Image
+                src={user.avatar_url}
+                alt={handle}
+                width={64}
+                height={64}
+                className="w-full h-full object-cover"
+                unoptimized
+              />
+            </div>
           ) : (
-            <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
+            <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
               <User className="h-8 w-8 text-muted-foreground" />
             </div>
           )}
           <div>
-            <h1 className="text-3xl font-bold">{handle}</h1>
+            <div className="flex items-center gap-3">
+              <h1 className={`text-3xl font-bold ${getRatingColorClass(user?.rating)}`}>{handle}</h1>
+              <StreakBadge streak={user?.current_streak} isActive={user?.streak_active} />
+            </div>
             {user?.rating && (
               <div className="flex items-center gap-2 mt-1">
                 <Badge variant="secondary">{user.rank}</Badge>
@@ -124,7 +130,13 @@ export default function UserPage({ params }) {
               </div>
             )}
             <p className="text-sm text-muted-foreground mt-1">
-              Última actualización: {new Date(user?.last_updated).toLocaleString('es-PE')}
+              Última submission: {user?.last_submission_time ? new Date(user.last_submission_time).toLocaleString('es-PE', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              }) : 'Sin registros'}
             </p>
           </div>
         </div>
@@ -139,10 +151,7 @@ export default function UserPage({ params }) {
         </a>
       </div>
 
-      {/* Stats Cards */}
-      {stats?.generalStats && (
-        <StatsCard stats={stats.generalStats} />
-      )}
+
 
       {/* Charts */}
       {stats && (

@@ -26,10 +26,38 @@ export default function ChartView({ stats }) {
 
   // Preparar datos para gráficos
   const ratingData = ratingDistribution || []
-  const progressData = (temporalProgress || []).map(item => ({
-    month: item.month,
-    count: item.count
-  }))
+  
+  // Filter temporal progress to show only last 7 days
+  const getLast7DaysData = (temporalProgress) => {
+    if (!temporalProgress || temporalProgress.length === 0) return []
+    
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+    const last7Days = []
+    
+    for (let i = 6; i >= 0; i--) {
+      const targetDate = new Date(today)
+      targetDate.setDate(targetDate.getDate() - i)
+      targetDate.setHours(0, 0, 0, 0)
+      
+      // Find matching data for this day
+      const existingData = temporalProgress.find(item => {
+        const itemDate = new Date(item.month)
+        itemDate.setHours(0, 0, 0, 0)
+        // Compare timestamps for exact match
+        return itemDate.getTime() === targetDate.getTime()
+      })
+      
+      last7Days.push({
+        month: targetDate.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit' }),
+        count: existingData ? existingData.count : 0
+      })
+    }
+    
+    return last7Days
+  }
+  
+  const progressData = getLast7DaysData(temporalProgress)
   const tagsData = (topTags || []).slice(0, 6)
 
   return (
@@ -61,7 +89,7 @@ export default function ChartView({ stats }) {
       {/* Temporal Progress */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Progreso Temporal</CardTitle>
+          <CardTitle className="text-lg">Últimos 7 Días</CardTitle>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
