@@ -2,12 +2,20 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from "@/components/theme-provider"
 import { ThemeToggle } from "@/components/ThemeToggle"
+import { HeaderLogo } from "@/components/HeaderLogo"
+import Link from "next/link"
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
   title: 'TrackingCF - Codeforces Tracker',
   description: 'Sistema de tracking de problemas de Codeforces',
+  icons: {
+    icon: [
+      { url: '/TCF_logo_light.svg', media: '(prefers-color-scheme: light)' },
+      { url: '/TCF_logo_dark.svg', media: '(prefers-color-scheme: dark)' },
+    ]
+  }
 }
 
 export default function RootLayout({ children }) {
@@ -23,15 +31,27 @@ export default function RootLayout({ children }) {
           <div className="min-h-screen bg-background">
             <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
               <div className="container flex h-16 items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <h1 className="text-2xl font-bold bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent">
-                    TrackingCF
-                  </h1>
-                  <span className="text-sm text-muted-foreground hidden sm:inline">
-                    Sistema de Tracking de Codeforces
-                  </span>
+                <div className="flex items-center gap-6">
+                  <Link href="/">
+                    <HeaderLogo />
+                  </Link>
+                  <nav className="flex items-center gap-4 text-sm font-medium">
+                    <Link href="/" className="transition-colors hover:text-foreground/80 text-foreground/60">
+                      Inicio
+                    </Link>
+                    <Link href="/resources" className="transition-colors hover:text-foreground/80 text-foreground/60">
+                      Recursos
+                    </Link>
+                  </nav>
                 </div>
-                <ThemeToggle />
+                <div className="flex items-center gap-6">
+                  <nav className="flex items-center gap-4 text-sm font-medium">
+                    <Link href="/about" className="transition-colors hover:text-foreground/80 text-foreground/60">
+                      Acerca de
+                    </Link>
+                  </nav>
+                  <ThemeToggle />
+                </div>
               </div>
             </header>
             <main className="container py-6">

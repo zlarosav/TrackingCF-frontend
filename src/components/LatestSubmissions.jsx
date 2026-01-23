@@ -7,15 +7,7 @@ import { Calendar, ExternalLink, SortAsc, SortDesc, User } from 'lucide-react'
 import { Skeleton } from "@/components/ui/skeleton"
 import Image from 'next/image'
 import Link from 'next/link'
-
-function getRatingColor(rating) {
-  if (!rating) return 'bg-gray-100 dark:bg-gray-800 border-gray-300 dark:border-gray-600'
-  if (rating <= 900) return 'bg-gray-100 dark:bg-gray-800 border-gray-400 dark:border-gray-500'
-  if (rating === 1000) return 'bg-green-50 dark:bg-green-950 border-green-400 dark:border-green-600'
-  if (rating === 1100) return 'bg-cyan-50 dark:bg-cyan-950 border-cyan-400 dark:border-cyan-600'
-  if (rating >= 1200) return 'bg-blue-50 dark:bg-blue-950 border-blue-400 dark:border-blue-600'
-  return 'bg-gray-100 dark:bg-gray-800'
-}
+import { getProblemRatingColor } from '@/lib/utils'
 
 function getRatingBadgeVariant(rating) {
   if (!rating) return 'secondary'
@@ -45,7 +37,7 @@ export default function LatestSubmissions({ submissions, loading, sortBy, sortOr
   if (submissions.length === 0) {
     return (
       <div className="text-center py-12 text-muted-foreground">
-        <p>No hay submissions en el período seleccionado</p>
+        <p>No hay submissions en el periodo seleccionado</p>
       </div>
     )
   }
@@ -95,7 +87,7 @@ export default function LatestSubmissions({ submissions, loading, sortBy, sortOr
           return (
             <Card 
               key={sub.id} 
-              className={`border-2 transition-all hover:shadow-lg ${getRatingColor(sub.rating)}`}
+              className={`border-2 transition-all hover:shadow-lg ${getProblemRatingColor(sub.rating)}`}
             >
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between gap-2">

@@ -7,12 +7,11 @@ Interfaz web moderna para visualizar y analizar la actividad de usuarios en Code
 - **Leaderboard en tiempo real** con sistema de puntuación personalizado
 - **Sistema de rachas visual** con badges SVG (fuego naranja/gris)
 - **Perfiles de usuario** con estadísticas detalladas y gráficos
-- **Filtros por período** (Última semana, mes actual, año actual o desde siempre)
+- **Filtros por periodo** (Última semana, mes actual, año actual o desde siempre)
 - **Últimas submissions** con avatares y colores por rating
 - **Gráfica de actividad:** Score diario de los últimos 7 días
 - **Tema oscuro/claro** con persistencia de preferencias
 - **Diseño responsivo** optimizado para móviles y escritorio
-- **Optimizado:** Sin polling automático - datos se actualizan solo al recargar
 
 ## 📋 Requisitos Previos
 
@@ -78,11 +77,9 @@ npm run lint   # Ejecutar linter de código
 ## 🌐 Páginas Disponibles
 
 - **`/`** - Leaderboard principal con ranking de usuarios y sistema de rachas
-- **`/user/[handle]`** - Perfil detallado de usuario con:
-  - Badge de racha (si tiene racha activa)
-  - Gráficos de actividad semanal
-  - Tabla de últimas submissions
-  - Estadísticas detalladas por categoría
+- **`/user/[handle]`** - Perfil detallado de usuario con estadísticas y gráficas
+- **`/resources`** - Biblioteca de recursos de programación competitiva (Roadmaps, webs, etc.)
+- **`/about`** - Información sobre el proyecto y créditos
 
 ## 🔥 Sistema de Rachas Visual
 
@@ -100,7 +97,7 @@ npm run lint   # Ejecutar linter de código
 
 ### Leaderboard (`/`)
 - Tabla de usuarios ordenable por cualquier columna
-- Filtro de período (semana/mes/año/total)
+- Filtro de periodo (semana/mes/año/total)
 - Sistema de colores por rating de Codeforces
 - Badges de racha junto a nombres de usuarios
 - Timestamp "Actualizado: XX" en timezone del backend
@@ -111,11 +108,22 @@ npm run lint   # Ejecutar linter de código
 - Tabla de últimas submissions con colores por dificultad
 - Cards de estadísticas categorizadas
 
+### Recursos (`/resources`)
+- Grid de tarjetas de recursos con enlaces externos
+- Categorías: Roadmaps, Canales de YouTube, Plataformas de Práctica
+- Diseño responsive con tarjetas de altura variable
+
+### Acerca de (`/about`)
+- Información del proyecto
+- Card de repositorio Open Source
+- Créditos y stack tecnológico
+
 ### Componentes Reutilizables
 - `StreakBadge` - Badge de racha SVG
-- `LatestSubmissions` - Tabla de submissions recientes
-- `PeriodFilter` - Selector de período
-- `ChartView` - Gráfica de actividad semanal
+- `LatestSubmissions` - Tabla de submissions recientes con colores dinámicos
+- `PeriodFilter` - Selector de periodo
+- `ChartView` - Gráfica de actividad semanal con auto-scaling
+- `HeaderLogo` - Logo SVG con soporte para modo oscuro/claro
 
 ## 🛠️ Stack Tecnológico
 
@@ -216,7 +224,7 @@ El frontend se conecta al backend mediante `NEXT_PUBLIC_API_URL`. Asegúrate de 
 - `GET /api/users/:handle` - Usuario individual con racha
 - `GET /api/submissions` - Últimas submissions globales
 - `GET /api/submissions/:handle` - Submissions de un usuario
-- `GET /api/submissions/:handle/stats` - Estadísticas por período
+- `GET /api/submissions/:handle/stats` - Estadísticas por periodo
 
 ## 📱 Responsive Design
 
@@ -230,7 +238,7 @@ El frontend está optimizado para:
 - ✅ Sin polling automático (reduce carga en backend)
 - ✅ Datos se cargan solo al:
   - Recargar página (F5)
-  - Cambiar filtros de período
+  - Cambiar filtros de periodo
 - ✅ React StrictMode optimizado (sin useEffect duplicados)
 - ✅ Imágenes optimizadas con Next.js Image
 - ✅ Code splitting automático con Next.js

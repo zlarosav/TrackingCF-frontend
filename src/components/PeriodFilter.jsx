@@ -17,7 +17,7 @@ export default function PeriodFilter({ period, onPeriodChange }) {
       <CardHeader>
         <CardTitle className="text-lg flex items-center gap-2">
           <Calendar className="h-5 w-5" />
-          Período de Tiempo
+          Periodo de Tiempo
         </CardTitle>
       </CardHeader>
       <CardContent>

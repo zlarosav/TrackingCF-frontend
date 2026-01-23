@@ -139,7 +139,7 @@ export default function HomePage() {
 
   return (
     <div className="space-y-6">
-      {/* Filtro de Período */}
+      {/* Filtro de Periodo */}
       <PeriodFilter period={period} onPeriodChange={setPeriod} />
 
 
@@ -149,7 +149,7 @@ export default function HomePage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Tabla de Clasificación</CardTitle>
+              <CardTitle>🏆 Tabla de Clasificación</CardTitle>
               <p className="text-sm text-muted-foreground mt-1">
                 Click en un usuario para ver detalles
               </p>
@@ -281,7 +281,7 @@ export default function HomePage() {
             Últimas Submissions
           </CardTitle>
           <CardDescription>
-            Problemas resueltos recientemente en el período seleccionado
+            Problemas resueltos recientemente en el periodo seleccionado
           </CardDescription>
         </CardHeader>
         <CardContent>

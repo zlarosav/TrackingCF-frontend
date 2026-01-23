@@ -42,15 +42,25 @@ export default function ChartView({ stats }) {
       
       // Find matching data for this day
       const existingData = temporalProgress.find(item => {
+        // item.month is now a string "YYYY-MM-DD" from backend
+        // We must parse it as local time, not UTC (which new Date("YYYY-MM-DD") does)
+        if (typeof item.month === 'string' && item.month.includes('-')) {
+          const [year, month, day] = item.month.split('-').map(Number)
+          const itemDate = new Date(year, month - 1, day)
+          return itemDate.getFullYear() === targetDate.getFullYear() &&
+                 itemDate.getMonth() === targetDate.getMonth() &&
+                 itemDate.getDate() === targetDate.getDate()
+        }
+        
+        // Fallback for Date objects if any
         const itemDate = new Date(item.month)
         itemDate.setHours(0, 0, 0, 0)
-        // Compare timestamps for exact match
         return itemDate.getTime() === targetDate.getTime()
       })
       
       last7Days.push({
         month: targetDate.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit' }),
-        count: existingData ? existingData.count : 0
+        count: existingData ? Number(existingData.count) : 0
       })
     }
     
@@ -78,7 +88,7 @@ export default function ChartView({ stats }) {
                 height={80}
                 fontSize={12}
               />
-              <YAxis />
+              <YAxis allowDecimals={false} />
               <Tooltip />
               <Bar dataKey="count" fill="#8884d8" />
             </BarChart>
@@ -102,7 +112,9 @@ export default function ChartView({ stats }) {
                 height={80}
                 fontSize={12}
               />
-              <YAxis />
+              <YAxis 
+                allowDecimals={false} 
+              />
               <Tooltip />
               <Line 
                 type="monotone" 
