@@ -1,9 +1,7 @@
 import { Inter } from 'next/font/google'
 import './globals.css'
 import { ThemeProvider } from "@/components/theme-provider"
-import { ThemeToggle } from "@/components/ThemeToggle"
-import { HeaderLogo } from "@/components/HeaderLogo"
-import Link from "next/link"
+import { SiteHeader } from "@/components/SiteHeader"
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -29,31 +27,7 @@ export default function RootLayout({ children }) {
           disableTransitionOnChange
         >
           <div className="min-h-screen bg-background">
-            <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-              <div className="container flex h-16 items-center justify-between">
-                <div className="flex items-center gap-6">
-                  <Link href="/">
-                    <HeaderLogo />
-                  </Link>
-                  <nav className="flex items-center gap-4 text-sm font-medium">
-                    <Link href="/" className="transition-colors hover:text-foreground/80 text-foreground/60">
-                      Inicio
-                    </Link>
-                    <Link href="/resources" className="transition-colors hover:text-foreground/80 text-foreground/60">
-                      Recursos
-                    </Link>
-                  </nav>
-                </div>
-                <div className="flex items-center gap-6">
-                  <nav className="flex items-center gap-4 text-sm font-medium">
-                    <Link href="/about" className="transition-colors hover:text-foreground/80 text-foreground/60">
-                      Acerca de
-                    </Link>
-                  </nav>
-                  <ThemeToggle />
-                </div>
-              </div>
-            </header>
+            <SiteHeader />
             <main className="container py-6">
               {children}
             </main>            <footer className="border-t py-6 mt-12">

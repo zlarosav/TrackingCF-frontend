@@ -49,7 +49,7 @@ export default function HomePage() {
         }
       }
     } catch (err) {
-      setError('Error al cargar los usuarios. Verifica que el backend esté corriendo.')
+      console.error('Error backend:', err)
       console.error(err)
     } finally {
       setLoading(false)
@@ -99,24 +99,7 @@ export default function HomePage() {
     )
   }
 
-  if (error && users.length === 0) {
-    return (
-      <Card className="border-destructive">
-        <CardHeader>
-          <CardTitle>Error de Conexión</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p>{error}</p>
-          <p className="text-sm text-muted-foreground mt-2">
-            Asegúrate de que el backend esté corriendo en{' '}
-            <code className="bg-muted px-1 py-0.5 rounded">
-              {process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'}
-            </code>
-          </p>
-        </CardContent>
-      </Card>
-    )
-  }
+
 
   const SortableHeader = ({ column, children }) => {
     const isActive = userSortBy === column

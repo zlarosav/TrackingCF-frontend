@@ -144,7 +144,7 @@ export default function AboutPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-sm text-muted-foreground">
-                Este proyecto es de código abierto. ¡Las contribuciones son bienvenidas!
+                Este proyecto es de código abierto. Puedes hacer contribuciones y hacer fork para desplegarlo con tus propios usuarios.
               </p>
               <div className="space-y-3">
                 <a 
