@@ -32,7 +32,7 @@ export default function ContestsPage() {
   useEffect(() => {
       if (!allContests.length) return;
       applyFilters();
-  }, [filter, allContests])
+  }, [filter, allContests, now])
 
   const fetchContests = async () => {
     try {
@@ -62,25 +62,22 @@ export default function ContestsPage() {
           filtered = filtered.filter(c => c.platform === filter);
       }
 
-      const nowSec = DateTime.now().toSeconds(); 
+      const nowSec = now.toSeconds(); 
       const tenDaysInSec = 10 * 24 * 3600;
         
-      // Upcoming: Start time > now OR (Start <= now < Start+Dur) [Active]
+      // Upcoming: Contest hasn't finished yet (now < startTime + duration)
       // PLUS Filter: start time must be less than Now + 10 days
       const currentOrFuture = filtered.filter(c => {
-          const isUpcomingOrActive = c.phase === 'BEFORE' || c.phase === 'CODING' || (c.startTimeSeconds + c.durationSeconds > nowSec);
-          if (!isUpcomingOrActive) return false;
+          const duration = c.durationSeconds > 3e9 ? 0 : c.durationSeconds; // Safeguard for infinite duration
+          const hasNotFinished = (c.startTimeSeconds + duration > nowSec);
+          if (!hasNotFinished) return false;
           
-          // If it's already active, show it.
-          // If it's future, only show if within 10 days.
-          // c.startTimeSeconds < nowSec + tenDaysInSec
-          
-           return c.startTimeSeconds < (nowSec + tenDaysInSec);
+          return c.startTimeSeconds < (nowSec + tenDaysInSec);
       });
       
+      // Finished: current time is past the end time (now >= startTime + duration)
       const finished = filtered.filter(c => 
-          c.phase === 'FINISHED' || 
-          (c.startTimeSeconds + c.durationSeconds <= nowSec)
+          (c.startTimeSeconds + (c.durationSeconds > 3e9 ? 0 : c.durationSeconds) <= nowSec)
       );
 
       // Sort Upcoming: ASC by start time (soonest first)
@@ -89,7 +86,7 @@ export default function ContestsPage() {
       // Sort Past: DESC by start time (most recent first)
       finished.sort((a, b) => b.startTimeSeconds - a.startTimeSeconds);
 
-      setUpcoming(currentOrFuture.slice(0, 20)); // Keep top 20 limit even when filtered? User likely wants more specific view, but "20 últimos" was request. Let's keep limits.
+      setUpcoming(currentOrFuture.slice(0, 20)); 
       setPast(finished.slice(0, 10));
   }
 
@@ -99,8 +96,14 @@ export default function ContestsPage() {
     return `${hours}h ${minutes}m`
   }
 
-  const getTimeRemaining = (startTimeSeconds) => {
+  const getTimeRemaining = (startTimeSeconds, durationSeconds) => {
     const start = DateTime.fromSeconds(startTimeSeconds)
+    const duration = durationSeconds > 3e9 ? 0 : durationSeconds;
+    const end = start.plus({ seconds: duration })
+    
+    if (now >= start && now < end) return "En curso"
+    if (now >= end) return "Finalizado"
+    
     const diff = start.diff(now, ['days', 'hours', 'minutes', 'seconds'])
     
     if (diff.milliseconds < 0) return "En curso" 
@@ -185,7 +188,7 @@ export default function ContestsPage() {
 
                   <div className="mt-2 text-right">
                      <div className={`font-mono text-lg font-bold ${isLive ? 'text-green-600' : (isPast ? 'text-muted-foreground' : 'text-primary')}`}>
-                        {isLive ? 'En curso' : (isPast ? 'Finalizado' : getTimeRemaining(contest.startTimeSeconds))}
+                        {getTimeRemaining(contest.startTimeSeconds, contest.durationSeconds)}
                      </div>
                   </div>
             </div>
