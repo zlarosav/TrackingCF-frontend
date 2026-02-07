@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Lock, Eye, EyeOff, UserPlus, FileText, Users, Activity, LogOut, Filter, X, Calendar, Megaphone, Trash2, AlertTriangle, RefreshCw, CheckCircle, XCircle, Edit } from 'lucide-react';
+import { Lock, Eye, EyeOff, UserPlus, FileText, Users, Activity, LogOut, Filter, X, Calendar, Megaphone, Trash2, AlertTriangle, RefreshCw, CheckCircle, XCircle, Edit, ChevronDown, ChevronUp, ArrowRight } from 'lucide-react';
 
 export default function AdminConsole() {
   const [token, setToken] = useState('');
@@ -24,6 +24,12 @@ export default function AdminConsole() {
   // Audit Filters
   const [filters, setFilters] = useState({ ip: '', method: '', endpoint: '', startDate: '', endDate: '' });
   const [activeFilters, setActiveFilters] = useState({});
+  const [auditViewMode, setAuditViewMode] = useState('ip'); // 'ip' or 'list'
+  const [auditSummary, setAuditSummary] = useState([]);
+  const [expandedIp, setExpandedIp] = useState(null);
+  const [ipLogs, setIpLogs] = useState([]);
+  const [loadingIpLogs, setLoadingIpLogs] = useState(false);
+  const [adminActionsOnly, setAdminActionsOnly] = useState(false);
 
   // Banner State
   const [currentBanner, setCurrentBanner] = useState(null);
@@ -49,7 +55,11 @@ export default function AdminConsole() {
       if (view === 'users') {
           await fetchUsers(authToken);
       } else if (view === 'audit') {
-          await fetchLogs(authToken, currentFilters);
+          if (auditViewMode === 'ip') {
+              await fetchAuditSummary(authToken);
+          } else {
+              await fetchLogs(authToken, currentFilters);
+          }
       } else if (view === 'announcements') {
           await fetchBanner(authToken);
       }
@@ -65,10 +75,13 @@ export default function AdminConsole() {
   useEffect(() => {
       if (isAuthenticated && token) {
           if (view === 'users') fetchUsers(token);
-          if (view === 'audit') fetchLogs(token, activeFilters);
+          if (view === 'audit') {
+               if (auditViewMode === 'ip') fetchAuditSummary(token);
+               else fetchLogs(token, activeFilters);
+          }
           if (view === 'announcements') fetchBanner(token);
       }
-  }, [view]);
+  }, [view, auditViewMode]); // Added auditViewMode dependency
 
   const logout = () => {
     localStorage.removeItem('admin_token');
@@ -92,7 +105,8 @@ export default function AdminConsole() {
       localStorage.setItem('admin_token', newToken);
       setIsAuthenticated(true);
       // Fetch initial data based on default view
-      fetchUsers(newToken);
+      await fetchUsers(newToken);
+      setLoading(false);
     } catch (err) {
       setLoginError(err.response?.data?.error || 'Error al iniciar sesión');
       setLoading(false);
@@ -113,6 +127,7 @@ export default function AdminConsole() {
   };
 
   const fetchLogs = async (authToken, currentFilters) => {
+    // setLoading(true); // Don't block full UI, just table part ideally, but global loading is safer for now or use local state
     try {
       // Build query params
       const params = new URLSearchParams();
@@ -128,7 +143,45 @@ export default function AdminConsole() {
       setLogs(res.data.data);
     } catch (err) {
       console.error(err);
+    } finally {
+        // setLoading(false);
     }
+  };
+
+  const fetchAuditSummary = async (authToken) => {
+      setLoading(true);
+      try {
+          const res = await axios.get(`${getApiUrl()}/admin/audit-summary`, {
+              headers: { Authorization: `Bearer ${authToken}` }
+          });
+          setAuditSummary(res.data.data);
+      } catch (err) {
+          console.error(err);
+      } finally {
+          setLoading(false);
+      }
+  };
+
+  const toggleIpExpand = async (ip) => {
+      if (expandedIp === ip) {
+          setExpandedIp(null);
+          return;
+      }
+      
+      setExpandedIp(ip);
+      setIpLogs([]);
+      setLoadingIpLogs(true);
+      
+      try {
+           const res = await axios.get(`${getApiUrl()}/admin/audit-logs?ip=${ip}&limit=10`, { // Add limit param if backend supports, currently it defaults to 50 which is fine
+              headers: { Authorization: `Bearer ${token}` }
+           });
+           setIpLogs(res.data.data);
+      } catch (err) {
+          console.error(err);
+      } finally {
+          setLoadingIpLogs(false);
+      }
   };
 
   const fetchBanner = async (authToken) => {
@@ -494,6 +547,51 @@ export default function AdminConsole() {
           <div className="space-y-4">
              {/* Filter Controls */}
              <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4 flex flex-wrap gap-4 items-end">
+                  <div className="flex gap-2">
+                      <button 
+                          onClick={() => setAuditViewMode('ip')}
+                          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${auditViewMode === 'ip' ? 'bg-blue-600 text-white' : 'bg-neutral-800 text-neutral-400 hover:text-white'}`}
+                      >
+                          Vista por IP
+                      </button>
+                      <button 
+                          onClick={() => setAuditViewMode('list')}
+                          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${auditViewMode === 'list' ? 'bg-blue-600 text-white' : 'bg-neutral-800 text-neutral-400 hover:text-white'}`}
+                      >
+                          Vista de Lista
+                      </button>
+                  </div>
+                  
+                  <div className="h-6 w-px bg-neutral-800 mx-2"></div>
+
+                  <div className="flex items-center gap-2">
+                       <input 
+                          type="checkbox" 
+                          id="adminActionsOnly"
+                          checked={adminActionsOnly}
+                          onChange={(e) => {
+                              setAdminActionsOnly(e.target.checked);
+                              // Refetch if in list mode, or filter locally/refetch in IP mode
+                              if (auditViewMode === 'list') {
+                                   // We need to implement this filter in backend or simple frontend filter?
+                                   // For now let's just use it to filter the displayed list if it's small, 
+                                   // or trigger a fetch with a special param if backend supported it.
+                                   // Let's assume standard fetch for now and maybe filter client side or add param later.
+                                   // Actually, "Solo Acciones Admin" means excluding GET_REQUEST, etc.
+                                   // We can filter by "NOT LIKE '%_REQUEST'" or just show specific actions.
+                                   // Let's do client-side filter for now for responsiveness if list is small, 
+                                   // or add a backend param 'excludeTraffic=true'.
+                              }
+                          }}
+                          className="w-4 h-4 rounded border-neutral-700 bg-neutral-900 text-blue-600 focus:ring-blue-500 focus:ring-offset-neutral-900"
+                       />
+                       <label htmlFor="adminActionsOnly" className="text-sm text-neutral-300 cursor-pointer select-none">
+                           Solo Acciones Admin
+                       </label>
+                  </div>
+
+                  <div className="flex-1"></div>
+
                   <div className="flex flex-col gap-1">
                       <label className="text-xs text-neutral-400 flex items-center gap-1"><Calendar className="w-3 h-3" /> Desde</label>
                       <input 
@@ -512,11 +610,17 @@ export default function AdminConsole() {
                           onChange={(e) => applyFilter('endDate', e.target.value)}
                       />
                   </div>
-                  <div className="flex-1"></div>
-                  {(Object.keys(activeFilters).length > 0) && (
+                  
+                  {(Object.keys(activeFilters).length > 0 || adminActionsOnly) && (
                       <button 
-                        onClick={() => { setActiveFilters({}); setFilters({ ip: '', method: '', endpoint: '', startDate: '', endDate: '' }); fetchLogs(token, {}); }} 
-                        className="text-xs text-neutral-400 hover:text-white underline pb-2"
+                        onClick={() => { 
+                            setActiveFilters({}); 
+                            setFilters({ ip: '', method: '', endpoint: '', startDate: '', endDate: '' }); 
+                            setAdminActionsOnly(false);
+                            if (auditViewMode === 'list') fetchLogs(token, {}); 
+                            // Summary is auto-fetched on effect
+                        }} 
+                        className="text-xs text-neutral-400 hover:text-white underline pb-2 ml-2"
                       >
                           Limpiar todo
                       </button>
@@ -526,7 +630,7 @@ export default function AdminConsole() {
              {/* Chip Filters Display */}
              {(Object.keys(activeFilters).length > 0) && (
                  <div className="flex gap-2 items-center text-sm flex-wrap">
-                     <span className="text-neutral-400 text-xs">Filtros:</span>
+                     <span className="text-neutral-400 text-xs">Filtros Activos:</span>
                      {Object.entries(activeFilters).map(([key, val]) => (
                          <span key={key} className="bg-blue-600/20 text-blue-400 border border-blue-600/30 px-2 py-1 rounded-md flex items-center gap-1 text-xs">
                              {key}: {val}
@@ -538,56 +642,170 @@ export default function AdminConsole() {
 
              <div className="bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden">
              <div className="p-4 border-b border-neutral-800 bg-neutral-950/50 flex justify-between items-center">
-                <h3 className="font-bold flex items-center gap-2"><Filter className="w-4 h-4" /> Auditoría</h3>
-                <button onClick={() => fetchLogs(token, activeFilters)} className="text-xs text-blue-400 hover:text-blue-300">Refrescar</button>
+                <h3 className="font-bold flex items-center gap-2"><Filter className="w-4 h-4" /> {auditViewMode === 'ip' ? 'Resumen por IP' : 'Registro Detallado'}</h3>
+                <button 
+                    onClick={() => auditViewMode === 'ip' ? fetchAuditSummary(token) : fetchLogs(token, activeFilters)} 
+                    className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                >
+                    <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} /> Refrescar
+                </button>
              </div>
-             <table className="w-full text-left text-sm">
-                <thead className="bg-neutral-950 text-neutral-400 text-xs uppercase font-semibold">
-                  <tr>
-                    <th className="p-4">Tiempo</th>
-                    <th className="p-4">Admin</th>
-                    <th className="p-4">Acción</th>
-                    <th className="p-4">Detalles</th>
-                    <th className="p-4">IP</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-neutral-800">
-                  {logs.map(log => (
-                    <tr key={log.id} className="hover:bg-neutral-800/50">
-                      <td className="p-4 text-neutral-400 whitespace-nowrap">
-                        {new Date(log.timestamp).toLocaleString()}
-                      </td>
-                      <td className="p-4 font-medium text-blue-400">
-                        {log.username || 'System/Guest'}
-                      </td>
-                      <td className="p-4">
-                        <span className={`font-bold text-xs px-2 py-0.5 rounded cursor-pointer ${
-                          log.action.includes('DELETE') ? 'bg-red-500/20 text-red-400' : 
-                          log.action.includes('CREATE') ? 'bg-green-500/20 text-green-400' : 
-                          log.action.includes('LOGIN') ? 'bg-blue-500/20 text-blue-400' :
-                          'bg-neutral-700 text-neutral-300'
-                        }`}
-                        onClick={() => applyFilter('method', log.action)} // method maps to action in backend
-                        title={log.action}
-                        >
-                          {log.action}
-                        </span>
-                      </td>
-                      <td className="p-4 text-neutral-300 font-mono text-xs">
-                        {log.details ? JSON.stringify(log.details) : '-'}
-                      </td>
-                      <td className="p-4 text-neutral-500 text-xs font-mono">
-                          {log.ip_address}
-                      </td>
-                    </tr>
-                  ))}
-                  {logs.length === 0 && (
+
+             {auditViewMode === 'ip' ? (
+                 <div className="divide-y divide-neutral-800">
+                     {auditSummary.filter(item => {
+                         // Client side filtering for summary
+                         if (activeFilters.ip && !item.ip.includes(activeFilters.ip)) return false;
+                         // Smart filter: if adminActionsOnly, we could filter IPs that have 0 admin actions?
+                         // But summary doesn't have detailed breakdown easily available to filter perfectly without backend support.
+                         // For now, let's keep it simple or filter if we add more data to summary.
+                         return true;
+                     }).map(item => (
+                         <div key={item.ip} className="bg-neutral-900">
+                             <div 
+                                className="p-4 flex items-center justify-between cursor-pointer hover:bg-neutral-800/50 transition-colors"
+                                onClick={() => toggleIpExpand(item.ip)}
+                             >
+                                 <div className="flex items-center gap-4">
+                                     <div className={`w-2 h-2 rounded-full ${expandedIp === item.ip ? 'bg-blue-500' : 'bg-neutral-600'}`}></div>
+                                     <div>
+                                         <div className="font-mono text-sm font-bold text-blue-400">{item.ip}</div>
+                                         <div className="text-xs text-neutral-500">Última actividad: {new Date(item.lastActive).toLocaleString()}</div>
+                                     </div>
+                                 </div>
+                                 
+                                 <div className="flex items-center gap-6 text-sm">
+                                     <div className="text-right">
+                                         <div className="font-bold text-white">{item.totalRequests}</div>
+                                         <div className="text-xs text-neutral-500">Peticiones</div>
+                                     </div>
+                                     
+                                     {item.admins && item.admins.length > 0 && (
+                                         <div className="text-right">
+                                             <div className="font-bold text-green-400">{item.admins.join(', ')}</div>
+                                             <div className="text-xs text-neutral-500">Admins</div>
+                                         </div>
+                                     )}
+                                     
+                                     <div className="text-neutral-500">
+                                         {expandedIp === item.ip ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                                     </div>
+                                 </div>
+                             </div>
+                             
+                             {expandedIp === item.ip && (
+                                 <div className="border-t border-neutral-800 bg-neutral-950/30 p-4 pl-12">
+                                     {loadingIpLogs ? (
+                                         <div className="flex items-center gap-2 text-sm text-neutral-500">
+                                             <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div> Cargando detalles...
+                                         </div>
+                                     ) : (
+                                         <div className="space-y-2">
+                                             <h4 className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-2">Últimos movimientos</h4>
+                                             {ipLogs.length === 0 ? (
+                                                 <div className="text-sm text-neutral-500 italic">No hay registros recientes visibles.</div>
+                                             ) : (
+                                                 <div className="space-y-1">
+                                                     {ipLogs.map(log => {
+                                                         if (adminActionsOnly && (log.action.includes('_REQUEST') || log.action === 'LOGIN_FAILED')) return null; // Simple client filter
+                                                         return (
+                                                             <div key={log.id} className="flex items-center gap-3 text-sm py-1 border-b border-neutral-800/50 last:border-0 hover:bg-neutral-900/50 rounded px-2">
+                                                                 <span className="text-neutral-500 font-mono text-xs w-32 shrink-0">{new Date(log.timestamp).toLocaleString()}</span>
+                                                                 <span className={`font-bold text-xs px-2 py-0.5 rounded ${
+                                                                     log.action.includes('DELETE') ? 'bg-red-500/20 text-red-400' : 
+                                                                     log.action.includes('CREATE') ? 'bg-green-500/20 text-green-400' : 
+                                                                     log.action.includes('LOGIN') ? 'bg-blue-500/20 text-blue-400' :
+                                                                     'bg-neutral-800 text-neutral-400'
+                                                                 }`}>
+                                                                     {log.action}
+                                                                 </span>
+                                                                 <span className="text-neutral-400 truncate flex-1 font-mono text-xs" title={JSON.stringify(log.details)}>
+                                                                     {log.details ? JSON.stringify(log.details) : '-'}
+                                                                 </span>
+                                                                 <span className="text-neutral-600 text-xs w-20 text-right truncate" title={log.username}>{log.username || 'System'}</span>
+                                                             </div>
+                                                         );
+                                                     })}
+                                                 </div>
+                                             )}
+                                             
+                                             <div className="pt-2">
+                                                 <button 
+                                                    onClick={() => {
+                                                        setAuditViewMode('list');
+                                                        applyFilter('ip', item.ip);
+                                                    }}
+                                                    className="text-xs text-blue-500 hover:text-blue-400 flex items-center gap-1"
+                                                 >
+                                                     Ver historial completo de esta IP <ArrowRight className="w-3 h-3" />
+                                                 </button>
+                                             </div>
+                                         </div>
+                                     )}
+                                 </div>
+                             )}
+                         </div>
+                     ))}
+                     {auditSummary.length === 0 && (
+                         <div className="p-8 text-center text-neutral-500">No hay actividad registrada.</div>
+                     )}
+                 </div>
+             ) : (
+                 /* LIST VIEW TABLE (Existing) */
+                 <table className="w-full text-left text-sm">
+                    <thead className="bg-neutral-950 text-neutral-400 text-xs uppercase font-semibold">
                       <tr>
-                          <td colSpan="5" className="p-8 text-center text-neutral-500">No se encontraron registros</td>
+                        <th className="p-4">Tiempo</th>
+                        <th className="p-4">Admin</th>
+                        <th className="p-4">Acción</th>
+                        <th className="p-4">Detalles</th>
+                        <th className="p-4">IP</th>
                       </tr>
-                  )}
-                </tbody>
-             </table>
+                    </thead>
+                    <tbody className="divide-y divide-neutral-800">
+                      {logs.filter(log => !adminActionsOnly || !log.action.includes('_REQUEST')).map(log => (
+                        <tr key={log.id} className="hover:bg-neutral-800/50">
+                          <td className="p-4 text-neutral-400 whitespace-nowrap">
+                            {new Date(log.timestamp).toLocaleString()}
+                          </td>
+                          <td className="p-4 font-medium text-blue-400">
+                            {log.username || 'System/Guest'}
+                          </td>
+                          <td className="p-4">
+                            <span className={`font-bold text-xs px-2 py-0.5 rounded cursor-pointer ${
+                              log.action.includes('DELETE') ? 'bg-red-500/20 text-red-400' : 
+                              log.action.includes('CREATE') ? 'bg-green-500/20 text-green-400' : 
+                              log.action.includes('LOGIN') ? 'bg-blue-500/20 text-blue-400' :
+                              'bg-neutral-700 text-neutral-300'
+                            }`}
+                            onClick={() => applyFilter('method', log.action)} // method maps to action in backend
+                            title={log.action}
+                            >
+                              {log.action}
+                            </span>
+                          </td>
+                          <td className="p-4 text-neutral-300 font-mono text-xs">
+                            {log.details ? JSON.stringify(log.details) : '-'}
+                          </td>
+                          <td className="p-4 text-neutral-500 text-xs font-mono cursor-pointer hover:text-white" onClick={() => {
+                              // Switch to IP view
+                              setAuditViewMode('ip');
+                              // Ideally expand this ip, but verify first.
+                              // Actually maybe just filter list by ip is better.
+                              applyFilter('ip', log.ip_address);
+                          }}>
+                              {log.ip_address}
+                          </td>
+                        </tr>
+                      ))}
+                      {logs.length === 0 && (
+                          <tr>
+                              <td colSpan="5" className="p-8 text-center text-neutral-500">No se encontraron registros</td>
+                          </tr>
+                      )}
+                    </tbody>
+                 </table>
+             )}
           </div>
           </div>
         )}
