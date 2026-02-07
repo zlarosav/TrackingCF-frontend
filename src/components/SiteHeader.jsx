@@ -6,6 +6,7 @@ import { Menu, X } from "lucide-react"
 import { HeaderLogo } from "@/components/HeaderLogo"
 import { ThemeToggle } from "@/components/ThemeToggle"
 import { Button } from "@/components/ui/button"
+import { NotificationBell } from "@/components/NotificationBell"
 
 export function SiteHeader() {
   const [isOpen, setIsOpen] = React.useState(false)
@@ -55,8 +56,11 @@ export function SiteHeader() {
                 Acerca de
               </Link>
            </nav>
-           
-           <ThemeToggle />
+
+           <div className="flex items-center gap-1">
+             <NotificationBell />
+             <ThemeToggle />
+           </div>
            
            {/* Mobile Toggle */}
            <Button variant="ghost" size="icon" className="md:hidden" onClick={toggleMenu}>

@@ -1,0 +1,83 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import { X, AlertCircle, Info, AlertTriangle } from 'lucide-react';
+
+export function GlobalBanner() {
+  const [banner, setBanner] = useState(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    fetchBanner();
+  }, []);
+
+  const fetchBanner = async () => {
+    try {
+      const getApiUrl = () => process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+      const res = await axios.get(`${getApiUrl()}/notifications`);
+      
+      const serverBanner = res.data.data.banner;
+      
+      if (serverBanner) {
+        // Check if previously closed
+        const closedInfo = localStorage.getItem('closed_global_banner');
+        if (closedInfo) {
+          const { expiresAt } = JSON.parse(closedInfo);
+          // Compare unique expiration timestamp. 
+          // New banners will always have a different expiration time.
+          if (expiresAt === serverBanner.expiresAt) {
+            return;
+          }
+        }
+        setBanner(serverBanner);
+        setIsVisible(true);
+      }
+    } catch (err) {
+      // invalid banner or error
+    }
+  };
+
+  const closeBanner = () => {
+    setIsVisible(false);
+    if (banner) {
+      localStorage.setItem('closed_global_banner', JSON.stringify({
+        expiresAt: banner.expiresAt, // Use unique timestamp as ID
+        closedAt: Date.now()
+      }));
+    }
+  };
+
+  if (!isVisible || !banner) return null;
+
+  const styles = {
+    info: 'bg-blue-600/20 border-blue-600/30 text-blue-200',
+    warning: 'bg-amber-600/20 border-amber-600/30 text-amber-200',
+    error: 'bg-red-600/20 border-red-600/30 text-red-200'
+  };
+
+  const icon = {
+    info: <Info className="w-5 h-5 text-blue-400" />,
+    warning: <AlertTriangle className="w-5 h-5 text-amber-400" />,
+    error: <AlertCircle className="w-5 h-5 text-red-400" />
+  };
+
+  return (
+    <div className={`w-full border-b backdrop-blur-md transition-all ${styles[banner.type] || styles.info}`}>
+      <div className="container mx-auto px-4 py-3 flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          {icon[banner.type] || icon.info}
+          <span className="font-medium text-sm sm:text-base">
+            {banner.message}
+          </span>
+        </div>
+        <button 
+          onClick={closeBanner}
+          className="p-1 hover:bg-white/10 rounded-full transition-colors"
+        >
+          <X className="w-5 h-5 opacity-70 hover:opacity-100" />
+        </button>
+      </div>
+    </div>
+  );
+}
