@@ -2,12 +2,24 @@ import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Trophy, Target, Hash, Flame, ExternalLink, SortAsc, SortDesc } from 'lucide-react'
+import { Trophy, Target, Hash, Flame, ExternalLink, SortAsc, SortDesc, Filter, ChevronLeft, ChevronRight, X } from 'lucide-react'
 import StreakBadge from "@/components/StreakBadge"
+import Pagination from "@/components/Pagination"
+import { Slider } from "@/components/ui/slider"
 
 export default function GeneralTab({ user, stats, submissions }) {
   const [sortBy, setSortBy] = useState('submission_time')
   const [sortOrder, setSortOrder] = useState('desc')
+  
+  // Filter state
+  const [showFilters, setShowFilters] = useState(false)
+  const [ratingMin, setRatingMin] = useState(800)
+  const [ratingMax, setRatingMax] = useState(4000)
+  const [hideNoRating, setHideNoRating] = useState(false)
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1)
+  const pageSize = 15
 
   const generalStats = stats?.generalStats || {}
   const topTags = stats?.topTags || []
@@ -22,15 +34,25 @@ export default function GeneralTab({ user, stats, submissions }) {
     }
   }
 
-  const getSortedSubmissions = () => {
-    // Clone to avoid mutating prop
-    let sorted = [...submissions];
-    
-    sorted.sort((a, b) => {
+  const getFilteredAndSortedSubmissions = () => {
+    // 1. Filter
+    let filtered = submissions.filter(sub => {
+      // Hide no-rating if checked
+      if (hideNoRating && !sub.rating) return false;
+      
+      // Filter by rating range (if sub has rating)
+      if (sub.rating) {
+        if (sub.rating < ratingMin || sub.rating > ratingMax) return false;
+      }
+      
+      return true;
+    });
+
+    // 2. Sort
+    filtered.sort((a, b) => {
         let valA = a[sortBy];
         let valB = b[sortBy];
 
-        // Handle specific fields
         if (sortBy === 'submission_time') {
             valA = new Date(valA).getTime();
             valB = new Date(valB).getTime();
@@ -41,10 +63,27 @@ export default function GeneralTab({ user, stats, submissions }) {
         return 0;
     });
 
-    return sorted.slice(0, 15);
+    return filtered;
   }
 
-  const displayedSubmissions = getSortedSubmissions();
+  const allFilteredSubmissions = getFilteredAndSortedSubmissions();
+  const totalPages = Math.ceil(allFilteredSubmissions.length / pageSize);
+  const displayedSubmissions = allFilteredSubmissions.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  }
+
+  const handleClearFilters = () => {
+    setRatingMin(800);
+    setRatingMax(4000);
+    setHideNoRating(false);
+    setCurrentPage(1);
+  }
+
+  const hasActiveFilters = ratingMin !== 800 || ratingMax !== 4000 || hideNoRating;
+
+  const ratingOptions = [800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 2700, 2800, 2900, 3000, 4000];
 
   const getRatingColor = (rating) => {
     if (!rating) return 'bg-gray-500'
@@ -127,41 +166,157 @@ export default function GeneralTab({ user, stats, submissions }) {
       </Card>
 
       {/* Actividad Reciente */}
-      <Card className="col-span-1 md:col-span-2 lg:col-span-4">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Registro de Actividad</CardTitle>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground hidden sm:inline">Ordenar por:</span>
+      <Card className="col-span-1 md:col-span-2 lg:col-span-4 transition-all overflow-visible">
+        <CardHeader className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <CardTitle>Registro de Actividad</CardTitle>
+            <div className="text-xs text-muted-foreground mt-1">
+              {allFilteredSubmissions.length} problemas encontrados
+            </div>
+          </div>
+          
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Toggle Filter Button */}
             <Button
-                variant={sortBy === 'rating' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => handleSort('rating')}
-                className="h-8"
+              variant={showFilters ? "secondary" : "outline"}
+              size="sm"
+              onClick={() => setShowFilters(!showFilters)}
+              className="h-8 gap-2"
             >
-                Rating
-                {sortBy === 'rating' && (
-                sortOrder === 'asc' ? 
-                    <SortAsc className="ml-2 h-3 w-3" /> : 
-                    <SortDesc className="ml-2 h-3 w-3" />
-                )}
+              <Filter className={`h-3.5 w-3.5 ${hasActiveFilters ? "text-primary fill-primary/20" : ""}`} />
+              Filtros
             </Button>
-            <Button
-                variant={sortBy === 'submission_time' ? 'default' : 'outline'}
+
+            {hasActiveFilters && (
+              <Button
+                variant="ghost"
                 size="sm"
-                onClick={() => handleSort('submission_time')}
-                className="h-8"
-            >
-                Fecha
-                {sortBy === 'submission_time' && (
-                sortOrder === 'asc' ? 
-                    <SortAsc className="ml-2 h-3 w-3" /> : 
-                    <SortDesc className="ml-2 h-3 w-3" />
-                )}
-            </Button>
+                onClick={handleClearFilters}
+                className="h-8 text-xs text-muted-foreground hover:text-destructive"
+              >
+                <X className="mr-1 h-3 w-3" />
+                Limpiar
+              </Button>
+            )}
+
+            <div className="h-6 w-[1px] bg-border hidden sm:block mx-1"></div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground hidden lg:inline">Ordenar por:</span>
+              <Button
+                  variant={sortBy === 'rating' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => handleSort('rating')}
+                  className="h-8"
+              >
+                  Rating
+                  {sortBy === 'rating' && (
+                  sortOrder === 'asc' ? 
+                      <SortAsc className="ml-2 h-3 w-3" /> : 
+                      <SortDesc className="ml-2 h-3 w-3" />
+                  )}
+              </Button>
+              <Button
+                  variant={sortBy === 'submission_time' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => handleSort('submission_time')}
+                  className="h-8"
+              >
+                  Fecha
+                  {sortBy === 'submission_time' && (
+                  sortOrder === 'asc' ? 
+                      <SortAsc className="ml-2 h-3 w-3" /> : 
+                      <SortDesc className="ml-2 h-3 w-3" />
+                  )}
+              </Button>
+            </div>
           </div>
         </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+
+      {showFilters && (
+        <div className="px-6 pb-4 animate-in fade-in slide-in-from-top-2 duration-300">
+          <div className="flex flex-wrap items-center gap-10 p-4 rounded-lg bg-muted/20 border border-dashed">
+            {/* Rating Filter Group with Slider and Manual Inputs */}
+            <div className="flex-1 min-w-[320px] space-y-4">
+               <div className="flex items-center justify-between">
+                  <label className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground">Rango de Rating</label>
+                  <div className="flex items-center gap-2">
+                    <input 
+                      type="number" 
+                      min={800} 
+                      max={ratingMax}
+                      value={ratingMin}
+                      onChange={(e) => {
+                        const val = Math.min(Math.max(800, Number(e.target.value)), ratingMax);
+                        setRatingMin(val);
+                        setCurrentPage(1);
+                      }}
+                      className="w-16 h-7 text-xs font-mono font-bold bg-background text-center rounded border shadow-sm focus:ring-1 focus:ring-primary outline-none"
+                    />
+                    <span className="text-muted-foreground text-xs">—</span>
+                    <input 
+                      type="number" 
+                      min={ratingMin} 
+                      max={4000}
+                      value={ratingMax}
+                      onChange={(e) => {
+                        const val = Math.min(Math.max(ratingMin, Number(e.target.value)), 4000);
+                        setRatingMax(val);
+                        setCurrentPage(1);
+                      }}
+                      className="w-16 h-7 text-xs font-mono font-bold bg-background text-center rounded border shadow-sm focus:ring-1 focus:ring-primary outline-none"
+                    />
+                  </div>
+               </div>
+               <div className="px-2">
+                 <Slider
+                   min={800}
+                   max={4000}
+                   step={100}
+                   minStepsBetweenThumbs={0}
+                   value={[ratingMin, ratingMax]}
+                   onValueChange={(values) => {
+                     // Ensure min <= max logic
+                     const newMin = values[0];
+                     const newMax = values[1];
+                     
+                     setRatingMin(newMin);
+                     setRatingMax(newMax);
+                     setCurrentPage(1);
+                   }}
+                   className="w-full"
+                 />
+               </div>
+               <div className="flex justify-between text-[10px] text-muted-foreground font-medium">
+                 <span>800</span>
+                 <span>4000</span>
+               </div>
+            </div>
+
+            {/* Checkbox Hide No Rating */}
+            <div className="space-y-1.5 self-start pt-1">
+               <label className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground block">Opciones</label>
+               <label className="flex items-center gap-2 h-9 cursor-pointer group">
+                  <div className="relative flex items-center select-none">
+                    <input 
+                      type="checkbox" 
+                      className="peer h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary transition-colors cursor-pointer"
+                      id="hide-no-rating"
+                      checked={hideNoRating}
+                      onChange={(e) => { setHideNoRating(e.target.checked); setCurrentPage(1); }}
+                    />
+                  </div>
+                  <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors" htmlFor="hide-no-rating">
+                    Ocultar problemas sin rating
+                  </span>
+               </label>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <CardContent>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {displayedSubmissions.map((sub, i) => (
               <div 
                 key={i} 
@@ -238,6 +393,17 @@ export default function GeneralTab({ user, stats, submissions }) {
               </div>
             )}
           </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-6 flex justify-center border-t pt-6">
+              <Pagination 
+                currentPage={currentPage} 
+                totalPages={totalPages} 
+                onPageChange={handlePageChange} 
+              />
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
