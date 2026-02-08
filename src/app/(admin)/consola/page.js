@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Lock, Eye, EyeOff, UserPlus, FileText, Users, Activity, LogOut, Filter, X, Calendar, Megaphone, Trash2, AlertTriangle, RefreshCw, CheckCircle, XCircle, Edit, ChevronDown, ChevronUp, ArrowRight } from 'lucide-react';
+import { CreateNotification } from '@/components/admin/CreateNotification';
 
 export default function AdminConsole() {
   const [token, setToken] = useState('');
@@ -812,6 +813,8 @@ export default function AdminConsole() {
 
         {view === 'announcements' && (
             <div className="space-y-6">
+                <CreateNotification token={token} onSuccess={() => {}} />
+
                 {/* Active Banner Card */}
                 <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-6">
                     <h3 className="text-lg font-bold mb-4 flex items-center gap-2">

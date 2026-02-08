@@ -14,14 +14,13 @@ const PERIOD_OPTIONS = [
 export default function PeriodFilter({ period, onPeriodChange }) {
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="text-lg flex items-center gap-2">
-          <Calendar className="h-5 w-5" />
-          Periodo de Tiempo
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="flex flex-wrap gap-2">
+      <CardContent className="p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-2 font-semibold text-lg">
+           <Calendar className="h-5 w-5" />
+           Periodo de Tiempo
+        </div>
+        
+        <div className="flex flex-wrap gap-2 justify-end">
           {PERIOD_OPTIONS.map((option) => (
             <Button
               key={option.value}

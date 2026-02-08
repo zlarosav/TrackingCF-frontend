@@ -1,19 +1,11 @@
 'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Calendar, ExternalLink, SortAsc, SortDesc, User } from 'lucide-react'
+import { ExternalLink, SortAsc, SortDesc, User } from 'lucide-react'
 import { Skeleton } from "@/components/ui/skeleton"
 import Image from 'next/image'
 import Link from 'next/link'
-import { getProblemRatingColor } from '@/lib/utils'
-
-function getRatingBadgeVariant(rating) {
-  if (!rating) return 'secondary'
-  if (rating >= 1200) return 'default'
-  return 'secondary'
-}
 
 export default function LatestSubmissions({ submissions, loading, sortBy, sortOrder, onSortChange }) {
   const handleSort = (field) => {
@@ -24,11 +16,23 @@ export default function LatestSubmissions({ submissions, loading, sortBy, sortOr
     }
   };
 
+  const getRatingColor = (rating) => {
+    if (!rating) return 'bg-gray-500'
+    if (rating < 1200) return 'bg-gray-400'
+    if (rating < 1400) return 'bg-green-500'
+    if (rating < 1600) return 'bg-cyan-500'
+    if (rating < 1900) return 'bg-blue-600'
+    if (rating < 2100) return 'bg-purple-600'
+    if (rating < 2300) return 'bg-orange-500'
+    if (rating < 2400) return 'bg-orange-400'
+    return 'bg-red-600'
+  }
+
   if (loading) {
     return (
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {[...Array(8)].map((_, i) => (
-          <Skeleton key={i} className="h-48" />
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {[...Array(9)].map((_, i) => (
+          <Skeleton key={i} className="h-24 rounded-lg" />
         ))}
       </div>
     )
@@ -78,98 +82,98 @@ export default function LatestSubmissions({ submissions, loading, sortBy, sortOr
         </div>
       </div>
 
-      {/* Grid de submissions */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-        {submissions.map((sub) => {
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {submissions.map((sub, i) => {
           const problemUrl = `https://codeforces.com/contest/${sub.contest_id}/problem/${sub.problem_index}`
           const date = new Date(sub.submission_time)
           
           return (
-            <Card 
-              key={sub.id} 
-              className={`border-2 transition-all hover:shadow-lg ${getProblemRatingColor(sub.rating)}`}
-            >
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between gap-2">
-                  <CardTitle className="text-base line-clamp-2 flex-1">
-                    {sub.problem_name}
-                  </CardTitle>
-                  <a
-                    href={problemUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-muted-foreground hover:text-primary transition-colors"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                  </a>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <span className="font-mono">{sub.contest_id}{sub.problem_index}</span>
-                  <Badge variant={getRatingBadgeVariant(sub.rating)}>
-                    {sub.rating || 'N/A'}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Calendar className="h-3 w-3" />
-                  <span>{date.toLocaleDateString('es-PE', {
-                    day: '2-digit',
-                    month: 'short',
-                    year: 'numeric'
-                  })}</span>
-                  <span className="text-xs">
-                    {date.toLocaleTimeString('es-PE', {
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
-                  </span>
-                </div>
-                
-                {/* Usuario que resolvió */}
-                <Link 
-                  href={`/user/${sub.handle}`}
-                  className="flex items-center gap-2 hover:underline"
-                >
-                  {sub.avatar_url ? (
-                    <div className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0">
-                      <Image
-                        src={sub.avatar_url}
-                        alt={sub.handle}
-                        width={24}
-                        height={24}
-                        className="w-full h-full object-cover"
-                        unoptimized
-                      />
-                    </div>
-                  ) : (
-                    <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-                      <User className="h-3 w-3 text-muted-foreground" />
+             <div 
+                key={sub.id || i} 
+                className={`
+                    flex items-center justify-between p-3 rounded-lg border bg-card 
+                    hover:shadow-md transition-all group
+                    relative overflow-hidden
+                `}
+              >
+                {/* Colored accent bar on left */}
+                <div className={`absolute left-0 top-0 bottom-0 w-1 ${getRatingColor(sub.rating)}`} />
+
+                <div className="flex-1 ml-3 min-w-0 mr-2">
+                  <div className="font-semibold truncate flex items-center gap-2">
+                      <a 
+                        href={problemUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-base truncate hover:underline hover:text-primary transition-colors"
+                        title={sub.problem_name}
+                      >
+                        {sub.problem_name}
+                      </a>
+                      <a 
+                        href={problemUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-primary"
+                        title="Ver problema"
+                      >
+                         <ExternalLink className="w-4 h-4" />
+                      </a>
+                  </div>
+                  <div className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
+                    <span className="font-mono">{sub.contest_id}{sub.problem_index}</span>
+                    <span>•</span>
+                    <span>
+                      {date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })} 
+                      {' '} 
+                      {date.toLocaleDateString('es-PE', { day: 'numeric', month: 'numeric', year: '2-digit' })}
+                    </span>
+                  </div>
+                  
+                  {/* User Info */}
+                  <div className="mt-2 flex items-center gap-2">
+                     <Link href={`/user/${sub.handle}`} className="flex items-center gap-1.5 hover:underline group-user">
+                          {sub.avatar_url ? (
+                            <div className="w-5 h-5 rounded-full overflow-hidden flex-shrink-0">
+                               <Image src={sub.avatar_url} alt={sub.handle} width={20} height={20} className="w-full h-full object-cover" unoptimized />
+                            </div>
+                          ) : (
+                             <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                               <User className="h-3 w-3 text-muted-foreground" />
+                             </div>
+                          )}
+                          <span className="text-xs font-medium text-foreground/80">{sub.handle}</span>
+                     </Link>
+                  </div>
+
+                  
+                  {/* Tags */}
+                  {sub.tags && sub.tags.length > 0 && (
+                    <div className="mt-2 flex flex-wrap gap-1">
+                      {sub.tags.slice(0, 3).map((tag, idx) => (
+                        <Badge key={idx} variant="outline" className="text-[10px] px-1.5 py-0 h-5 font-normal text-muted-foreground">
+                          {tag}
+                        </Badge>
+                      ))}
+                      {sub.tags.length > 3 && (
+                        <Badge 
+                          variant="outline" 
+                          className="text-[10px] px-1.5 py-0 h-5 font-normal text-muted-foreground cursor-help" 
+                          title={sub.tags.slice(3).join(', ')}
+                        >
+                          +{sub.tags.length - 3}
+                        </Badge>
+                      )}
                     </div>
                   )}
-                  <span className="text-sm font-medium">{sub.handle}</span>
-                </Link>
-
-                {sub.tags && sub.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1">
-                    {sub.tags.slice(0, 3).map((tag, idx) => (
-                      <Badge 
-                        key={idx} 
-                        variant="outline" 
-                        className="text-xs px-1.5 py-0"
-                      >
-                        {tag}
-                      </Badge>
-                    ))}
-                    {sub.tags.length > 3 && (
-                      <Badge variant="outline" className="text-xs px-1.5 py-0">
-                        +{sub.tags.length - 3}
-                      </Badge>
-                    )}
-                  </div>
+                </div>
+                
+                {sub.rating && (
+                  <Badge variant="secondary" className="text-sm font-mono shrink-0 px-2 h-fit">
+                    {sub.rating}
+                  </Badge>
                 )}
-              </CardContent>
-            </Card>
+              </div>
           )
         })}
       </div>

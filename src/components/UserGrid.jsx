@@ -7,7 +7,7 @@ import { Calendar, ExternalLink, SortAsc, SortDesc } from 'lucide-react'
 import { Skeleton } from "@/components/ui/skeleton"
 import { useState } from 'react'
 import Pagination from './Pagination'
-import { getRatingColorClass, getProblemRatingColor } from '@/lib/utils'
+import { getProblemRatingColor } from '@/lib/utils'
 
 function getRatingBadgeVariant(rating) {
   if (!rating) return 'secondary'

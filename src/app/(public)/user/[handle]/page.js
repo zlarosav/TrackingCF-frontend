@@ -4,16 +4,14 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { apiClient } from '@/lib/api'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Trophy, User } from 'lucide-react'
-import FilterBar from '@/components/FilterBar'
-import UserGrid from '@/components/UserGrid'
-import ChartView from '@/components/ChartView'
+import { ArrowLeft, User } from 'lucide-react'
 import StreakBadge from '@/components/StreakBadge'
 import { getRatingColorClass } from '@/lib/utils'
+import UserTabs from '@/components/user/UserTabs'
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 
 export default function UserPage({ params }) {
   const { handle } = params
@@ -22,32 +20,22 @@ export default function UserPage({ params }) {
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [filters, setFilters] = useState({
-    ratingMin: '',
-    ratingMax: '',
-    dateFrom: '',
-    dateTo: '',
-    sortBy: 'submission_time',
-    order: 'desc',
-    noRating: false
-  })
 
   const fetchData = async () => {
     try {
       setLoading(true)
       setError(null)
 
+      // Fetch all necessary data upfront
       const [userRes, submissionsRes, statsRes] = await Promise.all([
         apiClient.getUser(handle),
-        apiClient.getSubmissions(handle, {
-          ...filters,
-          noRating: filters.noRating ? 'true' : undefined,
-          limit: 1000
-        }),
+        apiClient.getSubmissions(handle, { limit: 1000 }), // Get last 1000 for stats/tables
         apiClient.getStats(handle)
       ])
 
       if (userRes.success) setUser(userRes.data)
+      else throw new Error('User not found')
+
       if (submissionsRes.success) setSubmissions(submissionsRes.data.submissions)
       if (statsRes.success) setStats(statsRes.data)
 
@@ -61,25 +49,32 @@ export default function UserPage({ params }) {
 
   useEffect(() => {
     fetchData()
-  }, [handle, filters])
+  }, [handle])
 
   if (loading && !user) {
     return (
       <div className="space-y-6">
-        <Skeleton className="h-20 w-full" />
+        <div className="flex items-center gap-4">
+          <Skeleton className="h-16 w-16 rounded-full" />
+          <div className="space-y-2">
+            <Skeleton className="h-8 w-48" />
+            <Skeleton className="h-4 w-32" />
+          </div>
+        </div>
+        <Skeleton className="h-10 w-full max-w-md" />
         <Skeleton className="h-96 w-full" />
       </div>
     )
   }
 
-  if (error && !user) {
+  if (error || !user) {
     return (
       <Card className="border-destructive">
         <CardHeader>
           <CardTitle className="text-destructive">Error</CardTitle>
         </CardHeader>
         <CardContent>
-          <p>{error}</p>
+          <p>{error || 'Usuario no encontrado'}</p>
           <Link href="/">
             <Button variant="outline" className="mt-4">
               <ArrowLeft className="mr-2 h-4 w-4" />
@@ -92,7 +87,7 @@ export default function UserPage({ params }) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in duration-500">
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div className="flex items-center gap-4">
@@ -101,85 +96,73 @@ export default function UserPage({ params }) {
               <ArrowLeft className="h-4 w-4" />
             </Button>
           </Link>
-          {user?.avatar_url ? (
-            <div className="w-16 h-16 rounded-full overflow-hidden flex-shrink-0">
-              <Image
-                src={user.avatar_url}
-                alt={handle}
-                width={64}
-                height={64}
-                className="w-full h-full object-cover"
-                unoptimized
-              />
-            </div>
-          ) : (
-            <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-              <User className="h-8 w-8 text-muted-foreground" />
-            </div>
-          )}
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className={`text-3xl font-bold ${getRatingColorClass(user?.rating)}`}>{handle}</h1>
-              <StreakBadge streak={user?.current_streak} isActive={user?.streak_active} />
-            </div>
-            {user?.rating && (
-              <div className="flex items-center gap-2 mt-1">
-                <Badge variant="secondary">{user.rank}</Badge>
-                <span className="text-muted-foreground">•</span>
-                <span className="font-semibold">{user.rating}</span>
+          
+          <div className="relative">
+            {user?.avatar_url ? (
+              <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-primary/20 shadow-sm">
+                <Image
+                  src={user.avatar_url}
+                  alt={handle}
+                  width={80}
+                  height={80}
+                  className="w-full h-full object-cover"
+                  unoptimized
+                />
+              </div>
+            ) : (
+              <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center border-2 border-muted-foreground/10">
+                <User className="h-10 w-10 text-muted-foreground" />
               </div>
             )}
-            <p className="text-sm text-muted-foreground mt-1">
-              Última submission: {user?.last_submission_time ? new Date(user.last_submission_time).toLocaleString('es-PE', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              }) : 'Sin registros'}
-            </p>
+            <div className="absolute -bottom-1 -right-1">
+                 <StreakBadge streak={user?.current_streak} isActive={user?.streak_active} />
+            </div>
+          </div>
+
+          <div>
+            <div className="flex items-center gap-3">
+              <h1 className={`text-4xl font-bold tracking-tight ${getRatingColorClass(user?.rating)}`}>
+                {handle}
+              </h1>
+            </div>
+            
+            <div className="flex items-center gap-3 mt-1 text-sm">
+              {user?.rating && (
+                <>
+                  <Badge variant="secondary" className="font-semibold">
+                    {user.rank}
+                  </Badge>
+                  <span className="font-mono font-bold text-foreground/80">
+                    Rating: {user.rating}
+                  </span>
+                  <span className="text-muted-foreground">•</span>
+                </>
+              )}
+              <span className="text-muted-foreground">
+                Última vez: {user?.last_submission_time ? new Date(user.last_submission_time).toLocaleDateString() : 'N/A'}
+              </span>
+            </div>
           </div>
         </div>
+
         <a
           href={`https://codeforces.com/profile/${handle}`}
           target="_blank"
           rel="noopener noreferrer"
         >
-          <Button variant="outline">
+          <Button variant="outline" className="gap-2">
             Ver en Codeforces
           </Button>
         </a>
       </div>
 
-
-
-      {/* Charts */}
-      {stats && (
-        <ChartView stats={stats} />
-      )}
-
-      {/* Filters */}
-      <FilterBar filters={filters} setFilters={setFilters} />
-
-      {/* Submissions Grid */}
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            Problemas Resueltos
-            <Badge variant="secondary" className="ml-2">
-              {submissions.length}
-            </Badge>
-          </CardTitle>
-          <CardDescription>
-            {filters.ratingMin || filters.ratingMax || filters.dateFrom || filters.dateTo || filters.noRating
-              ? 'Resultados filtrados'
-              : 'Mostrando todos los problemas resueltos'}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <UserGrid submissions={submissions} loading={loading} />
-        </CardContent>
-      </Card>
+      {/* Tabs Interface */}
+      <UserTabs 
+        user={user} 
+        submissions={submissions} 
+        stats={stats} 
+        handle={handle}
+      />
     </div>
   )
 }

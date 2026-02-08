@@ -13,9 +13,6 @@ export function NotificationBell() {
 
   useEffect(() => {
     fetchNotifications();
-    // Poll every 5 minutes
-    fetchNotifications();
-    // Poll removed as requested
   }, []);
 
   const fetchNotifications = async () => {
@@ -105,13 +102,19 @@ export function NotificationBell() {
                 notifications.map(notif => (
                   <div 
                     key={notif.id}
-                    className={`p-4 border-b border-border last:border-0 hover:bg-muted/50 transition-colors ${!notif.isRead ? 'bg-primary/5' : ''}`}
+                    onClick={() => {
+                        if (notif.link) {
+                            window.location.href = notif.link;
+                        }
+                    }}
+                    className={`p-4 border-b border-border last:border-0 hover:bg-muted/50 transition-colors ${!notif.isRead ? 'bg-primary/5' : ''} ${notif.link ? 'cursor-pointer hover:bg-neutral-800' : ''}`}
                   >
                     <div className="flex gap-3">
                       <div className="mt-1">
                         {notif.type === 'CONTEST' && <span className="text-xl">🏆</span>}
                         {notif.type === 'RANK_UP' && <span className="text-xl">🚀</span>}
                         {notif.type === 'SYSTEM' && <span className="text-xl">📢</span>}
+                        {notif.type === 'WARNING' && <span className="text-xl">⚠️</span>}
                       </div>
                       <div>
                         <p className={`text-sm ${!notif.isRead ? 'font-medium text-foreground' : 'text-muted-foreground'}`}>

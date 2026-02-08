@@ -15,7 +15,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Badge } from "@/components/ui/badge"
-import { Trophy, Users, RefreshCw, User, Clock, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
+import { RefreshCw, User, Clock, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react'
 import LatestSubmissions from '@/components/LatestSubmissions'
 import PeriodFilter from '@/components/PeriodFilter'
 import StreakBadge from '@/components/StreakBadge'
@@ -59,7 +59,7 @@ export default function HomePage() {
   const fetchSubmissions = async () => {
     try {
       setLoadingSubmissions(true)
-      const response = await apiClient.getAllLatestSubmissions(period, sortBy, sortOrder, 20)
+      const response = await apiClient.getAllLatestSubmissions(period, sortBy, sortOrder, 18)
       if (response.success) {
         setSubmissions(response.data.submissions)
       }
@@ -175,34 +175,38 @@ export default function HomePage() {
               </TableHeader>
               <TableBody>
                 {sortedUsers.map((user, index) => (
-                  <TableRow key={user.id} className="hover:bg-muted/50 cursor-pointer">
+                  <TableRow key={user.id} className="hover:bg-muted/50">
                     <TableCell className="font-medium">
                       {index + 1}
                     </TableCell>
                     <TableCell>
-                      <Link 
-                        href={`/user/${user.handle}`}
-                        className="flex items-center gap-3 hover:underline"
-                      >
-                        {user.avatar_url ? (
-                          <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
-                            <Image
-                              src={user.avatar_url}
-                              alt={user.handle}
-                              width={32}
-                              height={32}
-                              className="w-full h-full object-cover"
-                              unoptimized
-                            />
-                          </div>
-                        ) : (
-                          <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-                            <User className="h-4 w-4 text-muted-foreground" />
-                          </div>
-                        )}
+                      <div className="flex items-center gap-3">
+                        {/* Avatar Clickable */}
+                        <Link href={`/user/${user.handle}`}>
+                            {user.avatar_url ? (
+                              <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0 hover:ring-2 hover:ring-primary/20 transition-all">
+                                <Image
+                                  src={user.avatar_url}
+                                  alt={user.handle}
+                                  width={32}
+                                  height={32}
+                                  className="w-full h-full object-cover"
+                                  unoptimized
+                                />
+                              </div>
+                            ) : (
+                              <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                                <User className="h-4 w-4 text-muted-foreground" />
+                              </div>
+                            )}
+                        </Link>
+                        
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className={getRatingColorClass(user.rating)}>{user.handle}</span>
+                            {/* Username Clickable */}
+                            <Link href={`/user/${user.handle}`} className="hover:underline">
+                                <span className={getRatingColorClass(user.rating)}>{user.handle}</span>
+                            </Link>
                             <StreakBadge streak={user.current_streak} isActive={user.streak_active} />
                           </div>
                           {user.rating && (
@@ -211,7 +215,7 @@ export default function HomePage() {
                             </div>
                           )}
                         </div>
-                      </Link>
+                      </div>
                     </TableCell>
                     <TableCell className="text-center">
                       <Badge variant="secondary" className="text-base">
