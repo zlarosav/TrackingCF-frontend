@@ -16,7 +16,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }) {
   }
 
   return (
-    <div className="flex items-center justify-center gap-2 mt-6">
+    <div className="flex items-center justify-center gap-2">
       <Button
         variant="outline"
         size="sm"

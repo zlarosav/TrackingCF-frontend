@@ -2,10 +2,15 @@ import { useState, useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Trophy, Target, Hash, Flame, ExternalLink, SortAsc, SortDesc, Filter, ChevronLeft, ChevronRight, X } from 'lucide-react'
+import { Slider } from "@/components/ui/slider"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Calendar } from "@/components/ui/calendar"
+import { Trophy, Target, Hash, Flame, ExternalLink, SortAsc, SortDesc, Filter, ChevronLeft, ChevronRight, X, Calendar as CalendarIcon } from 'lucide-react'
+import { format } from "date-fns"
+import { es } from "date-fns/locale"
 import StreakBadge from "@/components/StreakBadge"
 import Pagination from "@/components/Pagination"
-import { Slider } from "@/components/ui/slider"
+import { cn } from "@/lib/utils"
 
 export default function GeneralTab({ user, stats, submissions }) {
   const [sortBy, setSortBy] = useState('submission_time')
@@ -336,25 +341,105 @@ export default function GeneralTab({ user, stats, submissions }) {
 
             {/* Date Filters */}
             <div className="flex items-start gap-4 h-full">
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 flex flex-col">
                 <label className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground block">Desde</label>
-                <input 
-                  type="date"
-                  value={dateFrom}
-                  max={dateTo || undefined}
-                  onChange={(e) => { setDateFrom(e.target.value); setCurrentPage(1); }}
-                  className="block h-9 bg-background border rounded-md px-3 text-xs font-medium focus:ring-1 focus:ring-primary outline-none shadow-sm cursor-pointer"
-                />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-[160px] h-9 justify-start text-left font-normal text-xs border rounded-md px-3",
+                        !dateFrom && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-3.5 w-3.5" />
+                      {dateFrom ? format(new Date(dateFrom + 'T00:00:00'), "dd/MM/yyyy") : <span>Seleccionar</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0 flex flex-col" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={dateFrom ? new Date(dateFrom + 'T00:00:00') : undefined}
+                      onSelect={(date) => {
+                        if (date) {
+                          const y = date.getFullYear();
+                          const m = String(date.getMonth() + 1).padStart(2, '0');
+                          const d = String(date.getDate()).padStart(2, '0');
+                          setDateFrom(`${y}-${m}-${d}`);
+                        } else {
+                          setDateFrom('');
+                        }
+                        setCurrentPage(1);
+                      }}
+                      initialFocus
+                      locale={es}
+                    />
+                    <div className="p-3 border-t bg-muted/20">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="w-full h-8 text-xs font-medium hover:text-destructive"
+                        onClick={() => {
+                          setDateFrom('');
+                          setCurrentPage(1);
+                        }}
+                      >
+                        Limpiar fecha
+                      </Button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
               </div>
-              <div className="space-y-1.5">
+
+              <div className="space-y-1.5 flex flex-col">
                 <label className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground block">Hasta</label>
-                <input 
-                  type="date"
-                  value={dateTo}
-                  min={dateFrom || undefined}
-                  onChange={(e) => { setDateTo(e.target.value); setCurrentPage(1); }}
-                  className="block h-9 bg-background border rounded-md px-3 text-xs font-medium focus:ring-1 focus:ring-primary outline-none shadow-sm cursor-pointer"
-                />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-[160px] h-9 justify-start text-left font-normal text-xs border rounded-md px-3",
+                        !dateTo && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-3.5 w-3.5" />
+                      {dateTo ? format(new Date(dateTo + 'T00:00:00'), "dd/MM/yyyy") : <span>Seleccionar</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0 flex flex-col" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={dateTo ? new Date(dateTo + 'T00:00:00') : undefined}
+                      onSelect={(date) => {
+                        if (date) {
+                          const y = date.getFullYear();
+                          const m = String(date.getMonth() + 1).padStart(2, '0');
+                          const d = String(date.getDate()).padStart(2, '0');
+                          setDateTo(`${y}-${m}-${d}`);
+                        } else {
+                          setDateTo('');
+                        }
+                        setCurrentPage(1);
+                      }}
+                      disabled={(date) => dateFrom ? date < new Date(dateFrom + 'T00:00:00') : false}
+                      initialFocus
+                      locale={es}
+                    />
+                    <div className="p-3 border-t bg-muted/20">
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="w-full h-8 text-xs font-medium hover:text-destructive"
+                        onClick={() => {
+                          setDateTo('');
+                          setCurrentPage(1);
+                        }}
+                      >
+                        Limpiar fecha
+                      </Button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
           </div>
@@ -442,7 +527,7 @@ export default function GeneralTab({ user, stats, submissions }) {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="mt-6 flex justify-center border-t pt-6">
+            <div className="mt-4 flex justify-center border-t pt-4">
               <Pagination 
                 currentPage={currentPage} 
                 totalPages={totalPages} 
