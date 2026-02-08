@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Lock, Eye, EyeOff, UserPlus, FileText, Users, Activity, LogOut, Filter, X, Calendar, Megaphone, Trash2, AlertTriangle, RefreshCw, CheckCircle, XCircle, Edit, ChevronDown, ChevronUp, ArrowRight } from 'lucide-react';
+import { Lock, Eye, EyeOff, UserPlus, FileText, Users, Activity, LogOut, Filter, X, Calendar, Megaphone, Trash2, AlertTriangle, RefreshCw, CheckCircle, XCircle, Edit, ChevronDown, ChevronUp, ArrowRight, MessageSquare } from 'lucide-react';
 import { CreateNotification } from '@/components/admin/CreateNotification';
 
 export default function AdminConsole() {
@@ -16,7 +16,7 @@ export default function AdminConsole() {
   const [loginError, setLoginError] = useState('');
 
   // Dashboard State
-  const [view, setView] = useState('users'); // users | audit | announcements
+  const [view, setView] = useState('users'); // users | audit | announcements | chat
   const [users, setUsers] = useState([]);
   const [logs, setLogs] = useState([]);
   const [newHandle, setNewHandle] = useState('');
@@ -31,6 +31,10 @@ export default function AdminConsole() {
   const [ipLogs, setIpLogs] = useState([]);
   const [loadingIpLogs, setLoadingIpLogs] = useState(false);
   const [adminActionsOnly, setAdminActionsOnly] = useState(false);
+
+  // Chat Audit State
+  const [chatSummary, setChatSummary] = useState([]);
+  const [loadingChatSummary, setLoadingChatSummary] = useState(false);
 
   // Banner State
   const [currentBanner, setCurrentBanner] = useState(null);
@@ -63,6 +67,8 @@ export default function AdminConsole() {
           }
       } else if (view === 'announcements') {
           await fetchBanner(authToken);
+      } else if (view === 'chat') {
+          await fetchChatSummary(authToken);
       }
     } catch (err) {
       if (err.response?.status === 401) {
@@ -81,6 +87,7 @@ export default function AdminConsole() {
                else fetchLogs(token, activeFilters);
           }
           if (view === 'announcements') fetchBanner(token);
+          if (view === 'chat') fetchChatSummary(token);
       }
   }, [view, auditViewMode]); // Added auditViewMode dependency
 
@@ -163,7 +170,22 @@ export default function AdminConsole() {
       }
   };
 
-  const toggleIpExpand = async (ip) => {
+  const fetchChatSummary = async (authToken) => {
+      setLoading(true);
+      try {
+          // Filter summary by CHAT_QUERY action
+          const res = await axios.get(`${getApiUrl()}/admin/audit-summary?action=CHAT_QUERY`, {
+              headers: { Authorization: `Bearer ${authToken}` }
+          });
+          setChatSummary(res.data.data);
+      } catch (err) {
+          console.error(err);
+      } finally {
+          setLoading(false);
+      }
+  };
+
+  const toggleIpExpand = async (ip, mode = 'audit') => {
       if (expandedIp === ip) {
           setExpandedIp(null);
           return;
@@ -174,12 +196,19 @@ export default function AdminConsole() {
       setLoadingIpLogs(true);
       
       try {
-           const res = await axios.get(`${getApiUrl()}/admin/audit-logs?ip=${ip}&limit=10`, { // Add limit param if backend supports, currently it defaults to 50 which is fine
+           const encodedIp = encodeURIComponent(ip);
+           let url = `${getApiUrl()}/admin/audit-logs?ip=${encodedIp}&limit=10`;
+           if (mode === 'chat') {
+               url += '&method=CHAT_QUERY'; // method maps to action in backend
+           }
+           
+           const res = await axios.get(url, { 
               headers: { Authorization: `Bearer ${token}` }
            });
            setIpLogs(res.data.data);
       } catch (err) {
           console.error(err);
+          alert('Error al cargar historial: ' + (err.response?.data?.error || err.message));
       } finally {
           setLoadingIpLogs(false);
       }
@@ -431,6 +460,12 @@ export default function AdminConsole() {
             <FileText className="w-4 h-4" /> Auditoría
           </button>
           <button 
+            onClick={() => setView('chat')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${view === 'chat' ? 'bg-blue-600 text-white' : 'bg-neutral-900 text-neutral-400 hover:text-white'}`}
+          >
+            <MessageSquare className="w-4 h-4" /> Chat IA
+          </button>
+          <button 
             onClick={() => setView('announcements')}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${view === 'announcements' ? 'bg-blue-600 text-white' : 'bg-neutral-900 text-neutral-400 hover:text-white'}`}
           >
@@ -543,6 +578,91 @@ export default function AdminConsole() {
             </div>
           </div>
         )}
+
+        {/* Chat View */}
+         {view === 'chat' && (
+          <div className="space-y-4">
+             <div className="bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden divide-y divide-neutral-800">
+                 <div className="p-4 border-b border-neutral-800 bg-neutral-950/50 flex justify-between items-center">
+                    <h3 className="font-bold flex items-center gap-2"><MessageSquare className="w-4 h-4" /> Monitor de Chat IA</h3>
+                    <button 
+                        onClick={() => fetchChatSummary(token)} 
+                        className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                    >
+                        <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} /> Refrescar
+                    </button>
+                 </div>
+
+                 {chatSummary.map(item => (
+                     <div key={item.ip} className="bg-neutral-900">
+                         <div 
+                            className="p-4 flex items-center justify-between cursor-pointer hover:bg-neutral-800/50 transition-colors"
+                            onClick={() => toggleIpExpand(item.ip, 'chat')}
+                         >
+                             <div className="flex items-center gap-4">
+                                 <div className={`w-2 h-2 rounded-full ${expandedIp === item.ip ? 'bg-blue-500' : 'bg-neutral-600'}`}></div>
+                                 <div className="flex flex-col">
+                                     <span className="font-mono text-sm font-bold text-blue-400">{item.ip}</span>
+                                     <span className="text-xs text-neutral-500">Última pregunta: {new Date(item.lastActive).toLocaleString()}</span>
+                                 </div>
+                             </div>
+                             
+                             <div className="flex items-center gap-6">
+                                 <div className="text-right">
+                                     <div className="font-bold text-white">{item.totalRequests}</div>
+                                     <div className="text-xs text-neutral-500">Consultas</div>
+                                 </div>
+                                 
+                                 <div className="text-neutral-500">
+                                     {expandedIp === item.ip ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                                 </div>
+                             </div>
+                         </div>
+                         
+                         {expandedIp === item.ip && (
+                             <div className="border-t border-neutral-800 bg-neutral-950/30 p-4 pl-12">
+                                 {loadingIpLogs ? (
+                                     <div className="flex items-center gap-2 text-sm text-neutral-500">
+                                         <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div> Cargando historial...
+                                     </div>
+                                 ) : (
+                                     <div className="space-y-4">
+                                         {ipLogs.length === 0 ? (
+                                             <div className="text-sm text-neutral-500 italic">No hay historial visible.</div>
+                                         ) : (
+                                             <div className="space-y-3">
+                                                 {ipLogs.map(log => (
+                                                     <div key={log.id} className="bg-neutral-900 border border-neutral-800 rounded-lg p-3 text-sm">
+                                                         <div className="flex justify-between items-start mb-2">
+                                                             <div className="flex items-center gap-2">
+                                                                <span className="bg-blue-500/10 text-blue-400 text-xs px-2 py-0.5 rounded border border-blue-500/20">User: {log.details?.handle || 'Anon'}</span>
+                                                                <span className="text-neutral-500 text-xs">{new Date(log.timestamp).toLocaleString()}</span>
+                                                             </div>
+                                                             <span className="text-xs font-mono text-neutral-600">{log.details?.sessionId}</span>
+                                                         </div>
+                                                         <div className="text-neutral-300 whitespace-pre-wrap font-mono text-xs bg-black/30 p-2 rounded">
+                                                            {log.details?.message || JSON.stringify(log.details)}
+                                                         </div>
+                                                     </div>
+                                                 ))}
+                                             </div>
+                                         )}
+                                     </div>
+                                 )}
+                             </div>
+                         )}
+                     </div>
+                 ))}
+                 
+                 {chatSummary.length === 0 && (
+                     <div className="p-12 text-center text-neutral-500">
+                         <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-20" />
+                         <p>No hay consultas al chat registradas.</p>
+                     </div>
+                 )}
+             </div>
+          </div>
+         )}
 
         {view === 'audit' && (
           <div className="space-y-4">
