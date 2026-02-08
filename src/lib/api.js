@@ -72,6 +72,11 @@ export const apiClient = {
     const { data } = await api.get('/health');
     return data;
   },
+
+  getRatingHistory: async (handle) => {
+    const { data } = await api.get(`/users/${handle}/rating-history`);
+    return data;
+  },
 };
 
 export default api;

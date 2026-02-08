@@ -52,9 +52,7 @@ export default function SubmissionsTable({ submissions }) {
     else if (rating === 1000) key = '1000';
     else if (rating === 1100) key = '1100';
     else if (rating >= 1200) key = '1200+';
-    else if (rating < 800 && rating > 0) key = 'No rating'; // Or 800-900? Let's keep in No rating or 800-900 if user wants?
-    // User requested order: 'No rating', '800 - 900', '1000', '1100', '1200+'
-    // Assuming < 800 goes to No rating for now strictly following labels.
+    else if (rating < 800 && rating > 0) key = 'No rating';
     
     // Push to column
     if (columns[key]) {
@@ -148,22 +146,6 @@ export default function SubmissionsTable({ submissions }) {
                              {sub.contest_id}{sub.problem_index}
                           </div>
 
-                          <div className="flex items-center justify-between mt-2 pt-2 border-t border-dashed">
-                             <div className="flex items-center gap-1 text-xs text-muted-foreground" title={new Date(sub.submission_time).toLocaleString()}>
-                                <Calendar className="w-3 h-3" />
-                                <span>
-                                  {new Date(sub.submission_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })} 
-                                  {' '} 
-                                  {new Date(sub.submission_time).toLocaleDateString('es-PE', { day: 'numeric', month: 'numeric', year: '2-digit' })}
-                                </span>
-                             </div>
-                             {sub.rating && (
-                                <Badge variant="outline" className="text-xs h-5 px-1.5 py-0">
-                                    {sub.rating}
-                                </Badge>
-                             )}
-                          </div>
-
                           {/* Tags */}
                           {sub.tags && sub.tags.length > 0 && (
                             <div className="mt-2 flex flex-wrap gap-1">
@@ -183,6 +165,24 @@ export default function SubmissionsTable({ submissions }) {
                               )}
                             </div>
                           )}
+
+                          <div className="flex items-center justify-between mt-2 pt-2 border-t border-dashed">
+                             <div className="flex items-center gap-1 text-xs text-muted-foreground" title={new Date(sub.submission_time).toLocaleString()}>
+                                <Calendar className="w-3 h-3" />
+                                <span>
+                                  {new Date(sub.submission_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })} 
+                                  {' '} 
+                                  {new Date(sub.submission_time).toLocaleDateString('es-PE', { day: 'numeric', month: 'numeric', year: '2-digit' })}
+                                </span>
+                             </div>
+                             {sub.rating && (
+                                <Badge variant="outline" className="text-xs h-5 px-1.5 py-0">
+                                    {sub.rating}
+                                </Badge>
+                             )}
+                          </div>
+
+                          
                       </div>
                     </div>
                   ))}

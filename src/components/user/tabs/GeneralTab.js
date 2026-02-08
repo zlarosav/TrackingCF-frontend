@@ -1,14 +1,50 @@
+import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Trophy, Target, Hash, Flame, ExternalLink } from 'lucide-react'
+import { Button } from "@/components/ui/button"
+import { Trophy, Target, Hash, Flame, ExternalLink, SortAsc, SortDesc } from 'lucide-react'
 import StreakBadge from "@/components/StreakBadge"
 
 export default function GeneralTab({ user, stats, submissions }) {
+  const [sortBy, setSortBy] = useState('submission_time')
+  const [sortOrder, setSortOrder] = useState('desc')
+
   const generalStats = stats?.generalStats || {}
-  const recentSubmissions = submissions.slice(0, 15)
   const topTags = stats?.topTags || []
-  const favoriteTag = topTags.length > 0 ? topTags[0] : null
-  const otherTags = topTags.slice(1, 5)
+
+  // Logic for sorting
+  const handleSort = (field) => {
+    if (sortBy === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortBy(field)
+      setSortOrder('desc') // Default to desc for new field
+    }
+  }
+
+  const getSortedSubmissions = () => {
+    // Clone to avoid mutating prop
+    let sorted = [...submissions];
+    
+    sorted.sort((a, b) => {
+        let valA = a[sortBy];
+        let valB = b[sortBy];
+
+        // Handle specific fields
+        if (sortBy === 'submission_time') {
+            valA = new Date(valA).getTime();
+            valB = new Date(valB).getTime();
+        }
+
+        if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
+        if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
+        return 0;
+    });
+
+    return sorted.slice(0, 15);
+  }
+
+  const displayedSubmissions = getSortedSubmissions();
 
   const getRatingColor = (rating) => {
     if (!rating) return 'bg-gray-500'
@@ -19,13 +55,10 @@ export default function GeneralTab({ user, stats, submissions }) {
     if (rating < 2100) return 'bg-purple-600'
     if (rating < 2300) return 'bg-orange-500'
     if (rating < 2400) return 'bg-orange-400'
-    return 'bg-red-600' // GM+ styling roughly
+    return 'bg-red-600' 
   }
 
-  // Helper for text color based on rating for badges
   const getRatingBadgeVariant = (rating) => {
-      // Just use default variant but maybe add custom class for color if needed
-      // scalable approach: stick to badge variants or custom
       return "secondary" 
   }
 
@@ -95,12 +128,41 @@ export default function GeneralTab({ user, stats, submissions }) {
 
       {/* Actividad Reciente */}
       <Card className="col-span-1 md:col-span-2 lg:col-span-4">
-        <CardHeader>
-          <CardTitle>Actividad Reciente</CardTitle>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>Registro de Actividad</CardTitle>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground hidden sm:inline">Ordenar por:</span>
+            <Button
+                variant={sortBy === 'rating' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => handleSort('rating')}
+                className="h-8"
+            >
+                Rating
+                {sortBy === 'rating' && (
+                sortOrder === 'asc' ? 
+                    <SortAsc className="ml-2 h-3 w-3" /> : 
+                    <SortDesc className="ml-2 h-3 w-3" />
+                )}
+            </Button>
+            <Button
+                variant={sortBy === 'submission_time' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => handleSort('submission_time')}
+                className="h-8"
+            >
+                Fecha
+                {sortBy === 'submission_time' && (
+                sortOrder === 'asc' ? 
+                    <SortAsc className="ml-2 h-3 w-3" /> : 
+                    <SortDesc className="ml-2 h-3 w-3" />
+                )}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {recentSubmissions.map((sub, i) => (
+            {displayedSubmissions.map((sub, i) => (
               <div 
                 key={i} 
                 className={`
@@ -170,7 +232,7 @@ export default function GeneralTab({ user, stats, submissions }) {
                 )}
               </div>
             ))}
-            {recentSubmissions.length === 0 && (
+            {displayedSubmissions.length === 0 && (
               <div className="col-span-full text-center text-muted-foreground py-8">
                 No hay actividad reciente
               </div>

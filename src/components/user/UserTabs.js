@@ -5,8 +5,9 @@ import GeneralTab from './tabs/GeneralTab'
 import SubmissionsTable from './tabs/SubmissionsTable'
 import MetricsTab from './tabs/MetricsTab'
 import ChatTab from './tabs/ChatTab'
+import ContestsTab from './tabs/ContestsTab'
 import { motion, AnimatePresence } from 'framer-motion'
-import { LayoutDashboard, List, BarChart2, MessageSquare } from 'lucide-react'
+import { LayoutDashboard, List, BarChart2, MessageSquare, Trophy } from 'lucide-react'
 
 export default function UserTabs({ user, submissions, stats, handle }) {
   const [activeTab, setActiveTab] = useState('general')
@@ -15,6 +16,7 @@ export default function UserTabs({ user, submissions, stats, handle }) {
     { id: 'general', label: 'General', icon: LayoutDashboard },
     { id: 'submissions', label: 'Envíos', icon: List },
     { id: 'metrics', label: 'Métricas', icon: BarChart2 },
+    { id: 'contests', label: 'Contests', icon: Trophy },
     { id: 'chat', label: 'Chat AI', icon: MessageSquare },
   ]
 
@@ -72,6 +74,9 @@ export default function UserTabs({ user, submissions, stats, handle }) {
             )}
             {activeTab === 'metrics' && (
               <MetricsTab stats={stats} />
+            )}
+            {activeTab === 'contests' && (
+              <ContestsTab handle={handle} submissions={submissions} />
             )}
             {activeTab === 'chat' && (
               <ChatTab handle={handle} userAvatar={user?.avatar_url} />

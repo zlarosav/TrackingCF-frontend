@@ -47,38 +47,46 @@ export default function LatestSubmissions({ submissions, loading, sortBy, sortOr
   }
 
   return (
-    <div className="space-y-4">
-      {/* Controles de ordenamiento */}
-      <div className="flex items-center justify-between flex-wrap gap-2">
+    <div className="space-y-6">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+           <h2 className="text-2xl font-bold flex items-center gap-2">
+              <span className="text-primary">🕒</span> Últimas Submissions
+           </h2>
+           <p className="text-muted-foreground text-sm">
+              Problemas resueltos recientemente en el periodo seleccionado
+           </p>
+        </div>
+
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Ordenar por:</span>
+          <span className="text-sm text-muted-foreground hidden sm:inline">Ordenar por:</span>
           <Button
             variant={sortBy === 'rating' ? 'default' : 'outline'}
             size="sm"
             onClick={() => handleSort('rating')}
+            className="h-8"
           >
             Rating
             {sortBy === 'rating' && (
               sortOrder === 'asc' ? 
-                <SortAsc className="ml-2 h-4 w-4" /> : 
-                <SortDesc className="ml-2 h-4 w-4" />
+                <SortAsc className="ml-2 h-3 w-3" /> : 
+                <SortDesc className="ml-2 h-3 w-3" />
             )}
           </Button>
           <Button
             variant={sortBy === 'submission_time' ? 'default' : 'outline'}
             size="sm"
             onClick={() => handleSort('submission_time')}
+            className="h-8"
           >
             Fecha
             {sortBy === 'submission_time' && (
               sortOrder === 'asc' ? 
-                <SortAsc className="ml-2 h-4 w-4" /> : 
-                <SortDesc className="ml-2 h-4 w-4" />
+                <SortAsc className="ml-2 h-3 w-3" /> : 
+                <SortDesc className="ml-2 h-3 w-3" />
             )}
           </Button>
-        </div>
-        <div className="text-sm text-muted-foreground">
-          Mostrando {submissions.length} submissions
         </div>
       </div>
 
@@ -176,6 +184,10 @@ export default function LatestSubmissions({ submissions, loading, sortBy, sortOr
               </div>
           )
         })}
+      </div>
+      
+      <div className="text-sm text-muted-foreground">
+          Mostrando {submissions.length} submissions
       </div>
     </div>
   )

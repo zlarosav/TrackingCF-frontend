@@ -262,17 +262,8 @@ export default function HomePage() {
 
       {/* Últimas Submissions */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Clock className="h-5 w-5" />
-            Últimas Submissions
-          </CardTitle>
-          <CardDescription>
-            Problemas resueltos recientemente en el periodo seleccionado
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <LatestSubmissions
+        <CardContent className="pt-6">
+           <LatestSubmissions
             submissions={submissions}
             loading={loadingSubmissions}
             sortBy={sortBy}
