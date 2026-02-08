@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -16,6 +16,8 @@ export default function GeneralTab({ user, stats, submissions }) {
   const [ratingMin, setRatingMin] = useState(800)
   const [ratingMax, setRatingMax] = useState(4000)
   const [hideNoRating, setHideNoRating] = useState(false)
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
   
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1)
@@ -34,15 +36,32 @@ export default function GeneralTab({ user, stats, submissions }) {
     }
   }
 
-  const getFilteredAndSortedSubmissions = () => {
+  const allFilteredSubmissions = useMemo(() => {
     // 1. Filter
     let filtered = submissions.filter(sub => {
-      // Hide no-rating if checked
-      if (hideNoRating && !sub.rating) return false;
+      // 1. Rating Filter
+      const itemRating = sub.rating;
+      if (hideNoRating && !itemRating) return false;
+      if (itemRating) {
+        if (itemRating < ratingMin || itemRating > ratingMax) return false;
+      }
       
-      // Filter by rating range (if sub has rating)
-      if (sub.rating) {
-        if (sub.rating < ratingMin || sub.rating > ratingMax) return false;
+      // 2. Date Filter
+      if (dateFrom || dateTo) {
+        // Parse the sub.submission_time. 
+        const sDate = new Date(sub.submission_time);
+        
+        if (!isNaN(sDate.getTime())) {
+          // Normalize submission date to YYYY-MM-DD based on LOCAL time for comparison
+          // This ensures it matches the date as displayed in the UI
+          const y = sDate.getFullYear();
+          const m = String(sDate.getMonth() + 1).padStart(2, '0');
+          const d = String(sDate.getDate()).padStart(2, '0');
+          const subDateStr = `${y}-${m}-${d}`;
+
+          if (dateFrom && subDateStr < dateFrom) return false;
+          if (dateTo && subDateStr > dateTo) return false;
+        }
       }
       
       return true;
@@ -64,9 +83,8 @@ export default function GeneralTab({ user, stats, submissions }) {
     });
 
     return filtered;
-  }
+  }, [submissions, sortBy, sortOrder, ratingMin, ratingMax, hideNoRating, dateFrom, dateTo]);
 
-  const allFilteredSubmissions = getFilteredAndSortedSubmissions();
   const totalPages = Math.ceil(allFilteredSubmissions.length / pageSize);
   const displayedSubmissions = allFilteredSubmissions.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
@@ -78,10 +96,12 @@ export default function GeneralTab({ user, stats, submissions }) {
     setRatingMin(800);
     setRatingMax(4000);
     setHideNoRating(false);
+    setDateFrom('');
+    setDateTo('');
     setCurrentPage(1);
   }
 
-  const hasActiveFilters = ratingMin !== 800 || ratingMax !== 4000 || hideNoRating;
+  const hasActiveFilters = ratingMin !== 800 || ratingMax !== 4000 || hideNoRating || dateFrom || dateTo;
 
   const ratingOptions = [800, 900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 2700, 2800, 2900, 3000, 4000];
 
@@ -235,7 +255,7 @@ export default function GeneralTab({ user, stats, submissions }) {
 
       {showFilters && (
         <div className="px-6 pb-4 animate-in fade-in slide-in-from-top-2 duration-300">
-          <div className="flex flex-wrap items-center gap-10 p-4 rounded-lg bg-muted/20 border border-dashed">
+          <div className="flex flex-wrap items-start gap-x-10 gap-y-6 p-4 rounded-lg bg-muted/20 border border-dashed">
             {/* Rating Filter Group with Slider and Manual Inputs */}
             <div className="flex-1 min-w-[320px] space-y-4">
                <div className="flex items-center justify-between">
@@ -276,10 +296,8 @@ export default function GeneralTab({ user, stats, submissions }) {
                    minStepsBetweenThumbs={0}
                    value={[ratingMin, ratingMax]}
                    onValueChange={(values) => {
-                     // Ensure min <= max logic
                      const newMin = values[0];
                      const newMax = values[1];
-                     
                      setRatingMin(newMin);
                      setRatingMax(newMax);
                      setCurrentPage(1);
@@ -294,22 +312,50 @@ export default function GeneralTab({ user, stats, submissions }) {
             </div>
 
             {/* Checkbox Hide No Rating */}
-            <div className="space-y-1.5 self-start pt-1">
+            <div className="space-y-1.5 h-full">
                <label className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground block">Opciones</label>
-               <label className="flex items-center gap-2 h-9 cursor-pointer group">
-                  <div className="relative flex items-center select-none">
-                    <input 
-                      type="checkbox" 
-                      className="peer h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary transition-colors cursor-pointer"
-                      id="hide-no-rating"
-                      checked={hideNoRating}
-                      onChange={(e) => { setHideNoRating(e.target.checked); setCurrentPage(1); }}
-                    />
-                  </div>
-                  <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors" htmlFor="hide-no-rating">
-                    Ocultar problemas sin rating
-                  </span>
-               </label>
+               <div className="flex items-center h-9">
+                 <label className="flex items-center gap-2 cursor-pointer group">
+                    <div className="relative flex items-center select-none">
+                      <input 
+                        type="checkbox" 
+                        className="peer h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary transition-colors cursor-pointer"
+                        id="hide-no-rating"
+                        checked={hideNoRating}
+                        onChange={(e) => { setHideNoRating(e.target.checked); setCurrentPage(1); }}
+                      />
+                    </div>
+                    <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">
+                      Ocultar sin rating
+                    </span>
+                 </label>
+               </div>
+            </div>
+
+            <div className="h-12 w-[1px] bg-border/50 hidden lg:block self-center"></div>
+
+            {/* Date Filters */}
+            <div className="flex items-start gap-4 h-full">
+              <div className="space-y-1.5">
+                <label className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground block">Desde</label>
+                <input 
+                  type="date"
+                  value={dateFrom}
+                  max={dateTo || undefined}
+                  onChange={(e) => { setDateFrom(e.target.value); setCurrentPage(1); }}
+                  className="block h-9 bg-background border rounded-md px-3 text-xs font-medium focus:ring-1 focus:ring-primary outline-none shadow-sm cursor-pointer"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground block">Hasta</label>
+                <input 
+                  type="date"
+                  value={dateTo}
+                  min={dateFrom || undefined}
+                  onChange={(e) => { setDateTo(e.target.value); setCurrentPage(1); }}
+                  className="block h-9 bg-background border rounded-md px-3 text-xs font-medium focus:ring-1 focus:ring-primary outline-none shadow-sm cursor-pointer"
+                />
+              </div>
             </div>
           </div>
         </div>
