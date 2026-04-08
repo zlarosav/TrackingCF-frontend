@@ -56,6 +56,11 @@ export const apiClient = {
     return data;
   },
 
+  getContestParticipants: async (platform, contestId) => {
+    const { data } = await api.get(`/contests/${platform}/${contestId}/participants`);
+    return data;
+  },
+
   getAllLatestSubmissions: async (period = 'month', sortBy = 'submission_time', order = 'desc', limit = 20) => {
     const params = new URLSearchParams({
       period,

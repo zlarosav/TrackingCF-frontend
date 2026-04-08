@@ -8,6 +8,16 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 export default function LatestSubmissions({ submissions, loading, sortBy, sortOrder, onSortChange }) {
+  const getProblemUrl = (sub) => {
+    const platform = String(sub.platform || 'CODEFORCES').toUpperCase()
+
+    if (platform === 'ATCODER') {
+      return `https://atcoder.jp/contests/${sub.contest_id}/tasks/${sub.problem_index}`
+    }
+
+    return `https://codeforces.com/contest/${sub.contest_id}/problem/${sub.problem_index}`
+  }
+
   const handleSort = (field) => {
     if (sortBy === field) {
       onSortChange(field, sortOrder === 'asc' ? 'desc' : 'asc');
@@ -92,7 +102,7 @@ export default function LatestSubmissions({ submissions, loading, sortBy, sortOr
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {submissions.map((sub, i) => {
-          const problemUrl = `https://codeforces.com/contest/${sub.contest_id}/problem/${sub.problem_index}`
+          const problemUrl = getProblemUrl(sub)
           const date = new Date(sub.submission_time)
           
           return (
@@ -130,6 +140,10 @@ export default function LatestSubmissions({ submissions, loading, sortBy, sortOr
                   </div>
                   <div className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
                     <span className="font-mono">{sub.contest_id}{sub.problem_index}</span>
+                    <span>•</span>
+                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5 font-normal">
+                      {String(sub.platform || 'CODEFORCES')}
+                    </Badge>
                     <span>•</span>
                     <span>
                       {date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })} 

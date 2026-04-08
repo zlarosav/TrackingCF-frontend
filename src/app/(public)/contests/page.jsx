@@ -3,9 +3,11 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { DateTime } from 'luxon'
+import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ExternalLink, Calendar, Clock } from 'lucide-react'
+import { apiClient } from '@/lib/api'
 
 export default function ContestsPage() {
   const [allContests, setAllContests] = useState([])
@@ -16,6 +18,9 @@ export default function ContestsPage() {
   
   const [lastUpdated, setLastUpdated] = useState(null)
   const [filter, setFilter] = useState('ALL') // ALL, CODEFORCES, LEETCODE, ATCODER, CODECHEF
+  const [expandedContest, setExpandedContest] = useState(null)
+  const [participantsByContest, setParticipantsByContest] = useState({})
+  const [loadingParticipants, setLoadingParticipants] = useState({})
   
   // Refresh counters every second
   const [now, setNow] = useState(DateTime.now())
@@ -134,7 +139,37 @@ export default function ContestsPage() {
       return `https://codeforces.com/contests/${contest.id}`;
   }
 
+    const getContestKey = (contest) => `${contest.platform || 'CODEFORCES'}:${contest.id}`
+
+    const toggleParticipants = async (contest) => {
+      const key = getContestKey(contest)
+
+      if (expandedContest === key) {
+        setExpandedContest(null)
+        return
+      }
+
+      setExpandedContest(key)
+
+      if (participantsByContest[key]) return
+
+      setLoadingParticipants(prev => ({ ...prev, [key]: true }))
+      try {
+        const response = await apiClient.getContestParticipants(contest.platform || 'CODEFORCES', contest.id)
+        if (response.success) {
+          setParticipantsByContest(prev => ({ ...prev, [key]: response.data || [] }))
+        }
+      } catch (err) {
+        console.error('Error cargando participantes:', err)
+        setParticipantsByContest(prev => ({ ...prev, [key]: [] }))
+      } finally {
+        setLoadingParticipants(prev => ({ ...prev, [key]: false }))
+      }
+    }
+
   const renderContestCard = (contest, isPast = false) => {
+      const key = getContestKey(contest)
+      const participants = participantsByContest[key] || []
       const startDate = DateTime.fromSeconds(contest.startTimeSeconds).setZone('America/Lima');
       const nowMillis = now.toMillis();
       const startMillis = contest.startTimeSeconds * 1000;
@@ -191,6 +226,43 @@ export default function ContestsPage() {
                         {getTimeRemaining(contest.startTimeSeconds, contest.durationSeconds)}
                      </div>
                   </div>
+
+                    {isPast && (
+                      <div className="mt-4 border-t pt-3 space-y-3">
+                        <button
+                          onClick={() => toggleParticipants(contest)}
+                          className="text-sm font-medium text-primary hover:underline"
+                        >
+                          {expandedContest === key
+                            ? 'Ocultar participantes'
+                            : `Ver participantes${participants.length ? ` (${participants.length})` : ''}`}
+                        </button>
+
+                        {expandedContest === key && (
+                          <div className="space-y-2">
+                            {loadingParticipants[key] ? (
+                              <div className="text-sm text-muted-foreground">Cargando participantes...</div>
+                            ) : participants.length > 0 ? (
+                              <div className="flex flex-wrap gap-2">
+                                {participants.map((participant) => (
+                                  <Link
+                                    key={participant.id}
+                                    href={`/user/${participant.handle}`}
+                                    className="inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium hover:bg-muted transition-colors"
+                                  >
+                                    {participant.handle}
+                                  </Link>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="text-sm text-muted-foreground">
+                                Aún no hay participantes rastreados para este contest.
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
             </div>
           </CardContent>
         </Card>
