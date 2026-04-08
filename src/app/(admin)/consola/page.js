@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import { Lock, Eye, EyeOff, UserPlus, FileText, Users, Activity, LogOut, Filter, X, Calendar, Megaphone, Trash2, AlertTriangle, RefreshCw, CheckCircle, XCircle, Edit, ChevronDown, ChevronUp, ArrowRight, MessageSquare } from 'lucide-react';
 import { CreateNotification } from '@/components/admin/CreateNotification';
@@ -19,8 +19,25 @@ export default function AdminConsole() {
   const [view, setView] = useState('users'); // users | audit | announcements | chat
   const [users, setUsers] = useState([]);
   const [logs, setLogs] = useState([]);
-  const [newHandle, setNewHandle] = useState('');
+  const [newUser, setNewUser] = useState({
+    handle: '',
+    leetcodeHandle: '',
+    atcoderHandle: '',
+    codechefHandle: ''
+  });
   const [actionLoading, setActionLoading] = useState(false);
+  const [userSearch, setUserSearch] = useState('');
+  const [nicknameEditorOpen, setNicknameEditorOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
+  const [nicknameForm, setNicknameForm] = useState({
+    newHandle: '',
+    leetcodeHandle: '',
+    atcoderHandle: '',
+    codechefHandle: ''
+  });
+  const [nicknameSaving, setNicknameSaving] = useState(false);
+  const [featureFlags, setFeatureFlags] = useState({ atcoderSubmissions: false });
+  const [featureSaving, setFeatureSaving] = useState(false);
 
   // Audit Filters
   const [filters, setFilters] = useState({ ip: '', method: '', endpoint: '', startDate: '', endDate: '' });
@@ -59,6 +76,7 @@ export default function AdminConsole() {
     try {
       if (view === 'users') {
           await fetchUsers(authToken);
+          await fetchFeatureFlags(authToken);
       } else if (view === 'audit') {
           if (auditViewMode === 'ip') {
               await fetchAuditSummary(authToken);
@@ -81,7 +99,10 @@ export default function AdminConsole() {
 
   useEffect(() => {
       if (isAuthenticated && token) {
-          if (view === 'users') fetchUsers(token);
+        if (view === 'users') {
+          fetchUsers(token);
+          fetchFeatureFlags(token);
+        }
           if (view === 'audit') {
                if (auditViewMode === 'ip') fetchAuditSummary(token);
                else fetchLogs(token, activeFilters);
@@ -114,6 +135,7 @@ export default function AdminConsole() {
       setIsAuthenticated(true);
       // Fetch initial data based on default view
       await fetchUsers(newToken);
+      await fetchFeatureFlags(newToken);
       setLoading(false);
     } catch (err) {
       setLoginError(err.response?.data?.error || 'Error al iniciar sesión');
@@ -131,6 +153,40 @@ export default function AdminConsole() {
       setUsers(res.data.data);
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const fetchFeatureFlags = async (authToken) => {
+    try {
+      const res = await axios.get(`${getApiUrl()}/admin/feature-flags`, {
+        headers: { Authorization: `Bearer ${authToken}` }
+      });
+
+      setFeatureFlags({
+        atcoderSubmissions: !!res.data?.data?.atcoderSubmissions
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const toggleAtcoderSubmissions = async () => {
+    const nextValue = !featureFlags.atcoderSubmissions;
+    setFeatureSaving(true);
+
+    try {
+      await axios.put(
+        `${getApiUrl()}/admin/feature-flags/atcoder-submissions`,
+        { enabled: nextValue },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setFeatureFlags((prev) => ({ ...prev, atcoderSubmissions: nextValue }));
+      alert(`AtCoder submissions ${nextValue ? 'activado' : 'desactivado'}`);
+    } catch (err) {
+      alert('Error al actualizar flag: ' + (err.response?.data?.error || err.message));
+    } finally {
+      setFeatureSaving(false);
     }
   };
 
@@ -242,19 +298,24 @@ export default function AdminConsole() {
 
   const handleAddUser = async (e) => {
     e.preventDefault();
-    if (!newHandle) return;
+    if (!newUser.handle) return;
     setActionLoading(true);
 
     try {
       const res = await axios.post(`${getApiUrl()}/admin/users`, 
-        { handle: newHandle },
+        {
+          handle: newUser.handle,
+          leetcodeHandle: newUser.leetcodeHandle || undefined,
+          atcoderHandle: newUser.atcoderHandle || undefined,
+          codechefHandle: newUser.codechefHandle || undefined
+        },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setNewHandle('');
+      setNewUser({ handle: '', leetcodeHandle: '', atcoderHandle: '', codechefHandle: '' });
       fetchUsers(token); 
       
-      const { newSubmissions, streak, rank } = res.data.data || {};
-      alert(`✅ Usuario agregado exitosamente!\n\nDatos iniciales:\n- Submissions: ${newSubmissions}\n- Racha: ${streak} días\n- Rango: ${rank}`);
+      const { newSubmissions, streak, rank, leetcodeHandle, atcoderHandle, codechefHandle } = res.data.data || {};
+      alert(`✅ Usuario agregado exitosamente!\n\nDatos iniciales:\n- Submissions: ${newSubmissions}\n- Racha: ${streak} días\n- Rango: ${rank}\n- LeetCode: ${leetcodeHandle || '—'}\n- AtCoder: ${atcoderHandle || '—'}\n- CodeChef: ${codechefHandle || '—'}`);
     } catch (err) {
       const msg = err.response?.data?.error || 'Error al agregar';
       alert(msg);
@@ -342,19 +403,62 @@ export default function AdminConsole() {
     }
   };
 
-  const handleRenameUser = async (userHandle) => {
-    const newHandle = prompt(`Renombrar usuario '${userHandle}'\n\nIngresa el NUEVO handle de Codeforces:`);
-    if (!newHandle || newHandle === userHandle) return;
+  const openNicknameEditor = (user) => {
+    setEditingUser(user);
+    setNicknameForm({
+      newHandle: user.handle || '',
+      leetcodeHandle: user.leetcode_handle || '',
+      atcoderHandle: user.atcoder_handle || '',
+      codechefHandle: user.codechef_handle || ''
+    });
+    setNicknameEditorOpen(true);
+  };
+
+  const closeNicknameEditor = () => {
+    setNicknameEditorOpen(false);
+    setEditingUser(null);
+    setNicknameSaving(false);
+    setNicknameForm({ newHandle: '', leetcodeHandle: '', atcoderHandle: '', codechefHandle: '' });
+  };
+
+  const saveNicknames = async () => {
+    if (!editingUser) return;
+
+    const currentHandle = editingUser.handle;
+    const desiredHandle = nicknameForm.newHandle.trim();
+
+    if (!desiredHandle) {
+      alert('El handle principal no puede estar vacío');
+      return;
+    }
+
+    setNicknameSaving(true);
 
     try {
-        await axios.put(`${getApiUrl()}/admin/users/${userHandle}/rename`, 
-            { newHandle },
-            { headers: { Authorization: `Bearer ${token}` } }
+      if (desiredHandle !== currentHandle) {
+        await axios.put(
+          `${getApiUrl()}/admin/users/${currentHandle}/rename`,
+          { newHandle: desiredHandle },
+          { headers: { Authorization: `Bearer ${token}` } }
         );
-        alert(`Usuario renombrado a '${newHandle}'`);
-        fetchUsers(token);
+      }
+
+      await axios.put(
+        `${getApiUrl()}/admin/users/${desiredHandle}/platform-handles`,
+        {
+          leetcodeHandle: nicknameForm.leetcodeHandle.trim() || null,
+          atcoderHandle: nicknameForm.atcoderHandle.trim() || null,
+          codechefHandle: nicknameForm.codechefHandle.trim() || null
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      await fetchUsers(token);
+      closeNicknameEditor();
+      alert('Nicknames actualizados correctamente');
     } catch (err) {
-        alert('Error al renombrar: ' + (err.response?.data?.error || err.message));
+      alert('Error al guardar nicknames: ' + (err.response?.data?.error || err.message));
+      setNicknameSaving(false);
     }
   };
 
@@ -369,6 +473,20 @@ export default function AdminConsole() {
           alert('Error eliminando banner');
       }
   };
+
+  const filteredUsers = useMemo(() => {
+    const query = userSearch.trim().toLowerCase();
+    if (!query) return users;
+
+    return users.filter((user) => {
+      return [
+        user.handle,
+        user.leetcode_handle,
+        user.atcoder_handle,
+        user.codechef_handle
+      ].some((value) => String(value || '').toLowerCase().includes(query));
+    });
+  }, [users, userSearch]);
 
   if (!isAuthenticated && !loading) {
     return (
@@ -476,19 +594,57 @@ export default function AdminConsole() {
         {/* Content */}
         {view === 'users' && (
           <div className="space-y-6">
+            <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4 md:p-5 flex flex-col gap-4">
+                <div>
+                  <h3 className="font-semibold text-white">Feature Flag: AtCoder Submissions</h3>
+                  <p className="text-sm text-neutral-400">Controla si el tracker guarda submissions reales de AtCoder. Codeforces sigue funcionando igual.</p>
+                </div>
+                <button
+                  onClick={toggleAtcoderSubmissions}
+                  disabled={featureSaving}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${featureFlags.atcoderSubmissions ? 'bg-green-600 hover:bg-green-500 text-white' : 'bg-neutral-800 hover:bg-neutral-700 text-neutral-200'}`}
+                >
+                  {featureSaving ? 'Guardando...' : featureFlags.atcoderSubmissions ? 'Activo' : 'Desactivado'}
+                </button>
+              </div>
+
             {/* Add User */}
-            <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-6">
+            <div className="bg-gradient-to-br from-neutral-900 via-neutral-900 to-neutral-950 border border-neutral-800 rounded-2xl p-6 shadow-[0_10px_40px_-25px_rgba(59,130,246,0.55)]">
               <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                 <UserPlus className="w-5 h-5 text-green-500" /> Agregar Usuario
               </h3>
-              <form onSubmit={handleAddUser} className="flex gap-4">
-                <input 
-                  type="text" 
-                  placeholder="Codeforces Handle"
-                  className="flex-1 bg-neutral-950 border border-neutral-800 text-white px-4 py-2 rounded-lg focus:outline-none focus:border-blue-500"
-                  value={newHandle}
-                  onChange={(e) => setNewHandle(e.target.value)}
-                />
+              <p className="text-sm text-neutral-400 mb-4">Puedes registrar el handle principal de Codeforces y, opcionalmente, los nicknames en otras plataformas.</p>
+              <form onSubmit={handleAddUser} className="space-y-4">
+                <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                  <input 
+                    type="text" 
+                    placeholder="Handle principal"
+                    className="bg-neutral-950 border border-neutral-800 text-white px-4 py-2 rounded-lg focus:outline-none focus:border-blue-500"
+                    value={newUser.handle}
+                    onChange={(e) => setNewUser(prev => ({ ...prev, handle: e.target.value }))}
+                  />
+                  <input 
+                    type="text" 
+                    placeholder="LeetCode username"
+                    className="bg-neutral-950 border border-neutral-800 text-white px-4 py-2 rounded-lg focus:outline-none focus:border-blue-500"
+                    value={newUser.leetcodeHandle}
+                    onChange={(e) => setNewUser(prev => ({ ...prev, leetcodeHandle: e.target.value }))}
+                  />
+                  <input 
+                    type="text" 
+                    placeholder="AtCoder username"
+                    className="bg-neutral-950 border border-neutral-800 text-white px-4 py-2 rounded-lg focus:outline-none focus:border-blue-500"
+                    value={newUser.atcoderHandle}
+                    onChange={(e) => setNewUser(prev => ({ ...prev, atcoderHandle: e.target.value }))}
+                  />
+                  <input 
+                    type="text" 
+                    placeholder="CodeChef username"
+                    className="bg-neutral-950 border border-neutral-800 text-white px-4 py-2 rounded-lg focus:outline-none focus:border-blue-500"
+                    value={newUser.codechefHandle}
+                    onChange={(e) => setNewUser(prev => ({ ...prev, codechefHandle: e.target.value }))}
+                  />
+                </div>
                 <button 
                   type="submit"
                   disabled={actionLoading}
@@ -499,9 +655,38 @@ export default function AdminConsole() {
               </form>
             </div>
 
+            <div className="grid gap-3 md:grid-cols-3">
+              <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4">
+                <p className="text-xs uppercase tracking-wide text-neutral-500">Total usuarios</p>
+                <p className="text-2xl font-bold mt-1">{users.length}</p>
+              </div>
+              <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4">
+                <p className="text-xs uppercase tracking-wide text-neutral-500">Visibles</p>
+                <p className="text-2xl font-bold mt-1 text-green-400">{users.filter((u) => !u.is_hidden).length}</p>
+              </div>
+              <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4">
+                <p className="text-xs uppercase tracking-wide text-neutral-500">Tracking activo</p>
+                <p className="text-2xl font-bold mt-1 text-blue-400">{users.filter((u) => u.enabled).length}</p>
+              </div>
+            </div>
+
+            <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4">
+              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <p className="text-sm text-neutral-400">Edita nicknames con el botón <span className="text-cyan-400 font-semibold">Editar nicknames</span> en cada fila.</p>
+                <input
+                  type="text"
+                  value={userSearch}
+                  onChange={(e) => setUserSearch(e.target.value)}
+                  placeholder="Buscar por handle, LC, AC o CC"
+                  className="w-full md:w-80 bg-neutral-950 border border-neutral-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:border-blue-500"
+                />
+              </div>
+            </div>
+
             {/* Users List */}
             <div className="bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden">
-              <table className="w-full text-left">
+              <div className="overflow-x-auto">
+              <table className="w-full text-left min-w-[980px]">
                 <thead className="bg-neutral-950 text-neutral-400 text-xs uppercase font-semibold">
                   <tr>
                     <th className="p-4">Handle</th>
@@ -511,9 +696,18 @@ export default function AdminConsole() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-neutral-800">
-                  {users.map(user => (
+                  {filteredUsers.map(user => (
                     <tr key={user.handle} className="hover:bg-neutral-800/50 transition-colors">
-                      <td className="p-4 font-medium">{user.handle}</td>
+                      <td className="p-4 font-medium">
+                        <div className="space-y-1">
+                          <div className="text-base">{user.handle}</div>
+                          <div className="flex flex-wrap gap-2 text-xs">
+                            <span className="bg-neutral-800 px-2 py-0.5 rounded">LC: {user.leetcode_handle || '—'}</span>
+                            <span className="bg-neutral-800 px-2 py-0.5 rounded">AC: {user.atcoder_handle || '—'}</span>
+                            <span className="bg-neutral-800 px-2 py-0.5 rounded">CC: {user.codechef_handle || '—'}</span>
+                          </div>
+                        </div>
+                      </td>
                       <td className="p-4">
                         {user.is_hidden ? (
                           <span className="bg-red-500/10 text-red-500 px-2 py-1 rounded text-xs border border-red-500/20">Oculto</span>
@@ -524,57 +718,65 @@ export default function AdminConsole() {
                       <td className="p-4 text-neutral-400 text-sm">
                         {user.last_updated ? new Date(user.last_updated).toLocaleString() : '-'}
                       </td>
-                      <td className="p-4 text-right flex justify-end gap-2">
+                      <td className="p-4">
+                        <div className="flex flex-wrap justify-end gap-2">
                         <button 
                           onClick={() => toggleVisibility(user.handle, user.is_hidden)}
-                          className="p-1 hover:bg-neutral-800 rounded transition-colors text-neutral-400 hover:text-white"
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-neutral-950 border border-neutral-700 hover:border-neutral-500 rounded-lg transition-colors text-neutral-300 hover:text-white"
                           title={user.is_hidden ? "Mostrar usuario" : "Ocultar usuario"}
                         >
                           {user.is_hidden ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                          <span className="text-xs">Visibilidad</span>
                         </button>
                         
                         <button 
                           onClick={() => toggleEnabled(user.handle, user.enabled)}
-                          className={`p-1 hover:bg-neutral-800 rounded transition-colors ${user.enabled ? 'text-green-500 hover:text-green-400' : 'text-red-500 hover:text-red-400'}`}
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-neutral-950 border rounded-lg transition-colors ${user.enabled ? 'text-green-400 border-green-900/60 hover:border-green-500/50' : 'text-red-400 border-red-900/60 hover:border-red-500/50'}`}
                           title={user.enabled ? "Deshabilitar tracking" : "Habilitar tracking"}
                         >
                           {user.enabled ? <CheckCircle className="w-5 h-5" /> : <XCircle className="w-5 h-5" />}
+                          <span className="text-xs">Tracking</span>
                         </button>
 
                          <button 
                           onClick={() => handleManualTrack(user.handle)}
-                          className={`p-1 hover:bg-neutral-800 rounded transition-colors ${loadingUsers[user.handle] ? 'animate-spin text-blue-500' : 'text-neutral-400 hover:text-blue-400'}`}
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-neutral-950 border border-neutral-700 hover:border-blue-500/50 rounded-lg transition-colors ${loadingUsers[user.handle] ? 'text-blue-500' : 'text-neutral-300 hover:text-blue-400'}`}
                           title="Forzar actualización ahora"
                           disabled={loadingUsers[user.handle]}
                         >
-                          <RefreshCw className="w-5 h-5" />
+                          <RefreshCw className={`w-5 h-5 ${loadingUsers[user.handle] ? 'animate-spin' : ''}`} />
+                          <span className="text-xs">Sync</span>
                         </button>
 
                          <button 
-                          onClick={() => handleRenameUser(user.handle)}
-                          className="p-1 hover:bg-neutral-800 rounded transition-colors text-neutral-400 hover:text-amber-500"
-                          title="Renombrar usuario"
+                          onClick={() => openNicknameEditor(user)}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-cyan-950/40 border border-cyan-900/70 hover:border-cyan-500/60 rounded-lg transition-colors text-cyan-300 hover:text-cyan-200"
+                          title="Editar handle principal y nicknames"
                         >
                           <Edit className="w-5 h-5" />
+                          <span className="text-xs">Editar nicknames</span>
                         </button>
 
                          <button 
                           onClick={() => handleDeleteUser(user.handle)}
-                          className="p-1 hover:bg-neutral-800 rounded transition-colors text-neutral-400 hover:text-red-500"
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-neutral-950 border border-neutral-700 hover:border-red-500/50 rounded-lg transition-colors text-neutral-300 hover:text-red-400"
                           title="Eliminar usuario permanentemente"
                         >
                           <Trash2 className="w-5 h-5" />
+                          <span className="text-xs">Eliminar</span>
                         </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
-                  {users.length === 0 && (
+                  {filteredUsers.length === 0 && (
                     <tr>
-                      <td colSpan="4" className="p-8 text-center text-neutral-500">No hay usuarios</td>
+                      <td colSpan="4" className="p-8 text-center text-neutral-500">No hay usuarios para el filtro actual</td>
                     </tr>
                   )}
                 </tbody>
               </table>
+              </div>
             </div>
           </div>
         )}
@@ -1023,6 +1225,91 @@ export default function AdminConsole() {
                     </form>
                 </div>
             </div>
+        )}
+
+        {nicknameEditorOpen && editingUser && (
+          <div className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="w-full max-w-2xl bg-neutral-900 border border-neutral-700 rounded-2xl shadow-2xl overflow-hidden">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-800">
+                <div>
+                  <h3 className="text-lg font-bold">Editar Nicknames</h3>
+                  <p className="text-sm text-neutral-400">Usuario actual: {editingUser.handle}</p>
+                </div>
+                <button
+                  onClick={closeNicknameEditor}
+                  className="text-neutral-400 hover:text-white transition-colors"
+                  title="Cerrar"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="p-6 space-y-4">
+                <div>
+                  <label className="block text-sm text-neutral-400 mb-1">Handle principal (Codeforces)</label>
+                  <input
+                    type="text"
+                    value={nicknameForm.newHandle}
+                    onChange={(e) => setNicknameForm((prev) => ({ ...prev, newHandle: e.target.value }))}
+                    className="w-full bg-neutral-950 border border-neutral-700 text-white px-4 py-2 rounded-lg focus:outline-none focus:border-cyan-500"
+                    placeholder="Nuevo handle principal"
+                  />
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-3">
+                  <div>
+                    <label className="block text-sm text-neutral-400 mb-1">LeetCode</label>
+                    <input
+                      type="text"
+                      value={nicknameForm.leetcodeHandle}
+                      onChange={(e) => setNicknameForm((prev) => ({ ...prev, leetcodeHandle: e.target.value }))}
+                      className="w-full bg-neutral-950 border border-neutral-700 text-white px-4 py-2 rounded-lg focus:outline-none focus:border-cyan-500"
+                      placeholder="nickname o vacío"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-neutral-400 mb-1">AtCoder</label>
+                    <input
+                      type="text"
+                      value={nicknameForm.atcoderHandle}
+                      onChange={(e) => setNicknameForm((prev) => ({ ...prev, atcoderHandle: e.target.value }))}
+                      className="w-full bg-neutral-950 border border-neutral-700 text-white px-4 py-2 rounded-lg focus:outline-none focus:border-cyan-500"
+                      placeholder="nickname o vacío"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-neutral-400 mb-1">CodeChef</label>
+                    <input
+                      type="text"
+                      value={nicknameForm.codechefHandle}
+                      onChange={(e) => setNicknameForm((prev) => ({ ...prev, codechefHandle: e.target.value }))}
+                      className="w-full bg-neutral-950 border border-neutral-700 text-white px-4 py-2 rounded-lg focus:outline-none focus:border-cyan-500"
+                      placeholder="nickname o vacío"
+                    />
+                  </div>
+                </div>
+
+                <p className="text-xs text-neutral-500">Si dejas un campo de plataforma vacío, se guarda como null.</p>
+              </div>
+
+              <div className="px-6 py-4 border-t border-neutral-800 flex items-center justify-end gap-3 bg-neutral-950/40">
+                <button
+                  onClick={closeNicknameEditor}
+                  disabled={nicknameSaving}
+                  className="px-4 py-2 rounded-lg border border-neutral-700 text-neutral-300 hover:text-white hover:border-neutral-500 transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={saveNicknames}
+                  disabled={nicknameSaving}
+                  className="px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-medium transition-colors"
+                >
+                  {nicknameSaving ? 'Guardando...' : 'Guardar cambios'}
+                </button>
+              </div>
+            </div>
+          </div>
         )}
       </main>
     </div>
