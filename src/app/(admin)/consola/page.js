@@ -594,19 +594,19 @@ export default function AdminConsole() {
         {/* Content */}
         {view === 'users' && (
           <div className="space-y-6">
-            <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4 md:p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-              <div>
-                <h3 className="font-semibold text-white">Feature Flag: AtCoder Submissions</h3>
-                <p className="text-sm text-neutral-400">Controla si el tracker guarda submissions reales de AtCoder. Codeforces sigue funcionando igual.</p>
+            <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4 md:p-5 flex flex-col gap-4">
+                <div>
+                  <h3 className="font-semibold text-white">Feature Flag: AtCoder Submissions</h3>
+                  <p className="text-sm text-neutral-400">Controla si el tracker guarda submissions reales de AtCoder. Codeforces sigue funcionando igual.</p>
+                </div>
+                <button
+                  onClick={toggleAtcoderSubmissions}
+                  disabled={featureSaving}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${featureFlags.atcoderSubmissions ? 'bg-green-600 hover:bg-green-500 text-white' : 'bg-neutral-800 hover:bg-neutral-700 text-neutral-200'}`}
+                >
+                  {featureSaving ? 'Guardando...' : featureFlags.atcoderSubmissions ? 'Activo' : 'Desactivado'}
+                </button>
               </div>
-              <button
-                onClick={toggleAtcoderSubmissions}
-                disabled={featureSaving}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors ${featureFlags.atcoderSubmissions ? 'bg-green-600 hover:bg-green-500 text-white' : 'bg-neutral-800 hover:bg-neutral-700 text-neutral-200'}`}
-              >
-                {featureSaving ? 'Guardando...' : featureFlags.atcoderSubmissions ? 'Activo' : 'Desactivado'}
-              </button>
-            </div>
 
             {/* Add User */}
             <div className="bg-gradient-to-br from-neutral-900 via-neutral-900 to-neutral-950 border border-neutral-800 rounded-2xl p-6 shadow-[0_10px_40px_-25px_rgba(59,130,246,0.55)]">

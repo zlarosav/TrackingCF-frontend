@@ -31,6 +31,8 @@ export default function HomePage() {
   const [period, setPeriod] = useState('month')
   const [sortBy, setSortBy] = useState('submission_time')
   const [sortOrder, setSortOrder] = useState('desc')
+  const [platformFilter, setPlatformFilter] = useState('all')
+  const [atcoderEnabled, setAtcoderEnabled] = useState(false)
   const [userSortBy, setUserSortBy] = useState('total_score')
   const [userSortOrder, setUserSortOrder] = useState('desc')
 
@@ -59,9 +61,13 @@ export default function HomePage() {
   const fetchSubmissions = async () => {
     try {
       setLoadingSubmissions(true)
-      const response = await apiClient.getAllLatestSubmissions(period, sortBy, sortOrder, 18)
+      const response = await apiClient.getAllLatestSubmissions(period, sortBy, sortOrder, 18, platformFilter)
       if (response.success) {
         setSubmissions(response.data.submissions)
+        setAtcoderEnabled(!!response.data?.flags?.atcoderSubmissions)
+        if (response.data?.platform && response.data.platform !== platformFilter) {
+          setPlatformFilter(response.data.platform)
+        }
       }
     } catch (err) {
       console.error('Error al cargar submissions:', err)
@@ -88,7 +94,7 @@ export default function HomePage() {
   useEffect(() => {
     fetchUsers()
     fetchSubmissions()
-  }, [period, sortBy, sortOrder])
+  }, [period, sortBy, sortOrder, platformFilter])
 
   if (loading && users.length === 0) {
     return (
@@ -268,6 +274,9 @@ export default function HomePage() {
             loading={loadingSubmissions}
             sortBy={sortBy}
             sortOrder={sortOrder}
+              platformFilter={platformFilter}
+              atcoderEnabled={atcoderEnabled}
+              onPlatformChange={setPlatformFilter}
             onSortChange={(field, order) => {
               setSortBy(field);
               setSortOrder(order);

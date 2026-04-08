@@ -61,12 +61,13 @@ export const apiClient = {
     return data;
   },
 
-  getAllLatestSubmissions: async (period = 'month', sortBy = 'submission_time', order = 'desc', limit = 20) => {
+  getAllLatestSubmissions: async (period = 'month', sortBy = 'submission_time', order = 'desc', limit = 20, platform = 'all') => {
     const params = new URLSearchParams({
       period,
       sortBy,
       order,
-      limit: limit.toString()
+      limit: limit.toString(),
+      platform
     });
     const { data } = await api.get(`/submissions?${params.toString()}`);
     return data;

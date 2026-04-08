@@ -2,12 +2,37 @@
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { ExternalLink, SortAsc, SortDesc, User } from 'lucide-react'
+import { ExternalLink, SortAsc, SortDesc, User, Layers } from 'lucide-react'
 import { Skeleton } from "@/components/ui/skeleton"
 import Image from 'next/image'
 import Link from 'next/link'
 
-export default function LatestSubmissions({ submissions, loading, sortBy, sortOrder, onSortChange }) {
+export default function LatestSubmissions({
+  submissions,
+  loading,
+  sortBy,
+  sortOrder,
+  platformFilter,
+  atcoderEnabled,
+  onPlatformChange,
+  onSortChange
+}) {
+  const getAtcoderTaskCode = (problemIndex) => {
+    if (!problemIndex) return ''
+    const last = String(problemIndex).split('_').pop() || ''
+    return last.toUpperCase()
+  }
+
+  const getCfEquivalentLabel = (sub) => {
+    const platform = String(sub.platform || '').toUpperCase()
+    if (platform !== 'ATCODER') return null
+
+    const tag = (sub.tags || []).find((t) => String(t).startsWith('CF_EQ_'))
+    if (!tag) return null
+
+    return String(tag).replace('CF_EQ_', 'CF~')
+  }
+
   const getProblemUrl = (sub) => {
     const platform = String(sub.platform || 'CODEFORCES').toUpperCase()
 
@@ -59,7 +84,8 @@ export default function LatestSubmissions({ submissions, loading, sortBy, sortOr
   return (
     <div className="space-y-6">
       {/* Header Section */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <div className="flex flex-col gap-4 rounded-xl border bg-gradient-to-r from-background via-background to-muted/40 p-4 md:p-5">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
            <h2 className="text-2xl font-bold flex items-center gap-2">
               <span className="text-primary">🕒</span> Últimas Submissions
@@ -100,101 +126,166 @@ export default function LatestSubmissions({ submissions, loading, sortBy, sortOr
         </div>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+          <div className="text-xs text-muted-foreground uppercase tracking-wide flex items-center gap-1.5">
+            <Layers className="h-3.5 w-3.5" /> Plataforma
+          </div>
+          <div className="inline-flex rounded-lg border p-1 bg-muted/40">
+            <button
+              type="button"
+              onClick={() => onPlatformChange('all')}
+              className={`px-3 py-1.5 text-xs rounded-md transition-colors ${platformFilter === 'all' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+            >
+              Todas
+            </button>
+            <button
+              type="button"
+              onClick={() => onPlatformChange('codeforces')}
+              className={`px-3 py-1.5 text-xs rounded-md transition-colors ${platformFilter === 'codeforces' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+            >
+              Codeforces
+            </button>
+            <button
+              type="button"
+              onClick={() => atcoderEnabled && onPlatformChange('atcoder')}
+              disabled={!atcoderEnabled}
+              className={`px-3 py-1.5 text-xs rounded-md transition-colors ${platformFilter === 'atcoder' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'} ${!atcoderEnabled ? 'opacity-40 cursor-not-allowed' : ''}`}
+              title={!atcoderEnabled ? 'AtCoder submissions está desactivado en backend' : 'Filtrar por AtCoder'}
+            >
+              AtCoder
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {submissions.map((sub, i) => {
           const problemUrl = getProblemUrl(sub)
           const date = new Date(sub.submission_time)
+          const platform = String(sub.platform || 'CODEFORCES').toUpperCase()
+          const problemCode = platform === 'ATCODER'
+            ? `${sub.contest_id} ${getAtcoderTaskCode(sub.problem_index)}`
+            : `${sub.contest_id}${sub.problem_index}`
+          const cfEquivalent = getCfEquivalentLabel(sub)
           
           return (
              <div 
                 key={sub.id || i} 
                 className={`
-                    flex items-center justify-between p-3 rounded-lg border bg-card 
-                    hover:shadow-md transition-all group
-                    relative overflow-hidden
+                  flex flex-col p-4 rounded-lg border bg-card/90 backdrop-blur-sm
+                   hover:shadow-lg transition-all group
+                   relative overflow-hidden
                 `}
               >
-                {/* Colored accent bar on left */}
-                <div className={`absolute left-0 top-0 bottom-0 w-1 ${getRatingColor(sub.rating)}`} />
+                {/* Colored accent bar on top */}
+                <div className={`absolute top-0 left-0 right-0 h-1 ${getRatingColor(sub.rating)}`} />
 
-                <div className="flex-1 ml-3 min-w-0 mr-2">
-                  <div className="font-semibold truncate flex items-center gap-2">
-                      <a 
-                        href={problemUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-base truncate hover:underline hover:text-primary transition-colors"
-                        title={sub.problem_name}
-                      >
-                        {sub.problem_name}
-                      </a>
-                      <a 
-                        href={problemUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-primary"
-                        title="Ver problema"
-                      >
-                         <ExternalLink className="w-4 h-4" />
-                      </a>
+                {/* Problem Section */}
+                <div className="pt-1 flex-1">
+                  <div className="flex items-start gap-2 mb-2">
+                    <a 
+                      href={problemUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-semibold leading-tight truncate hover:text-primary transition-colors flex-1"
+                      title={sub.problem_name}
+                    >
+                      {sub.problem_name}
+                    </a>
+                    <a 
+                      href={problemUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-primary flex-shrink-0 mt-0.5"
+                      title="Ver problema"
+                    >
+                       <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
                   </div>
-                  <div className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
-                    <span className="font-mono">{sub.contest_id}{sub.problem_index}</span>
-                    <span>•</span>
-                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-5 font-normal">
-                      {String(sub.platform || 'CODEFORCES')}
+
+                  {/* Contest and Platform Info */}
+                  <div className="flex flex-wrap gap-1.5 mb-3">
+                    <Badge variant="outline" className="text-[11px] px-2 py-0.5 font-mono font-medium">
+                      {problemCode}
                     </Badge>
-                    <span>•</span>
-                    <span>
-                      {date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })} 
-                      {' '} 
-                      {date.toLocaleDateString('es-PE', { day: 'numeric', month: 'numeric', year: '2-digit' })}
-                    </span>
-                  </div>
-                  
-                  {/* User Info */}
-                  <div className="mt-2 flex items-center gap-2">
-                     <Link href={`/user/${sub.handle}`} className="flex items-center gap-1.5 hover:underline group-user">
-                          {sub.avatar_url ? (
-                            <div className="w-5 h-5 rounded-full overflow-hidden flex-shrink-0">
-                               <Image src={sub.avatar_url} alt={sub.handle} width={20} height={20} className="w-full h-full object-cover" unoptimized />
-                            </div>
-                          ) : (
-                             <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-                               <User className="h-3 w-3 text-muted-foreground" />
-                             </div>
-                          )}
-                          <span className="text-xs font-medium text-foreground/80">{sub.handle}</span>
-                     </Link>
+                    <Badge 
+                      variant="outline" 
+                      className={`text-[11px] px-2 py-0.5 font-medium ${
+                        platform === 'ATCODER' 
+                          ? 'bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/30' 
+                          : 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30'
+                      }`}
+                    >
+                      {platform}
+                    </Badge>
+                    {cfEquivalent && (
+                      <Badge 
+                        variant="outline" 
+                        className="text-[11px] px-2 py-0.5 font-medium bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border-cyan-500/30"
+                      >
+                        {cfEquivalent}
+                      </Badge>
+                    )}
                   </div>
 
-                  
-                  {/* Tags */}
+                  {/* Tags Section */}
                   {sub.tags && sub.tags.length > 0 && (
-                    <div className="mt-2 flex flex-wrap gap-1">
-                      {sub.tags.slice(0, 3).map((tag, idx) => (
-                        <Badge key={idx} variant="outline" className="text-[10px] px-1.5 py-0 h-5 font-normal text-muted-foreground">
+                    <div className="flex flex-wrap gap-1 mb-3">
+                      {sub.tags.slice(0, 2).map((tag, idx) => (
+                        <Badge 
+                          key={idx} 
+                          variant="secondary" 
+                          className="text-[10px] px-1.5 py-0.5 font-normal text-muted-foreground"
+                        >
                           {tag}
                         </Badge>
                       ))}
-                      {sub.tags.length > 3 && (
+                      {sub.tags.length > 2 && (
                         <Badge 
-                          variant="outline" 
-                          className="text-[10px] px-1.5 py-0 h-5 font-normal text-muted-foreground cursor-help" 
-                          title={sub.tags.slice(3).join(', ')}
+                          variant="secondary" 
+                          className="text-[10px] px-1.5 py-0.5 font-normal text-muted-foreground cursor-help" 
+                          title={sub.tags.slice(2).join(', ')}
                         >
-                          +{sub.tags.length - 3}
+                          +{sub.tags.length - 2}
                         </Badge>
                       )}
                     </div>
                   )}
                 </div>
-                
-                {sub.rating && (
-                  <Badge variant="secondary" className="text-sm font-mono shrink-0 px-2 h-fit">
-                    {sub.rating}
-                  </Badge>
-                )}
+
+                {/* Divider */}
+                <div className="border-t my-3 -mx-4" />
+
+                {/* User and Rating Section */}
+                <div className="flex items-center justify-between gap-2">
+                  <Link href={`/user/${sub.handle}`} className="flex items-center gap-1.5 hover:opacity-80 transition-opacity min-w-0">
+                    {sub.avatar_url ? (
+                      <div className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0">
+                         <Image src={sub.avatar_url} alt={sub.handle} width={24} height={24} className="w-full h-full object-cover" unoptimized />
+                      </div>
+                    ) : (
+                      <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                        <User className="h-3 w-3 text-muted-foreground" />
+                      </div>
+                    )}
+                    <span className="text-xs font-medium text-foreground/80 truncate">{sub.handle}</span>
+                  </Link>
+
+                  {sub.rating !== null && sub.rating !== undefined && (
+                    <Badge 
+                      className={`text-sm font-mono font-bold shrink-0 px-2.5 py-1 ${getRatingColor(sub.rating)} text-white`}
+                    >
+                      {sub.rating}
+                    </Badge>
+                  )}
+                </div>
+
+                {/* Time Info */}
+                <div className="text-[10px] text-muted-foreground mt-2 pt-2 border-t">
+                  {date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })} 
+                  {' '} 
+                  {date.toLocaleDateString('es-PE', { day: 'numeric', month: 'numeric', year: '2-digit' })}
+                </div>
               </div>
           )
         })}
