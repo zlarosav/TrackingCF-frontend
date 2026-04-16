@@ -490,23 +490,23 @@ export default function AdminConsole() {
 
   if (!isAuthenticated && !loading) {
     return (
-      <div className="min-h-screen bg-neutral-950 flex items-center justify-center p-4">
-        <div className="w-full max-w-sm bg-neutral-900 border border-neutral-800 rounded-xl shadow-2xl overflow-hidden">
+      <div className="hero-grid min-h-screen bg-background flex items-center justify-center p-4">
+        <div className="surface-panel w-full max-w-sm rounded-[1.5rem] overflow-hidden">
           <div className="p-8">
             <div className="flex justify-center mb-6">
-              <div className="w-12 h-12 bg-blue-600/20 rounded-full flex items-center justify-center">
-                <Lock className="w-6 h-6 text-blue-500" />
+              <div className="w-12 h-12 bg-primary/15 rounded-full flex items-center justify-center border border-primary/20">
+                <Lock className="w-6 h-6 text-primary" />
               </div>
             </div>
-            <h2 className="text-2xl font-bold text-white text-center mb-2">Admin Console</h2>
-            <p className="text-neutral-400 text-center mb-6 text-sm">Acceso restringido</p>
+            <h2 className="text-2xl font-bold text-center mb-2">Admin Console</h2>
+            <p className="text-muted-foreground text-center mb-6 text-sm">Acceso restringido</p>
             
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
                 <input 
                   type="text" 
                   placeholder="Usuario"
-                  className="w-full bg-neutral-950 border border-neutral-800 text-white px-4 py-2 rounded-lg focus:outline-none focus:border-blue-500 transition-colors"
+                  className="w-full bg-background border border-border px-4 py-2 rounded-lg focus:outline-none focus:border-primary transition-colors"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                 />
@@ -515,7 +515,7 @@ export default function AdminConsole() {
                 <input 
                   type="password" 
                   placeholder="Contraseña"
-                  className="w-full bg-neutral-950 border border-neutral-800 text-white px-4 py-2 rounded-lg focus:outline-none focus:border-blue-500 transition-colors"
+                  className="w-full bg-background border border-border px-4 py-2 rounded-lg focus:outline-none focus:border-primary transition-colors"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
@@ -528,7 +528,7 @@ export default function AdminConsole() {
               <button 
                 type="submit"
                 disabled={loading}
-                className="w-full bg-blue-600 hover:bg-blue-500 text-white font-medium py-2 rounded-lg transition-colors flex items-center justify-center gap-2"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-2 rounded-lg transition-colors flex items-center justify-center gap-2"
               >
                 {loading ? 'Entrando...' : 'Iniciar Sesión'}
               </button>
@@ -540,21 +540,21 @@ export default function AdminConsole() {
   }
 
   if (loading) {
-    return <div className="min-h-screen bg-neutral-950 flex items-center justify-center text-white">Cargando...</div>;
+    return <div className="min-h-screen bg-background flex items-center justify-center text-foreground">Cargando...</div>;
   }
 
   return (
-    <div className="min-h-screen bg-neutral-950 text-white font-sans">
+    <div className="hero-grid min-h-screen bg-background text-foreground font-sans">
       {/* Navbar - Simplified for Admin */}
-      <nav className="border-b border-neutral-800 bg-neutral-900/50 backdrop-blur-md sticky top-0 z-50">
+      <nav className="border-b border-border bg-background/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-2">
-              <Activity className="w-6 h-6 text-blue-500" />
+              <Activity className="w-6 h-6 text-primary" />
               <span className="font-bold text-lg">TrackingCF Console</span>
             </div>
             <div className="flex items-center gap-4">
-              <button onClick={logout} className="text-neutral-400 hover:text-white flex items-center gap-2 text-sm">
+              <button onClick={logout} className="text-muted-foreground hover:text-foreground flex items-center gap-2 text-sm">
                 <LogOut className="w-4 h-4" /> Salir
               </button>
             </div>
@@ -567,25 +567,25 @@ export default function AdminConsole() {
         <div className="flex gap-4 mb-8">
           <button 
             onClick={() => setView('users')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${view === 'users' ? 'bg-blue-600 text-white' : 'bg-neutral-900 text-neutral-400 hover:text-white'}`}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium border transition-colors ${view === 'users' ? 'bg-primary text-primary-foreground border-primary' : 'bg-background text-muted-foreground border-border hover:text-foreground'}`}
           >
             <Users className="w-4 h-4" /> Usuarios
           </button>
           <button 
             onClick={() => setView('audit')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${view === 'audit' ? 'bg-blue-600 text-white' : 'bg-neutral-900 text-neutral-400 hover:text-white'}`}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium border transition-colors ${view === 'audit' ? 'bg-primary text-primary-foreground border-primary' : 'bg-background text-muted-foreground border-border hover:text-foreground'}`}
           >
             <FileText className="w-4 h-4" /> Auditoría
           </button>
           <button 
             onClick={() => setView('chat')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${view === 'chat' ? 'bg-blue-600 text-white' : 'bg-neutral-900 text-neutral-400 hover:text-white'}`}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium border transition-colors ${view === 'chat' ? 'bg-primary text-primary-foreground border-primary' : 'bg-background text-muted-foreground border-border hover:text-foreground'}`}
           >
             <MessageSquare className="w-4 h-4" /> Chat IA
           </button>
           <button 
             onClick={() => setView('announcements')}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${view === 'announcements' ? 'bg-blue-600 text-white' : 'bg-neutral-900 text-neutral-400 hover:text-white'}`}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium border transition-colors ${view === 'announcements' ? 'bg-primary text-primary-foreground border-primary' : 'bg-background text-muted-foreground border-border hover:text-foreground'}`}
           >
             <Megaphone className="w-4 h-4" /> Anuncios
           </button>
@@ -594,53 +594,53 @@ export default function AdminConsole() {
         {/* Content */}
         {view === 'users' && (
           <div className="space-y-6">
-            <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4 md:p-5 flex flex-col gap-4">
+            <div className="surface-panel rounded-2xl p-4 md:p-5 flex flex-col gap-4">
                 <div>
-                  <h3 className="font-semibold text-white">Feature Flag: AtCoder Submissions</h3>
-                  <p className="text-sm text-neutral-400">Controla si el tracker guarda submissions reales de AtCoder. Codeforces sigue funcionando igual.</p>
+                  <h3 className="font-semibold">Feature Flag: AtCoder Submissions</h3>
+                  <p className="text-sm text-muted-foreground">Controla si el tracker guarda submissions reales de AtCoder. Codeforces sigue funcionando igual.</p>
                 </div>
                 <button
                   onClick={toggleAtcoderSubmissions}
                   disabled={featureSaving}
-                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${featureFlags.atcoderSubmissions ? 'bg-green-600 hover:bg-green-500 text-white' : 'bg-neutral-800 hover:bg-neutral-700 text-neutral-200'}`}
+                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${featureFlags.atcoderSubmissions ? 'bg-green-600 hover:bg-green-500 text-white' : 'bg-muted hover:bg-muted/80 text-foreground'}`}
                 >
                   {featureSaving ? 'Guardando...' : featureFlags.atcoderSubmissions ? 'Activo' : 'Desactivado'}
                 </button>
               </div>
 
             {/* Add User */}
-            <div className="bg-gradient-to-br from-neutral-900 via-neutral-900 to-neutral-950 border border-neutral-800 rounded-2xl p-6 shadow-[0_10px_40px_-25px_rgba(59,130,246,0.55)]">
+            <div className="surface-panel rounded-2xl p-6 shadow-[0_10px_40px_-25px_rgba(2,51,82,0.55)]">
               <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                 <UserPlus className="w-5 h-5 text-green-500" /> Agregar Usuario
               </h3>
-              <p className="text-sm text-neutral-400 mb-4">Puedes registrar el handle principal de Codeforces y, opcionalmente, los nicknames en otras plataformas.</p>
+              <p className="text-sm text-muted-foreground mb-4">Puedes registrar el handle principal de Codeforces y, opcionalmente, los nicknames en otras plataformas.</p>
               <form onSubmit={handleAddUser} className="space-y-4">
                 <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                   <input 
                     type="text" 
                     placeholder="Handle principal"
-                    className="bg-neutral-950 border border-neutral-800 text-white px-4 py-2 rounded-lg focus:outline-none focus:border-blue-500"
+                    className="bg-background border border-border px-4 py-2 rounded-lg focus:outline-none focus:border-primary"
                     value={newUser.handle}
                     onChange={(e) => setNewUser(prev => ({ ...prev, handle: e.target.value }))}
                   />
                   <input 
                     type="text" 
                     placeholder="LeetCode username"
-                    className="bg-neutral-950 border border-neutral-800 text-white px-4 py-2 rounded-lg focus:outline-none focus:border-blue-500"
+                    className="bg-background border border-border px-4 py-2 rounded-lg focus:outline-none focus:border-primary"
                     value={newUser.leetcodeHandle}
                     onChange={(e) => setNewUser(prev => ({ ...prev, leetcodeHandle: e.target.value }))}
                   />
                   <input 
                     type="text" 
                     placeholder="AtCoder username"
-                    className="bg-neutral-950 border border-neutral-800 text-white px-4 py-2 rounded-lg focus:outline-none focus:border-blue-500"
+                    className="bg-background border border-border px-4 py-2 rounded-lg focus:outline-none focus:border-primary"
                     value={newUser.atcoderHandle}
                     onChange={(e) => setNewUser(prev => ({ ...prev, atcoderHandle: e.target.value }))}
                   />
                   <input 
                     type="text" 
                     placeholder="CodeChef username"
-                    className="bg-neutral-950 border border-neutral-800 text-white px-4 py-2 rounded-lg focus:outline-none focus:border-blue-500"
+                    className="bg-background border border-border px-4 py-2 rounded-lg focus:outline-none focus:border-primary"
                     value={newUser.codechefHandle}
                     onChange={(e) => setNewUser(prev => ({ ...prev, codechefHandle: e.target.value }))}
                   />
@@ -648,7 +648,7 @@ export default function AdminConsole() {
                 <button 
                   type="submit"
                   disabled={actionLoading}
-                  className="bg-green-600 hover:bg-green-500 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2 rounded-lg font-medium transition-colors"
                 >
                   {actionLoading ? '...' : 'Agregar'}
                 </button>
@@ -656,38 +656,38 @@ export default function AdminConsole() {
             </div>
 
             <div className="grid gap-3 md:grid-cols-3">
-              <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4">
-                <p className="text-xs uppercase tracking-wide text-neutral-500">Total usuarios</p>
+              <div className="surface-panel rounded-xl p-4">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">Total usuarios</p>
                 <p className="text-2xl font-bold mt-1">{users.length}</p>
               </div>
-              <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4">
-                <p className="text-xs uppercase tracking-wide text-neutral-500">Visibles</p>
+              <div className="surface-panel rounded-xl p-4">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">Visibles</p>
                 <p className="text-2xl font-bold mt-1 text-green-400">{users.filter((u) => !u.is_hidden).length}</p>
               </div>
-              <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4">
-                <p className="text-xs uppercase tracking-wide text-neutral-500">Tracking activo</p>
+              <div className="surface-panel rounded-xl p-4">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">Tracking activo</p>
                 <p className="text-2xl font-bold mt-1 text-blue-400">{users.filter((u) => u.enabled).length}</p>
               </div>
             </div>
 
-            <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4">
+            <div className="surface-panel rounded-xl p-4">
               <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                <p className="text-sm text-neutral-400">Edita nicknames con el botón <span className="text-cyan-400 font-semibold">Editar nicknames</span> en cada fila.</p>
+                <p className="text-sm text-muted-foreground">Edita nicknames con el botón <span className="text-cyan-400 font-semibold">Editar nicknames</span> en cada fila.</p>
                 <input
                   type="text"
                   value={userSearch}
                   onChange={(e) => setUserSearch(e.target.value)}
                   placeholder="Buscar por handle, LC, AC o CC"
-                  className="w-full md:w-80 bg-neutral-950 border border-neutral-700 text-white px-3 py-2 rounded-lg focus:outline-none focus:border-blue-500"
+                  className="w-full md:w-80 bg-background border border-border px-3 py-2 rounded-lg focus:outline-none focus:border-primary"
                 />
               </div>
             </div>
 
             {/* Users List */}
-            <div className="bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden">
+            <div className="surface-panel rounded-xl overflow-hidden">
               <div className="overflow-x-auto">
               <table className="w-full text-left min-w-[980px]">
-                <thead className="bg-neutral-950 text-neutral-400 text-xs uppercase font-semibold">
+                <thead className="bg-muted/50 text-muted-foreground text-xs uppercase font-semibold">
                   <tr>
                     <th className="p-4">Handle</th>
                     <th className="p-4">Estado</th>
@@ -695,16 +695,16 @@ export default function AdminConsole() {
                     <th className="p-4 text-right">Acciones</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-neutral-800">
+                <tbody className="divide-y divide-border/80">
                   {filteredUsers.map(user => (
-                    <tr key={user.handle} className="hover:bg-neutral-800/50 transition-colors">
+                    <tr key={user.handle} className="hover:bg-muted/35 transition-colors">
                       <td className="p-4 font-medium">
                         <div className="space-y-1">
                           <div className="text-base">{user.handle}</div>
                           <div className="flex flex-wrap gap-2 text-xs">
-                            <span className="bg-neutral-800 px-2 py-0.5 rounded">LC: {user.leetcode_handle || '—'}</span>
-                            <span className="bg-neutral-800 px-2 py-0.5 rounded">AC: {user.atcoder_handle || '—'}</span>
-                            <span className="bg-neutral-800 px-2 py-0.5 rounded">CC: {user.codechef_handle || '—'}</span>
+                            <span className="bg-muted/60 border border-border px-2 py-0.5 rounded">LC: {user.leetcode_handle || '—'}</span>
+                            <span className="bg-muted/60 border border-border px-2 py-0.5 rounded">AC: {user.atcoder_handle || '—'}</span>
+                            <span className="bg-muted/60 border border-border px-2 py-0.5 rounded">CC: {user.codechef_handle || '—'}</span>
                           </div>
                         </div>
                       </td>
@@ -715,14 +715,14 @@ export default function AdminConsole() {
                           <span className="bg-green-500/10 text-green-500 px-2 py-1 rounded text-xs border border-green-500/20">Visible</span>
                         )}
                       </td>
-                      <td className="p-4 text-neutral-400 text-sm">
+                      <td className="p-4 text-muted-foreground text-sm">
                         {user.last_updated ? new Date(user.last_updated).toLocaleString() : '-'}
                       </td>
                       <td className="p-4">
                         <div className="flex flex-wrap justify-end gap-2">
                         <button 
                           onClick={() => toggleVisibility(user.handle, user.is_hidden)}
-                          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-neutral-950 border border-neutral-700 hover:border-neutral-500 rounded-lg transition-colors text-neutral-300 hover:text-white"
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-background border border-border hover:border-primary/40 rounded-lg transition-colors text-muted-foreground hover:text-foreground"
                           title={user.is_hidden ? "Mostrar usuario" : "Ocultar usuario"}
                         >
                           {user.is_hidden ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -731,7 +731,7 @@ export default function AdminConsole() {
                         
                         <button 
                           onClick={() => toggleEnabled(user.handle, user.enabled)}
-                          className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-neutral-950 border rounded-lg transition-colors ${user.enabled ? 'text-green-400 border-green-900/60 hover:border-green-500/50' : 'text-red-400 border-red-900/60 hover:border-red-500/50'}`}
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-background border rounded-lg transition-colors ${user.enabled ? 'text-green-400 border-green-500/40 hover:border-green-500/70' : 'text-red-400 border-red-500/40 hover:border-red-500/70'}`}
                           title={user.enabled ? "Deshabilitar tracking" : "Habilitar tracking"}
                         >
                           {user.enabled ? <CheckCircle className="w-5 h-5" /> : <XCircle className="w-5 h-5" />}
@@ -740,7 +740,7 @@ export default function AdminConsole() {
 
                          <button 
                           onClick={() => handleManualTrack(user.handle)}
-                          className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-neutral-950 border border-neutral-700 hover:border-blue-500/50 rounded-lg transition-colors ${loadingUsers[user.handle] ? 'text-blue-500' : 'text-neutral-300 hover:text-blue-400'}`}
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-background border border-border hover:border-primary/50 rounded-lg transition-colors ${loadingUsers[user.handle] ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}
                           title="Forzar actualización ahora"
                           disabled={loadingUsers[user.handle]}
                         >
@@ -759,7 +759,7 @@ export default function AdminConsole() {
 
                          <button 
                           onClick={() => handleDeleteUser(user.handle)}
-                          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-neutral-950 border border-neutral-700 hover:border-red-500/50 rounded-lg transition-colors text-neutral-300 hover:text-red-400"
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 bg-background border border-border hover:border-red-500/60 rounded-lg transition-colors text-muted-foreground hover:text-red-400"
                           title="Eliminar usuario permanentemente"
                         >
                           <Trash2 className="w-5 h-5" />
@@ -771,7 +771,7 @@ export default function AdminConsole() {
                   ))}
                   {filteredUsers.length === 0 && (
                     <tr>
-                      <td colSpan="4" className="p-8 text-center text-neutral-500">No hay usuarios para el filtro actual</td>
+                      <td colSpan="4" className="p-8 text-center text-muted-foreground">No hay usuarios para el filtro actual</td>
                     </tr>
                   )}
                 </tbody>
@@ -784,65 +784,65 @@ export default function AdminConsole() {
         {/* Chat View */}
          {view === 'chat' && (
           <div className="space-y-4">
-             <div className="bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden divide-y divide-neutral-800">
-                 <div className="p-4 border-b border-neutral-800 bg-neutral-950/50 flex justify-between items-center">
+           <div className="surface-panel rounded-xl overflow-hidden divide-y divide-border">
+             <div className="p-4 border-b border-border bg-muted/35 flex justify-between items-center">
                     <h3 className="font-bold flex items-center gap-2"><MessageSquare className="w-4 h-4" /> Monitor de Chat IA</h3>
                     <button 
                         onClick={() => fetchChatSummary(token)} 
-                        className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                        className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors"
                     >
                         <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} /> Refrescar
                     </button>
                  </div>
 
                  {chatSummary.map(item => (
-                     <div key={item.ip} className="bg-neutral-900">
+                     <div key={item.ip} className="bg-transparent">
                          <div 
-                            className="p-4 flex items-center justify-between cursor-pointer hover:bg-neutral-800/50 transition-colors"
+                            className="p-4 flex items-center justify-between cursor-pointer hover:bg-muted/35 transition-colors"
                             onClick={() => toggleIpExpand(item.ip, 'chat')}
                          >
                              <div className="flex items-center gap-4">
                                  <div className={`w-2 h-2 rounded-full ${expandedIp === item.ip ? 'bg-blue-500' : 'bg-neutral-600'}`}></div>
                                  <div className="flex flex-col">
                                      <span className="font-mono text-sm font-bold text-blue-400">{item.ip}</span>
-                                     <span className="text-xs text-neutral-500">Última pregunta: {new Date(item.lastActive).toLocaleString()}</span>
+                                     <span className="text-xs text-muted-foreground">Última pregunta: {new Date(item.lastActive).toLocaleString()}</span>
                                  </div>
                              </div>
                              
                              <div className="flex items-center gap-6">
                                  <div className="text-right">
                                      <div className="font-bold text-white">{item.totalRequests}</div>
-                                     <div className="text-xs text-neutral-500">Consultas</div>
+                                     <div className="text-xs text-muted-foreground">Consultas</div>
                                  </div>
                                  
-                                 <div className="text-neutral-500">
+                                 <div className="text-muted-foreground">
                                      {expandedIp === item.ip ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                                  </div>
                              </div>
                          </div>
                          
                          {expandedIp === item.ip && (
-                             <div className="border-t border-neutral-800 bg-neutral-950/30 p-4 pl-12">
+                             <div className="border-t border-border bg-muted/20 p-4 pl-12">
                                  {loadingIpLogs ? (
-                                     <div className="flex items-center gap-2 text-sm text-neutral-500">
+                                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                          <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div> Cargando historial...
                                      </div>
                                  ) : (
                                      <div className="space-y-4">
                                          {ipLogs.length === 0 ? (
-                                             <div className="text-sm text-neutral-500 italic">No hay historial visible.</div>
+                                             <div className="text-sm text-muted-foreground italic">No hay historial visible.</div>
                                          ) : (
                                              <div className="space-y-3">
                                                  {ipLogs.map(log => (
-                                                     <div key={log.id} className="bg-neutral-900 border border-neutral-800 rounded-lg p-3 text-sm">
+                                                     <div key={log.id} className="bg-background border border-border rounded-lg p-3 text-sm">
                                                          <div className="flex justify-between items-start mb-2">
                                                              <div className="flex items-center gap-2">
                                                                 <span className="bg-blue-500/10 text-blue-400 text-xs px-2 py-0.5 rounded border border-blue-500/20">User: {log.details?.handle || 'Anon'}</span>
-                                                                <span className="text-neutral-500 text-xs">{new Date(log.timestamp).toLocaleString()}</span>
+                                                                <span className="text-muted-foreground text-xs">{new Date(log.timestamp).toLocaleString()}</span>
                                                              </div>
-                                                             <span className="text-xs font-mono text-neutral-600">{log.details?.sessionId}</span>
+                                                             <span className="text-xs font-mono text-muted-foreground">{log.details?.sessionId}</span>
                                                          </div>
-                                                         <div className="text-neutral-300 whitespace-pre-wrap font-mono text-xs bg-black/30 p-2 rounded">
+                                                        <div className="text-foreground/85 whitespace-pre-wrap font-mono text-xs bg-muted/30 p-2 rounded">
                                                             {log.details?.message || JSON.stringify(log.details)}
                                                          </div>
                                                      </div>
@@ -857,7 +857,7 @@ export default function AdminConsole() {
                  ))}
                  
                  {chatSummary.length === 0 && (
-                     <div className="p-12 text-center text-neutral-500">
+                     <div className="p-12 text-center text-muted-foreground">
                          <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-20" />
                          <p>No hay consultas al chat registradas.</p>
                      </div>
@@ -869,23 +869,23 @@ export default function AdminConsole() {
         {view === 'audit' && (
           <div className="space-y-4">
              {/* Filter Controls */}
-             <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-4 flex flex-wrap gap-4 items-end">
+             <div className="surface-panel rounded-xl p-4 flex flex-wrap gap-4 items-end">
                   <div className="flex gap-2">
                       <button 
                           onClick={() => setAuditViewMode('ip')}
-                          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${auditViewMode === 'ip' ? 'bg-blue-600 text-white' : 'bg-neutral-800 text-neutral-400 hover:text-white'}`}
+                          className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${auditViewMode === 'ip' ? 'bg-primary text-primary-foreground border-primary' : 'bg-background text-muted-foreground border-border hover:text-foreground'}`}
                       >
                           Vista por IP
                       </button>
                       <button 
                           onClick={() => setAuditViewMode('list')}
-                          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${auditViewMode === 'list' ? 'bg-blue-600 text-white' : 'bg-neutral-800 text-neutral-400 hover:text-white'}`}
+                          className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors ${auditViewMode === 'list' ? 'bg-primary text-primary-foreground border-primary' : 'bg-background text-muted-foreground border-border hover:text-foreground'}`}
                       >
                           Vista de Lista
                       </button>
                   </div>
                   
-                  <div className="h-6 w-px bg-neutral-800 mx-2"></div>
+                  <div className="h-6 w-px bg-border mx-2"></div>
 
                   <div className="flex items-center gap-2">
                        <input 
@@ -906,9 +906,9 @@ export default function AdminConsole() {
                                    // or add a backend param 'excludeTraffic=true'.
                               }
                           }}
-                          className="w-4 h-4 rounded border-neutral-700 bg-neutral-900 text-blue-600 focus:ring-blue-500 focus:ring-offset-neutral-900"
+                          className="w-4 h-4 rounded border-border bg-background text-primary focus:ring-primary"
                        />
-                       <label htmlFor="adminActionsOnly" className="text-sm text-neutral-300 cursor-pointer select-none">
+                       <label htmlFor="adminActionsOnly" className="text-sm text-foreground/90 cursor-pointer select-none">
                            Solo Acciones Admin
                        </label>
                   </div>
@@ -916,19 +916,19 @@ export default function AdminConsole() {
                   <div className="flex-1"></div>
 
                   <div className="flex flex-col gap-1">
-                      <label className="text-xs text-neutral-400 flex items-center gap-1"><Calendar className="w-3 h-3" /> Desde</label>
+                      <label className="text-xs text-muted-foreground flex items-center gap-1"><Calendar className="w-3 h-3" /> Desde</label>
                       <input 
                           type="date" 
-                          className="bg-neutral-950 border border-neutral-800 text-white text-sm px-3 py-1.5 rounded-lg focus:outline-none focus:border-blue-500"
+                          className="bg-background border border-border text-sm px-3 py-1.5 rounded-lg focus:outline-none focus:border-primary"
                           value={filters.startDate}
                           onChange={(e) => applyFilter('startDate', e.target.value)}
                       />
                   </div>
                   <div className="flex flex-col gap-1">
-                      <label className="text-xs text-neutral-400 flex items-center gap-1"><Calendar className="w-3 h-3" /> Hasta</label>
+                      <label className="text-xs text-muted-foreground flex items-center gap-1"><Calendar className="w-3 h-3" /> Hasta</label>
                       <input 
                           type="date" 
-                          className="bg-neutral-950 border border-neutral-800 text-white text-sm px-3 py-1.5 rounded-lg focus:outline-none focus:border-blue-500"
+                          className="bg-background border border-border text-sm px-3 py-1.5 rounded-lg focus:outline-none focus:border-primary"
                           value={filters.endDate}
                           onChange={(e) => applyFilter('endDate', e.target.value)}
                       />
@@ -943,7 +943,7 @@ export default function AdminConsole() {
                             if (auditViewMode === 'list') fetchLogs(token, {}); 
                             // Summary is auto-fetched on effect
                         }} 
-                        className="text-xs text-neutral-400 hover:text-white underline pb-2 ml-2"
+                        className="text-xs text-muted-foreground hover:text-foreground underline pb-2 ml-2"
                       >
                           Limpiar todo
                       </button>
@@ -953,7 +953,7 @@ export default function AdminConsole() {
              {/* Chip Filters Display */}
              {(Object.keys(activeFilters).length > 0) && (
                  <div className="flex gap-2 items-center text-sm flex-wrap">
-                     <span className="text-neutral-400 text-xs">Filtros Activos:</span>
+                     <span className="text-muted-foreground text-xs">Filtros Activos:</span>
                      {Object.entries(activeFilters).map(([key, val]) => (
                          <span key={key} className="bg-blue-600/20 text-blue-400 border border-blue-600/30 px-2 py-1 rounded-md flex items-center gap-1 text-xs">
                              {key}: {val}
@@ -963,19 +963,19 @@ export default function AdminConsole() {
                  </div>
              )}
 
-             <div className="bg-neutral-900 border border-neutral-800 rounded-xl overflow-hidden">
-             <div className="p-4 border-b border-neutral-800 bg-neutral-950/50 flex justify-between items-center">
+             <div className="surface-panel rounded-xl overflow-hidden">
+             <div className="p-4 border-b border-border bg-muted/35 flex justify-between items-center">
                 <h3 className="font-bold flex items-center gap-2"><Filter className="w-4 h-4" /> {auditViewMode === 'ip' ? 'Resumen por IP' : 'Registro Detallado'}</h3>
                 <button 
                     onClick={() => auditViewMode === 'ip' ? fetchAuditSummary(token) : fetchLogs(token, activeFilters)} 
-                    className="flex items-center gap-1 text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                    className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors"
                 >
                     <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} /> Refrescar
                 </button>
              </div>
 
              {auditViewMode === 'ip' ? (
-                 <div className="divide-y divide-neutral-800">
+                 <div className="divide-y divide-border/80">
                      {auditSummary.filter(item => {
                          // Client side filtering for summary
                          if (activeFilters.ip && !item.ip.includes(activeFilters.ip)) return false;
@@ -984,16 +984,16 @@ export default function AdminConsole() {
                          // For now, let's keep it simple or filter if we add more data to summary.
                          return true;
                      }).map(item => (
-                         <div key={item.ip} className="bg-neutral-900">
+                         <div key={item.ip} className="bg-transparent">
                              <div 
-                                className="p-4 flex items-center justify-between cursor-pointer hover:bg-neutral-800/50 transition-colors"
+                                className="p-4 flex items-center justify-between cursor-pointer hover:bg-muted/35 transition-colors"
                                 onClick={() => toggleIpExpand(item.ip)}
                              >
                                  <div className="flex items-center gap-4">
                                      <div className={`w-2 h-2 rounded-full ${expandedIp === item.ip ? 'bg-blue-500' : 'bg-neutral-600'}`}></div>
                                      <div>
                                          <div className="font-mono text-sm font-bold text-blue-400">{item.ip}</div>
-                                         <div className="text-xs text-neutral-500">Última actividad: {new Date(item.lastActive).toLocaleString()}</div>
+                                         <div className="text-xs text-muted-foreground">Última actividad: {new Date(item.lastActive).toLocaleString()}</div>
                                      </div>
                                  </div>
                                  
@@ -1010,42 +1010,42 @@ export default function AdminConsole() {
                                          </div>
                                      )}
                                      
-                                     <div className="text-neutral-500">
+                                     <div className="text-muted-foreground">
                                          {expandedIp === item.ip ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                                      </div>
                                  </div>
                              </div>
                              
                              {expandedIp === item.ip && (
-                                 <div className="border-t border-neutral-800 bg-neutral-950/30 p-4 pl-12">
+                                 <div className="border-t border-border bg-muted/20 p-4 pl-12">
                                      {loadingIpLogs ? (
-                                         <div className="flex items-center gap-2 text-sm text-neutral-500">
+                                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current"></div> Cargando detalles...
                                          </div>
                                      ) : (
                                          <div className="space-y-2">
-                                             <h4 className="text-xs font-bold text-neutral-400 uppercase tracking-wider mb-2">Últimos movimientos</h4>
+                                             <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Últimos movimientos</h4>
                                              {ipLogs.length === 0 ? (
-                                                 <div className="text-sm text-neutral-500 italic">No hay registros recientes visibles.</div>
+                                                 <div className="text-sm text-muted-foreground italic">No hay registros recientes visibles.</div>
                                              ) : (
                                                  <div className="space-y-1">
                                                      {ipLogs.map(log => {
                                                          if (adminActionsOnly && (log.action.includes('_REQUEST') || log.action === 'LOGIN_FAILED')) return null; // Simple client filter
                                                          return (
-                                                             <div key={log.id} className="flex items-center gap-3 text-sm py-1 border-b border-neutral-800/50 last:border-0 hover:bg-neutral-900/50 rounded px-2">
-                                                                 <span className="text-neutral-500 font-mono text-xs w-32 shrink-0">{new Date(log.timestamp).toLocaleString()}</span>
+                                                             <div key={log.id} className="flex items-center gap-3 text-sm py-1 border-b border-border/60 last:border-0 hover:bg-muted/30 rounded px-2">
+                                                               <span className="text-muted-foreground font-mono text-xs w-32 shrink-0">{new Date(log.timestamp).toLocaleString()}</span>
                                                                  <span className={`font-bold text-xs px-2 py-0.5 rounded ${
                                                                      log.action.includes('DELETE') ? 'bg-red-500/20 text-red-400' : 
                                                                      log.action.includes('CREATE') ? 'bg-green-500/20 text-green-400' : 
                                                                      log.action.includes('LOGIN') ? 'bg-blue-500/20 text-blue-400' :
-                                                                     'bg-neutral-800 text-neutral-400'
+                                                                     'bg-muted text-muted-foreground'
                                                                  }`}>
                                                                      {log.action}
                                                                  </span>
-                                                                 <span className="text-neutral-400 truncate flex-1 font-mono text-xs" title={JSON.stringify(log.details)}>
+                                                                 <span className="text-muted-foreground truncate flex-1 font-mono text-xs" title={JSON.stringify(log.details)}>
                                                                      {log.details ? JSON.stringify(log.details) : '-'}
                                                                  </span>
-                                                                 <span className="text-neutral-600 text-xs w-20 text-right truncate" title={log.username}>{log.username || 'System'}</span>
+                                                                 <span className="text-muted-foreground text-xs w-20 text-right truncate" title={log.username}>{log.username || 'System'}</span>
                                                              </div>
                                                          );
                                                      })}
@@ -1058,7 +1058,7 @@ export default function AdminConsole() {
                                                         setAuditViewMode('list');
                                                         applyFilter('ip', item.ip);
                                                     }}
-                                                    className="text-xs text-blue-500 hover:text-blue-400 flex items-center gap-1"
+                                                    className="text-xs text-primary hover:text-primary/80 flex items-center gap-1"
                                                  >
                                                      Ver historial completo de esta IP <ArrowRight className="w-3 h-3" />
                                                  </button>
@@ -1070,13 +1070,13 @@ export default function AdminConsole() {
                          </div>
                      ))}
                      {auditSummary.length === 0 && (
-                         <div className="p-8 text-center text-neutral-500">No hay actividad registrada.</div>
+                         <div className="p-8 text-center text-muted-foreground">No hay actividad registrada.</div>
                      )}
                  </div>
              ) : (
                  /* LIST VIEW TABLE (Existing) */
                  <table className="w-full text-left text-sm">
-                    <thead className="bg-neutral-950 text-neutral-400 text-xs uppercase font-semibold">
+                      <thead className="bg-muted/50 text-muted-foreground text-xs uppercase font-semibold">
                       <tr>
                         <th className="p-4">Tiempo</th>
                         <th className="p-4">Admin</th>
@@ -1085,10 +1085,10 @@ export default function AdminConsole() {
                         <th className="p-4">IP</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-neutral-800">
+                    <tbody className="divide-y divide-border/80">
                       {logs.filter(log => !adminActionsOnly || !log.action.includes('_REQUEST')).map(log => (
-                        <tr key={log.id} className="hover:bg-neutral-800/50">
-                          <td className="p-4 text-neutral-400 whitespace-nowrap">
+                        <tr key={log.id} className="hover:bg-muted/35">
+                          <td className="p-4 text-muted-foreground whitespace-nowrap">
                             {new Date(log.timestamp).toLocaleString()}
                           </td>
                           <td className="p-4 font-medium text-blue-400">
@@ -1099,7 +1099,7 @@ export default function AdminConsole() {
                               log.action.includes('DELETE') ? 'bg-red-500/20 text-red-400' : 
                               log.action.includes('CREATE') ? 'bg-green-500/20 text-green-400' : 
                               log.action.includes('LOGIN') ? 'bg-blue-500/20 text-blue-400' :
-                              'bg-neutral-700 text-neutral-300'
+                              'bg-muted text-muted-foreground'
                             }`}
                             onClick={() => applyFilter('method', log.action)} // method maps to action in backend
                             title={log.action}
@@ -1107,10 +1107,10 @@ export default function AdminConsole() {
                               {log.action}
                             </span>
                           </td>
-                          <td className="p-4 text-neutral-300 font-mono text-xs">
+                          <td className="p-4 text-foreground/90 font-mono text-xs">
                             {log.details ? JSON.stringify(log.details) : '-'}
                           </td>
-                          <td className="p-4 text-neutral-500 text-xs font-mono cursor-pointer hover:text-white" onClick={() => {
+                          <td className="p-4 text-muted-foreground text-xs font-mono cursor-pointer hover:text-foreground" onClick={() => {
                               // Switch to IP view
                               setAuditViewMode('ip');
                               // Ideally expand this ip, but verify first.
@@ -1123,7 +1123,7 @@ export default function AdminConsole() {
                       ))}
                       {logs.length === 0 && (
                           <tr>
-                              <td colSpan="5" className="p-8 text-center text-neutral-500">No se encontraron registros</td>
+                              <td colSpan="5" className="p-8 text-center text-muted-foreground">No se encontraron registros</td>
                           </tr>
                       )}
                     </tbody>
@@ -1138,7 +1138,7 @@ export default function AdminConsole() {
                 <CreateNotification token={token} onSuccess={() => {}} />
 
                 {/* Active Banner Card */}
-                <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-6">
+            <div className="surface-panel rounded-xl p-6">
                     <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                         <Activity className="w-5 h-5 text-blue-500" /> Banner Activo
                     </h3>
@@ -1170,17 +1170,17 @@ export default function AdminConsole() {
                 </div>
 
                 {/* Create Banner Form */}
-                <div className="bg-neutral-900 border border-neutral-800 rounded-xl p-6">
+                <div className="surface-panel rounded-xl p-6">
                     <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                         <Megaphone className="w-5 h-5 text-green-500" /> Crear Nuevo Anuncio
                     </h3>
                     
                     <form onSubmit={handleSetBanner} className="space-y-4">
                         <div>
-                            <label className="block text-sm text-neutral-400 mb-1">Mensaje</label>
+                            <label className="block text-sm text-muted-foreground mb-1">Mensaje</label>
                             <input 
                                 type="text" 
-                                className="w-full bg-neutral-950 border border-neutral-800 text-white px-4 py-2 rounded-lg focus:outline-none focus:border-blue-500"
+                              className="w-full bg-background border border-border px-4 py-2 rounded-lg focus:outline-none focus:border-primary"
                                 placeholder="Ej: Mantenimiento programado para esta noche..."
                                 value={bannerMsg}
                                 onChange={e => setBannerMsg(e.target.value)}
@@ -1190,9 +1190,9 @@ export default function AdminConsole() {
                         
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm text-neutral-400 mb-1">Tipo</label>
+                                <label className="block text-sm text-muted-foreground mb-1">Tipo</label>
                                 <select 
-                                    className="w-full bg-neutral-950 border border-neutral-800 text-white px-4 py-2 rounded-lg focus:outline-none focus:border-blue-500"
+                                  className="w-full bg-background border border-border px-4 py-2 rounded-lg focus:outline-none focus:border-primary"
                                     value={bannerType}
                                     onChange={e => setBannerType(e.target.value)}
                                 >
@@ -1202,10 +1202,10 @@ export default function AdminConsole() {
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-sm text-neutral-400 mb-1">Duración (Horas)</label>
+                                <label className="block text-sm text-muted-foreground mb-1">Duración (Horas)</label>
                                 <input 
                                     type="number" 
-                                    className="w-full bg-neutral-950 border border-neutral-800 text-white px-4 py-2 rounded-lg focus:outline-none focus:border-blue-500"
+                                  className="w-full bg-background border border-border px-4 py-2 rounded-lg focus:outline-none focus:border-primary"
                                     value={bannerDuration}
                                     onChange={e => setBannerDuration(e.target.value)}
                                     min="1"
@@ -1217,7 +1217,7 @@ export default function AdminConsole() {
                         <div className="pt-2">
                             <button 
                                 type="submit" 
-                                className="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-lg font-medium transition-colors w-full sm:w-auto"
+                              className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2 rounded-lg font-medium transition-colors w-full sm:w-auto"
                             >
                                 Publicar Anuncio Global
                             </button>
@@ -1229,15 +1229,15 @@ export default function AdminConsole() {
 
         {nicknameEditorOpen && editingUser && (
           <div className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="w-full max-w-2xl bg-neutral-900 border border-neutral-700 rounded-2xl shadow-2xl overflow-hidden">
-              <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-800">
+            <div className="surface-panel w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-border">
                 <div>
                   <h3 className="text-lg font-bold">Editar Nicknames</h3>
-                  <p className="text-sm text-neutral-400">Usuario actual: {editingUser.handle}</p>
+                  <p className="text-sm text-muted-foreground">Usuario actual: {editingUser.handle}</p>
                 </div>
                 <button
                   onClick={closeNicknameEditor}
-                  className="text-neutral-400 hover:text-white transition-colors"
+                  className="text-muted-foreground hover:text-foreground transition-colors"
                   title="Cerrar"
                 >
                   <X className="w-5 h-5" />
@@ -1246,64 +1246,64 @@ export default function AdminConsole() {
 
               <div className="p-6 space-y-4">
                 <div>
-                  <label className="block text-sm text-neutral-400 mb-1">Handle principal (Codeforces)</label>
+                  <label className="block text-sm text-muted-foreground mb-1">Handle principal (Codeforces)</label>
                   <input
                     type="text"
                     value={nicknameForm.newHandle}
                     onChange={(e) => setNicknameForm((prev) => ({ ...prev, newHandle: e.target.value }))}
-                    className="w-full bg-neutral-950 border border-neutral-700 text-white px-4 py-2 rounded-lg focus:outline-none focus:border-cyan-500"
+                    className="w-full bg-background border border-border px-4 py-2 rounded-lg focus:outline-none focus:border-primary"
                     placeholder="Nuevo handle principal"
                   />
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-3">
                   <div>
-                    <label className="block text-sm text-neutral-400 mb-1">LeetCode</label>
+                    <label className="block text-sm text-muted-foreground mb-1">LeetCode</label>
                     <input
                       type="text"
                       value={nicknameForm.leetcodeHandle}
                       onChange={(e) => setNicknameForm((prev) => ({ ...prev, leetcodeHandle: e.target.value }))}
-                      className="w-full bg-neutral-950 border border-neutral-700 text-white px-4 py-2 rounded-lg focus:outline-none focus:border-cyan-500"
+                      className="w-full bg-background border border-border px-4 py-2 rounded-lg focus:outline-none focus:border-primary"
                       placeholder="nickname o vacío"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm text-neutral-400 mb-1">AtCoder</label>
+                    <label className="block text-sm text-muted-foreground mb-1">AtCoder</label>
                     <input
                       type="text"
                       value={nicknameForm.atcoderHandle}
                       onChange={(e) => setNicknameForm((prev) => ({ ...prev, atcoderHandle: e.target.value }))}
-                      className="w-full bg-neutral-950 border border-neutral-700 text-white px-4 py-2 rounded-lg focus:outline-none focus:border-cyan-500"
+                      className="w-full bg-background border border-border px-4 py-2 rounded-lg focus:outline-none focus:border-primary"
                       placeholder="nickname o vacío"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm text-neutral-400 mb-1">CodeChef</label>
+                    <label className="block text-sm text-muted-foreground mb-1">CodeChef</label>
                     <input
                       type="text"
                       value={nicknameForm.codechefHandle}
                       onChange={(e) => setNicknameForm((prev) => ({ ...prev, codechefHandle: e.target.value }))}
-                      className="w-full bg-neutral-950 border border-neutral-700 text-white px-4 py-2 rounded-lg focus:outline-none focus:border-cyan-500"
+                      className="w-full bg-background border border-border px-4 py-2 rounded-lg focus:outline-none focus:border-primary"
                       placeholder="nickname o vacío"
                     />
                   </div>
                 </div>
 
-                <p className="text-xs text-neutral-500">Si dejas un campo de plataforma vacío, se guarda como null.</p>
+                <p className="text-xs text-muted-foreground">Si dejas un campo de plataforma vacío, se guarda como null.</p>
               </div>
 
-              <div className="px-6 py-4 border-t border-neutral-800 flex items-center justify-end gap-3 bg-neutral-950/40">
+              <div className="px-6 py-4 border-t border-border flex items-center justify-end gap-3 bg-muted/20">
                 <button
                   onClick={closeNicknameEditor}
                   disabled={nicknameSaving}
-                  className="px-4 py-2 rounded-lg border border-neutral-700 text-neutral-300 hover:text-white hover:border-neutral-500 transition-colors"
+                  className="px-4 py-2 rounded-lg border border-border text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors"
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={saveNicknames}
                   disabled={nicknameSaving}
-                  className="px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-medium transition-colors"
+                  className="px-4 py-2 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground font-medium transition-colors"
                 >
                   {nicknameSaving ? 'Guardando...' : 'Guardar cambios'}
                 </button>

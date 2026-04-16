@@ -13,9 +13,9 @@ const PERIOD_OPTIONS = [
 
 export default function PeriodFilter({ period, onPeriodChange }) {
   return (
-    <Card>
+    <Card className="surface-panel rounded-2xl">
       <CardContent className="p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-2 font-semibold text-lg">
+        <div className="flex items-center gap-2 font-semibold text-lg font-display">
            <Calendar className="h-5 w-5" />
            Periodo de Tiempo
         </div>

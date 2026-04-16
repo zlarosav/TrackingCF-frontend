@@ -4,10 +4,12 @@ import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { DateTime } from 'luxon'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { ExternalLink, Calendar, Clock } from 'lucide-react'
+import { ExternalLink, Calendar, Clock, User } from 'lucide-react'
 import { apiClient } from '@/lib/api'
+import { Badge } from '@/components/ui/badge'
 
 export default function ContestsPage() {
   const [allContests, setAllContests] = useState([])
@@ -181,88 +183,153 @@ export default function ContestsPage() {
       const isFinished = nowMillis >= endMillis;
       const isBefore24h = !isFinished && !isLive && (startMillis - nowMillis) < 24 * 60 * 60 * 1000;
 
-      const cardOpacity = isPast ? 'opacity-70 grayscale hover:grayscale-0 hover:opacity-100' : 'opacity-100';
-      const borderClass = isLive ? 'border-green-500 border-2' : (isBefore24h ? 'border-primary border-l-4' : '');
+      const cardOpacity = isPast ? 'opacity-80 grayscale hover:grayscale-0 hover:opacity-100' : 'opacity-100';
+      const borderClass = isLive ? 'border-green-500' : (isBefore24h ? 'border-primary' : 'border-border');
+      const statusLabel = isLive ? 'En curso' : (isBefore24h ? 'Próximo' : (isPast ? 'Finalizado' : 'Programado'))
+      const statusTone = isLive
+        ? 'bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/30'
+        : (isBefore24h
+          ? 'bg-primary/10 text-primary border-primary/30'
+          : 'bg-muted/50 text-muted-foreground border-border')
 
       return (
-        <Card key={contest.id} className={`transition-all ${cardOpacity} ${borderClass} h-full`}>
-          <CardHeader className="pb-2">
-            <div className="flex flex-wrap justify-between items-start gap-2">
-              <div className="flex items-center gap-2 overflow-hidden max-w-full">
-                   <img 
-                      src={getPlatformIcon(contest.platform)} 
-                      alt={contest.platform} 
-                      className="w-6 h-6 object-contain flex-shrink-0" 
-                      onError={(e) => e.target.style.display = 'none'} 
-                   />
-                  <CardTitle className="text-lg leading-tight truncate" title={contest.name}>
+        <Card key={contest.id} className={`group relative overflow-hidden rounded-2xl border bg-card/90 backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-24px_rgba(2,51,82,0.55)] ${cardOpacity} ${borderClass}`}>
+          <div className={`absolute top-0 left-0 right-0 h-1 ${isLive ? 'bg-green-500' : (isBefore24h ? 'bg-primary' : 'bg-border')}`} />
+          <CardHeader className="pb-2 pt-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <img
+                    src={getPlatformIcon(contest.platform)}
+                    alt={contest.platform}
+                    className="h-5 w-5 flex-shrink-0 object-contain"
+                    onError={(e) => { e.target.style.display = 'none' }}
+                  />
+                  <CardTitle className="truncate text-base font-semibold leading-tight" title={contest.name}>
                     {contest.name}
                   </CardTitle>
+                </div>
+                <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                  <span>{contest.id}</span>
+                  <span>•</span>
+                  <span className="capitalize">{startDate.setLocale('es').toFormat('cccc dd LLL yyyy, HH:mm')}</span>
+                </div>
               </div>
-              <a 
+
+              <a
                 href={getContestLink(contest)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-muted-foreground hover:text-primary flex-shrink-0"
+                className="flex-shrink-0 rounded-full border border-border bg-background/70 p-2 text-muted-foreground transition-colors hover:border-primary/30 hover:text-primary"
               >
-                <ExternalLink size={20} />
+                <ExternalLink size={16} />
               </a>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-0">
             <div className="flex flex-col gap-3">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Calendar size={16} />
-                <span className="capitalize">{startDate.setLocale('es').toFormat('cccc dd LLL yyyy, HH:mm')}</span>
-              </div>
-              
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Clock size={16} />
-                <span>Duración: {formatDuration(contest.durationSeconds)}</span>
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant="outline" className="px-2 py-0.5 text-[10px] font-medium">
+                  {contest.platform}
+                </Badge>
+                <Badge variant="outline" className={`px-2 py-0.5 text-[10px] font-medium ${statusTone}`}>
+                  {statusLabel}
+                </Badge>
+                <Badge variant="secondary" className="px-2 py-0.5 text-[10px] font-medium">
+                  {formatDuration(contest.durationSeconds)}
+                </Badge>
               </div>
 
-                  <div className="mt-2 text-right">
-                     <div className={`font-mono text-lg font-bold ${isLive ? 'text-green-600' : (isPast ? 'text-muted-foreground' : 'text-primary')}`}>
-                        {getTimeRemaining(contest.startTimeSeconds, contest.durationSeconds)}
-                     </div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Clock size={14} />
+                <span>{getTimeRemaining(contest.startTimeSeconds, contest.durationSeconds)}</span>
+              </div>
+
+              <div className="rounded-2xl border bg-background/60 p-3">
+                <div className="mb-2 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 text-xs uppercase tracking-[0.16em] text-muted-foreground">
+                    <User className="h-3.5 w-3.5" />
+                    Participantes
                   </div>
+                  <button
+                    onClick={() => toggleParticipants(contest)}
+                    className="text-xs font-medium text-primary hover:underline"
+                  >
+                    {expandedContest === key ? 'Ocultar' : 'Ver lista'}
+                  </button>
+                </div>
 
-                    {isPast && (
-                      <div className="mt-4 border-t pt-3 space-y-3">
-                        <button
-                          onClick={() => toggleParticipants(contest)}
-                          className="text-sm font-medium text-primary hover:underline"
+                {expandedContest === key ? (
+                  loadingParticipants[key] ? (
+                    <div className="text-sm text-muted-foreground">Cargando participantes...</div>
+                  ) : participants.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {participants.map((participant) => (
+                        <Link
+                          key={participant.id}
+                          href={`/user/${participant.handle}`}
+                          className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-2.5 py-1 text-xs font-medium transition-colors hover:border-primary/30 hover:bg-muted/50"
                         >
-                          {expandedContest === key
-                            ? 'Ocultar participantes'
-                            : `Ver participantes${participants.length ? ` (${participants.length})` : ''}`}
-                        </button>
-
-                        {expandedContest === key && (
-                          <div className="space-y-2">
-                            {loadingParticipants[key] ? (
-                              <div className="text-sm text-muted-foreground">Cargando participantes...</div>
-                            ) : participants.length > 0 ? (
-                              <div className="flex flex-wrap gap-2">
-                                {participants.map((participant) => (
-                                  <Link
-                                    key={participant.id}
-                                    href={`/user/${participant.handle}`}
-                                    className="inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium hover:bg-muted transition-colors"
-                                  >
-                                    {participant.handle}
-                                  </Link>
-                                ))}
-                              </div>
-                            ) : (
-                              <div className="text-sm text-muted-foreground">
-                                Aún no hay participantes rastreados para este contest.
-                              </div>
-                            )}
+                          {participant.avatar_url ? (
+                            <Image
+                              src={participant.avatar_url}
+                              alt={participant.handle}
+                              width={16}
+                              height={16}
+                              className="h-4 w-4 rounded-full object-cover"
+                              unoptimized
+                            />
+                          ) : (
+                            <div className="flex h-4 w-4 items-center justify-center rounded-full bg-muted">
+                              <User className="h-2.5 w-2.5 text-muted-foreground" />
+                            </div>
+                          )}
+                          <span className="truncate">{participant.handle}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-sm text-muted-foreground">
+                      Aún no hay participantes rastreados para este contest.
+                    </div>
+                  )
+                ) : (
+                  <div className="flex flex-wrap gap-2">
+                    {participants.slice(0, 3).map((participant) => (
+                      <span
+                        key={participant.id}
+                        className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-2.5 py-1 text-[11px] text-muted-foreground"
+                      >
+                        {participant.avatar_url ? (
+                          <Image
+                            src={participant.avatar_url}
+                            alt={participant.handle}
+                            width={16}
+                            height={16}
+                            className="h-4 w-4 rounded-full object-cover"
+                            unoptimized
+                          />
+                        ) : (
+                          <div className="flex h-4 w-4 items-center justify-center rounded-full bg-muted">
+                            <User className="h-2.5 w-2.5 text-muted-foreground" />
                           </div>
                         )}
-                      </div>
+                        <span className="truncate">{participant.handle}</span>
+                      </span>
+                    ))}
+                    {participants.length > 3 && (
+                      <span className="inline-flex items-center rounded-full border border-border bg-background px-2.5 py-1 text-[11px] text-muted-foreground">
+                        +{participants.length - 3}
+                      </span>
                     )}
+                    {participants.length === 0 && (
+                      <span className="text-xs text-muted-foreground">
+                        Sin participantes cargados aún.
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -278,7 +345,7 @@ export default function ContestsPage() {
   }
 
   return (
-    <div className="space-y-8 max-w-5xl mx-auto">
+    <div className="mx-auto max-w-5xl space-y-8">
       {/* Header & Controls */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
           <div className="flex flex-col gap-1">
