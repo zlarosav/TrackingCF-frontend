@@ -362,7 +362,7 @@ export default function AdminConsole() {
 
     try {
       await axios.put(`${getApiUrl()}/admin/users/${userHandle}/enable`, 
-        {}, 
+        { enabled: !currentStatus }, 
         { headers: { Authorization: `Bearer ${token}` } }
       );
       fetchUsers(token);
