@@ -1,5 +1,4 @@
 'use client'
-
 import * as React from "react"
 import Link from "next/link"
 import { Menu, X } from "lucide-react"
@@ -9,83 +8,17 @@ import { Button } from "@/components/ui/button"
 import { NotificationBell } from "@/components/NotificationBell"
 
 export function SiteHeader() {
-  const [isOpen, setIsOpen] = React.useState(false)
-
-  const toggleMenu = () => setIsOpen(!isOpen)
-  const closeMenu = () => setIsOpen(false)
-
-  const navItems = [
-    { href: "/", label: "Inicio" },
-    { href: "/contests", label: "Contests" },
-    { href: "/resources", label: "Recursos" },
-    { href: "/judges", label: "Jueces" },
-    { href: "/competitions", label: "Competencias" },
-    { href: "/communities", label: "Comunidades" },
-    { href: "/about", label: "Acerca de" },
-  ]
-
+  const [isOpen, setIsOpen] = React.useState(false); const close = () => setIsOpen(false)
+  const items = [{ href: "/", label: "Inicio" }, { href: "/compare", label: "Comparar" }, { href: "/contests", label: "Contests" }, { href: "/resources", label: "Recursos" }, { href: "/judges", label: "Jueces" }, { href: "/competitions", label: "Comp." }, { href: "/communities", label: "Comunidades" }]
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between">
-        
-        {/* Left Side: Logo + Desktop Nav */}
-        <div className="flex items-center gap-6">
-          <Link href="/" onClick={closeMenu}>
-            <HeaderLogo />
-          </Link>
-          
-          {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
-             {navItems.slice(0, 6).map((item) => (
-                <Link 
-                  key={item.href} 
-                  href={item.href} 
-                  className="transition-colors hover:text-foreground/80 text-foreground/60"
-                >
-                  {item.label}
-                </Link>
-             ))}
-          </nav>
+    <header className="sticky top-0 z-50 w-full border-b border-border/30 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-12 items-center justify-between">
+        <div className="flex items-center gap-6"><Link href="/" onClick={close}><HeaderLogo /></Link>
+          <nav className="hidden md:flex items-center gap-0.5">{items.map(({ href, label }) => (<Link key={href} href={href} className="px-2.5 py-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-md hover:bg-muted/40">{label}</Link>))}</nav>
         </div>
-
-        {/* Right Side: Desktop Actions + Mobile Toggle */}
-        <div className="flex items-center gap-4">
-           {/* Desktop About Link */}
-           <nav className="hidden md:flex items-center gap-4 text-sm font-medium">
-              <Link href="/about" className="transition-colors hover:text-foreground/80 text-foreground/60">
-                Acerca de
-              </Link>
-           </nav>
-
-           <div className="flex items-center gap-1">
-             <NotificationBell />
-             <ThemeToggle />
-           </div>
-           
-           {/* Mobile Toggle */}
-           <Button variant="ghost" size="icon" className="md:hidden" onClick={toggleMenu}>
-              {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-           </Button>
-        </div>
+        <div className="flex items-center gap-1.5"><NotificationBell /><ThemeToggle /><Button variant="ghost" size="icon" className="md:hidden h-8 w-8" onClick={() => setIsOpen(!isOpen)}>{isOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}</Button></div>
       </div>
-
-      {/* Mobile Menu */}
-      {isOpen && (
-        <div className="md:hidden border-t p-4 bg-background">
-           <nav className="flex flex-col gap-4">
-             {navItems.map((item) => (
-                <Link 
-                  key={item.href} 
-                  href={item.href} 
-                  onClick={closeMenu}
-                  className="text-sm font-medium transition-colors hover:text-primary"
-                >
-                  {item.label}
-                </Link>
-             ))}
-           </nav>
-        </div>
-      )}
+      {isOpen && <div className="md:hidden border-t border-border/20 bg-background/95 backdrop-blur-xl"><nav className="container flex flex-col gap-0.5 py-2">{items.concat([{ href: "/about", label: "Acerca de" }]).map(({ href, label }) => (<Link key={href} href={href} onClick={close} className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/30 rounded-md transition-colors">{label}</Link>))}</nav></div>}
     </header>
   )
 }

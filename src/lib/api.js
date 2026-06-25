@@ -83,6 +83,11 @@ export const apiClient = {
     const { data } = await api.get(`/users/${handle}/rating-history`);
     return data;
   },
+
+  getActivityHeatmap: async (handle, days = 365) => {
+    const { data } = await api.get(`/submissions/${handle}/heatmap?days=${days}`);
+    return data;
+  },
 };
 
 export default api;
