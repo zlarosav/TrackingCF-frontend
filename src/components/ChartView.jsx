@@ -3,9 +3,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
-const COLORS = ['#6366F1', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6', '#EC4899']
+const COLORS = ['#0066cc', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6', '#EC4899']
 const CustomTooltip = ({ active, payload, label }) => {
-  if (active && payload?.length) return <div className="rounded-lg border border-border/40 bg-card px-2.5 py-1.5 shadow-sm text-xs"><p className="font-medium text-[10px]">{label}</p>{payload.map((e, i) => <p key={i} style={{ color: e.color }} className="text-[10px] font-mono">{e.name}: {e.value}</p>)}</div>
+  if (active && payload?.length) return <div className="rounded-lg border border-hairline-on-dark/60 bg-canvas px-2.5 py-1.5 text-xs"><p className="font-medium text-[10px]">{label}</p>{payload.map((e, i) => <p key={i} style={{ color: e.color }} className="text-[10px] font-mono">{e.name}: {e.value}</p>)}</div>
   return null
 }
 
@@ -37,30 +37,30 @@ export default function ChartView({ stats }) {
 
   return (
     <div className="grid gap-4 md:grid-cols-2">
-      <Card className="border-border/30">
+      <Card className="border-hairline">
         <CardHeader className="p-3 pb-1"><CardTitle className="text-xs">Distribución por Rating</CardTitle></CardHeader>
         <CardContent className="p-3"><div className="h-[220px]"><ResponsiveContainer width="100%" height="100%"><BarChart data={ratingData}>
-          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" strokeOpacity={0.3} />
-          <XAxis dataKey="category" angle={-30} textAnchor="end" height={55} fontSize={10} tick={{ fill: 'hsl(var(--muted-foreground))' }} />
-          <YAxis allowDecimals={false} fontSize={10} tick={{ fill: 'hsl(var(--muted-foreground))' }} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" strokeOpacity={0.3} />
+          <XAxis dataKey="category" angle={-30} textAnchor="end" height={55} fontSize={10} tick={{ fill: '#7a7a7a' }} />
+          <YAxis allowDecimals={false} fontSize={10} tick={{ fill: '#7a7a7a' }} />
           <Tooltip content={<CustomTooltip />} />
-          <Bar dataKey="count" fill="#6366F1" radius={[3, 3, 0, 0]} />
+          <Bar dataKey="count" fill="#0066cc" radius={[3, 3, 0, 0]} />
         </BarChart></ResponsiveContainer></div></CardContent>
       </Card>
 
-      <Card className="border-border/30">
+      <Card className="border-hairline">
         <CardHeader className="p-3 pb-1"><CardTitle className="text-xs">Últimos 7 Días</CardTitle></CardHeader>
         <CardContent className="p-3"><div className="h-[220px]"><ResponsiveContainer width="100%" height="100%"><LineChart data={progressData}>
-          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" strokeOpacity={0.3} />
-          <XAxis dataKey="month" angle={-30} textAnchor="end" height={55} fontSize={10} tick={{ fill: 'hsl(var(--muted-foreground))' }} />
-          <YAxis allowDecimals={false} fontSize={10} tick={{ fill: 'hsl(var(--muted-foreground))' }} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" strokeOpacity={0.3} />
+          <XAxis dataKey="month" angle={-30} textAnchor="end" height={55} fontSize={10} tick={{ fill: '#7a7a7a' }} />
+          <YAxis allowDecimals={false} fontSize={10} tick={{ fill: '#7a7a7a' }} />
           <Tooltip content={<CustomTooltip />} />
-          <Line type="monotone" dataKey="count" stroke="#6366F1" strokeWidth={2} dot={{ fill: '#6366F1', strokeWidth: 1.5, r: 3 }} activeDot={{ r: 4 }} />
+          <Line type="monotone" dataKey="count" stroke="#0066cc" strokeWidth={2} dot={{ fill: '#0066cc', strokeWidth: 1.5, r: 3 }} activeDot={{ r: 4 }} />
         </LineChart></ResponsiveContainer></div></CardContent>
       </Card>
 
       {tagsData.length > 0 && (
-        <Card className="md:col-span-2 border-border/30">
+        <Card className="md:col-span-2 border-hairline">
           <CardHeader className="p-3 pb-1"><CardTitle className="text-xs">Tags Más Frecuentes</CardTitle></CardHeader>
           <CardContent className="p-3"><div className="h-[240px]"><ResponsiveContainer width="100%" height="100%"><PieChart>
             <Pie data={tagsData} dataKey="count" nameKey="tag" cx="50%" cy="50%" outerRadius={80} innerRadius={35}

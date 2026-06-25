@@ -7,11 +7,11 @@ import { apiClient } from '@/lib/api'
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, User, ExternalLink, Medal, Calendar } from 'lucide-react'
+import { ArrowLeft, User, ExternalLink, Medal, Calendar, TrendingUp, Star, Award, Flame } from 'lucide-react'
 import StreakBadge from '@/components/StreakBadge'
 import { getRatingColorClass } from '@/lib/utils'
 import UserTabs from '@/components/user/UserTabs'
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+import { Card } from "@/components/ui/card"
 
 export default function UserPage({ params }) {
   const { handle } = params
@@ -40,17 +40,17 @@ export default function UserPage({ params }) {
 
   if (loading && !user) return (
     <div className="space-y-4">
-      <div className="flex items-center gap-4"><Skeleton className="h-14 w-14 rounded-xl" /><div className="space-y-2"><Skeleton className="h-6 w-40" /><Skeleton className="h-3 w-28" /></div></div>
-      <Skeleton className="h-10 w-full rounded-lg" /><Skeleton className="h-80 w-full rounded-lg" />
+      <Skeleton className="h-40 w-full rounded-xl" />
+      <Skeleton className="h-12 w-full rounded-xl" />
+      <Skeleton className="h-80 w-full rounded-xl" />
     </div>
   )
 
   if (error || !user) return (
-    <Card className="border-destructive/40">
-      <CardHeader><CardTitle className="text-destructive text-sm">Error</CardTitle></CardHeader>
-      <CardContent><p className="text-xs text-muted-foreground">{error || 'Usuario no encontrado'}</p>
-        <Link href="/"><Button variant="outline" size="sm" className="mt-3"><ArrowLeft className="mr-1 h-3 w-3" /> Volver</Button></Link>
-      </CardContent>
+    <Card className="rounded-xl p-6 text-center">
+      <Award className="h-10 w-10 text-muted mx-auto mb-3" />
+      <p className="text-body-md text-muted mb-3">{error || 'Usuario no encontrado'}</p>
+      <Link href="/"><Button variant="secondary" size="sm"><ArrowLeft className="mr-1 h-3 w-3" /> Volver</Button></Link>
     </Card>
   )
 
@@ -61,38 +61,89 @@ export default function UserPage({ params }) {
   ].filter(Boolean)
 
   return (
-    <div className="animate-fade-in space-y-4">
-      <div className="flex items-start gap-4">
-        <Link href="/"><Button variant="outline" size="icon" className="h-8 w-8 rounded-lg shrink-0 mt-1"><ArrowLeft className="h-3.5 w-3.5" /></Button></Link>
-        <div className="relative shrink-0">
-          {user?.avatar_url ? (
-            <div className="h-14 w-14 overflow-hidden rounded-xl border-2 border-border"><Image src={user.avatar_url} alt={handle} width={56} height={56} className="h-full w-full object-cover" unoptimized /></div>
-          ) : (
-            <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-muted border-2 border-border"><User className="h-7 w-7 text-muted-foreground" /></div>
-          )}
-          <div className="absolute -bottom-1.5 -right-1.5"><StreakBadge streak={user?.current_streak} isActive={user?.streak_active} /></div>
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <h1 className={`text-xl font-black tracking-tight ${getRatingColorClass(user?.rating)}`}>{handle}</h1>
-            {user?.rating && <Badge variant="secondary" className="font-medium text-[10px]">{user.rank}</Badge>}
-            <a href={`https://codeforces.com/profile/${handle}`} target="_blank" rel="noopener noreferrer" className="shrink-0"><Button variant="outline" size="sm" className="h-7 gap-1.5 text-[11px]"><ExternalLink className="h-3 w-3" />CF</Button></a>
-          </div>
-          <div className="flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground mt-0.5">
-            {user?.rating && <><span className="inline-flex items-center gap-1"><Medal className="h-3 w-3" /><span className="font-mono font-semibold">{user.rating}</span></span><span className="text-muted-foreground/30">|</span></>}
-            <span className="inline-flex items-center gap-1"><Calendar className="h-3 w-3" />{user?.last_submission_time ? new Date(user.last_submission_time).toLocaleDateString() : 'Sin actividad'}</span>
-          </div>
-          {platforms.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mt-1.5">
-              {platforms.map(({ label, handle: h, icon }) => (
-                <span key={label} className="inline-flex items-center gap-1 rounded-md border border-border/40 bg-muted/20 px-1.5 py-0.5 text-[10px] text-muted-foreground">
-                  <img src={icon} alt={label} className="h-3 w-3 object-contain" />{h}
-                </span>
-              ))}
+    <div className="animate-fade-in space-y-5 max-w-5xl mx-auto">
+      {/* Profile header — Binance trader profile style */}
+      <Card className="rounded-xl overflow-hidden">
+        <div className="bg-gradient-to-r from-primary/10 to-transparent h-1" />
+        <div className="p-5">
+          <div className="flex items-start gap-4">
+            <Link href="/"><Button variant="secondary" size="icon" className="h-8 w-8 shrink-0 mt-1"><ArrowLeft className="h-3.5 w-3.5" /></Button></Link>
+            <div className="relative shrink-0">
+              {user?.avatar_url ? (
+                <div className="h-16 w-16 overflow-hidden rounded-full ring-2 ring-surface-elevated-dark">
+                  <Image src={user.avatar_url} alt={handle} width={64} height={64} className="h-full w-full object-cover" unoptimized />
+                </div>
+              ) : (
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-surface-elevated-dark ring-2 ring-surface-elevated-dark">
+                  <User className="h-8 w-8 text-muted" />
+                </div>
+              )}
+              <div className="absolute -bottom-1 -right-1"><StreakBadge streak={user?.current_streak} isActive={user?.streak_active} /></div>
             </div>
-          )}
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <h1 className={`text-title-lg text-on-dark ${getRatingColorClass(user?.rating)?.replace('font-', '') || ''}`}>{handle}</h1>
+                {user?.rating && <Badge variant="secondary" className="font-medium text-caption">{user.rank}</Badge>}
+                <a href={`https://codeforces.com/profile/${handle}`} target="_blank" rel="noopener noreferrer">
+                  <Button variant="default" size="sm" className="h-7 gap-1.5 text-caption">
+                    <ExternalLink className="h-3 w-3" />CF
+                  </Button>
+                </a>
+              </div>
+              <div className="flex flex-wrap items-center gap-3 text-body-sm text-muted mt-1.5">
+                {user?.rating && (
+                  <>
+                    <span className="inline-flex items-center gap-1">
+                      <Medal className="h-3.5 w-3.5 text-primary" />
+                      <span className="font-semibold text-primary">{user.rating}</span>
+                    </span>
+                    <span className="text-surface-elevated-dark">|</span>
+                  </>
+                )}
+                <span className="inline-flex items-center gap-1">
+                  <Calendar className="h-3.5 w-3.5" />
+                  {user?.last_submission_time ? new Date(user.last_submission_time).toLocaleDateString() : 'Sin actividad'}
+                </span>
+                {user?.current_streak > 0 && (
+                  <>
+                    <span className="text-surface-elevated-dark">|</span>
+                    <span className="inline-flex items-center gap-1">
+                      <Flame className="h-3.5 w-3.5 text-orange-500" />
+                      <span className="text-orange-500">{user.current_streak}d racha</span>
+                    </span>
+                  </>
+                )}
+              </div>
+              {platforms.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {platforms.map(({ label, handle: h, icon }) => (
+                    <span key={label} className="inline-flex items-center gap-1 rounded-sm bg-surface-elevated-dark px-1.5 py-0.5 text-[11px] text-muted">
+                      <img src={icon} alt={label} className="h-3 w-3 object-contain" />{h}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
-      </div>
+      </Card>
+
+      {/* Stats row */}
+      {stats?.generalStats && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {[
+            { label: 'Score', value: stats.generalStats.total_score || 0, isYellow: true },
+            { label: 'Envíos', value: stats.generalStats.total_submissions || 0, isGreen: true },
+            { label: 'Rating max', value: user?.rating || '—', isYellow: true },
+            { label: '1200+', value: stats.generalStats.count_1200_plus || 0, isGreen: true },
+          ].map(({ label, value, isYellow, isGreen }) => (
+            <Card key={label} className="flex flex-col p-3 rounded-xl">
+              <span className="text-caption text-muted">{label}</span>
+              <span className={`text-title-lg mt-0.5 ${isYellow ? 'text-primary' : isGreen ? 'text-trading-up' : 'text-on-dark'}`}>{value}</span>
+            </Card>
+          ))}
+        </div>
+      )}
 
       <UserTabs user={user} submissions={submissions} stats={stats} handle={handle} />
     </div>

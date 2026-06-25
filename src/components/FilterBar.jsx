@@ -10,9 +10,9 @@ export default function FilterBar({ filters, setFilters }) {
   const hasActive = filters.ratingMin || filters.ratingMax || filters.dateFrom || filters.dateTo
 
   return (
-    <div className="rounded-lg border border-border/30 bg-card p-3">
+    <div className="rounded-lg border border-hairline bg-canvas p-3">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1.5"><Filter className="h-4 w-4 text-muted-foreground" /><span className="text-sm font-medium">Filtros</span></div>
+        <div className="flex items-center gap-1.5"><Filter className="h-4 w-4 text-muted" /><span className="text-sm font-medium">Filtros</span></div>
         <div className="flex gap-1.5">
           {hasActive && <Button variant="outline" size="sm" onClick={() => { setFilters({ ratingMin: '', ratingMax: '', dateFrom: '', dateTo: '', sortBy: 'submission_time', order: 'desc' }); setRange([0, 4000]) }} className="h-8 text-xs px-2"><X className="h-3.5 w-3.5 mr-0.5" />Limpiar</Button>}
           <Button variant="outline" size="sm" onClick={() => setShow(!show)} className="h-8 text-xs px-2">{show ? 'Ocultar' : 'Mostrar'}</Button>

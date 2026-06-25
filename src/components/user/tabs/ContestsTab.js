@@ -14,34 +14,34 @@ export default function ContestsTab({ handle }) {
   const getVC = (v) => { if (v === 'OK') return 'bg-green-50 border-green-200 dark:bg-green-900/20 dark:border-green-800'; if (v === 'WRONG_ANSWER') return 'bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800'; if (v) return 'bg-muted/30 border-border/30'; return '' }
   const clean = (n) => n.replace(/^Codeforces\s*/i, 'CF ')
 
-  if (loading) return <div className="flex items-center justify-center py-8"><div className="h-6 w-6 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" /></div>
-  if (!history.length) return <Card className="border-border/30"><CardContent className="flex flex-col items-center gap-3 py-12 text-center"><Trophy className="h-8 w-8 text-muted-foreground/20" /><p className="text-sm text-muted-foreground">Sin historial de contests.</p></CardContent></Card>
+  if (loading) return <div className="flex items-center justify-center py-8"><div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" /></div>
+  if (!history.length) return <Card className="border-hairline"><CardContent className="flex flex-col items-center gap-3 py-12 text-center"><Trophy className="h-8 w-8 text-muted/20" /><p className="text-sm text-muted">Sin historial de contests.</p></CardContent></Card>
 
   const baseIndices = Array.from(new Set(history.flatMap(c => c.problems?.map(p => p.index.replace(/^([A-Z]+).*/, '$1')) || []))).sort((a, b) => a.length !== b.length ? a.length - b.length : a.localeCompare(b))
 
   return (
     <div className="animate-fade-in">
-      <Card className="border-border/30 shadow-sm overflow-hidden">
+      <Card className="border-hairline overflow-hidden">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-sm">
               <colgroup><col className="w-[200px] min-w-[180px]" />{baseIndices.map(i => <col key={i} className="w-[140px] min-w-[120px]" />)}</colgroup>
               <thead>
-                <tr className="bg-muted/20 text-muted-foreground border-b border-border/40">
-                  <th className="p-3 font-semibold sticky left-0 bg-background z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.06)]">Contest</th>
-                  {baseIndices.map(i => <th key={i} className="p-2.5 font-semibold text-center border-l border-border/20">{i}</th>)}
+                <tr className="bg-surface-card-dark text-muted border-b border-hairline-on-dark/60">
+                  <th className="p-3 font-semibold sticky left-0 bg-canvas z-10">Contest</th>
+                  {baseIndices.map(i => <th key={i} className="p-2.5 font-semibold text-center border-l border-hairline-on-dark/60">{i}</th>)}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border/20">
+              <tbody className="divide-y divide-hairline/20">
                 {current.map(contest => (
-                  <tr key={contest.contestId} className="hover:bg-muted/10 transition-colors">
-                    <td className="p-3 sticky left-0 bg-background z-10 border-r border-border/20 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.06)]">
+                  <tr key={contest.contestId} className="hover:bg-surface-card-dark transition-colors">
+                    <td className="p-3 sticky left-0 bg-canvas z-10 border-r border-hairline-on-dark/60">
                       <a href={`https://codeforces.com/contest/${contest.contestId}`} target="_blank" rel="noopener noreferrer" className="font-semibold text-foreground line-clamp-1 block hover:text-primary transition-colors text-sm" title={contest.contestName}>{clean(contest.contestName)}</a>
-                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
+                      <div className="flex items-center gap-1.5 text-xs text-muted mt-0.5">
                         <span>{new Date(contest.ratingUpdateTimeSeconds * 1000).toLocaleDateString()}</span>
                         <span className={`inline-flex items-center gap-0.5 font-mono font-semibold rounded px-1.5 py-0.5 ${
                           contest.newRating > contest.oldRating ? 'text-green-600 bg-green-50 dark:text-green-400 dark:bg-green-900/20' :
-                          contest.newRating < contest.oldRating ? 'text-red-600 bg-red-50 dark:text-red-400 dark:bg-red-900/20' : 'text-muted-foreground bg-muted/30'
+                          contest.newRating < contest.oldRating ? 'text-red-600 bg-red-50 dark:text-red-400 dark:bg-red-900/20' : 'text-muted bg-surface-elevated-dark'
                         }`}>
                           {contest.newRating > contest.oldRating ? <TrendingUp className="h-3 w-3" /> : contest.newRating < contest.oldRating ? <TrendingDown className="h-3 w-3" /> : <Minus className="h-3 w-3" />}
                           {contest.newRating}
@@ -50,10 +50,10 @@ export default function ContestsTab({ handle }) {
                     </td>
                     {baseIndices.map(baseIdx => {
                       const problems = contest.problems?.filter(p => p.index.replace(/^([A-Z]+).*/, '$1') === baseIdx).sort((a, b) => a.index.localeCompare(b.index, undefined, { numeric: true }))
-                      if (!problems?.length) return <td key={baseIdx} className="p-0 border-l border-border/20 bg-muted/5"></td>
+                      if (!problems?.length) return <td key={baseIdx} className="p-0 border-l border-hairline-on-dark/60 bg-surface-card-dark/10"></td>
                       return (
-                        <td key={baseIdx} className="p-0 align-top border-l border-border/20">
-                          <div className="flex h-full min-h-[60px] divide-x divide-border/20">
+                        <td key={baseIdx} className="p-0 align-top border-l border-hairline-on-dark/60">
+                          <div className="flex h-full min-h-[60px] divide-x divide-hairline/30">
                             {problems.map(p => (
                               <div key={p.index} className={`flex-1 p-2 flex flex-col justify-between relative overflow-hidden text-clip border-b-2 ${getVC(p.verdict)}`}>
                                 <div className={`font-bold text-xs leading-tight line-clamp-2 mb-0.5 ${getRC(p.rating)}`} title={p.name}>
@@ -72,8 +72,8 @@ export default function ContestsTab({ handle }) {
             </table>
           </div>
           {totalPages > 1 && (
-            <div className="flex items-center justify-between px-3 py-3 border-t border-border/20 bg-muted/5">
-              <span className="text-sm text-muted-foreground">{start + 1}-{Math.min(start + PER_PAGE, history.length)} de {history.length}</span>
+            <div className="flex items-center justify-between px-3 py-3 border-t border-hairline-on-dark/60 bg-surface-card-dark">
+              <span className="text-sm text-muted">{start + 1}-{Math.min(start + PER_PAGE, history.length)} de {history.length}</span>
               <div className="flex items-center gap-1.5">
                 <Button variant="outline" size="sm" onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="h-8 w-8 p-0"><ChevronLeft className="h-4 w-4" /></Button>
                 <span className="text-sm font-medium px-1">{currentPage}/{totalPages}</span>

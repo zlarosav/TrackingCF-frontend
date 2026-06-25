@@ -20,13 +20,13 @@ export default function UserTabs({ user, submissions, stats, handle }) {
   ]
   return (
     <div className="w-full space-y-5">
-      <div className="flex rounded-lg border border-border/30 bg-card p-0.5 overflow-x-auto shadow-sm">
+      <div className="flex rounded-xl bg-surface-card-dark border border-hairline-on-dark/60 p-0.5 overflow-x-auto">
         {tabs.map(({ id, label, icon: Icon }) => {
           const active = activeTab === id
           return (
             <button key={id} onClick={() => setActiveTab(id)}
-              className={`relative flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-md transition-all whitespace-nowrap ${active ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
-              {active && <motion.div layoutId="activeTabProfile" className="absolute inset-0 bg-indigo-600 rounded-md shadow-sm" transition={{ type: "spring", bounce: 0.2, duration: 0.4 }} />}
+              className={`relative flex items-center gap-1.5 px-4 py-2 text-body-md font-medium rounded-lg transition-all whitespace-nowrap ${active ? 'text-on-primary' : 'text-muted hover:text-on-dark'}`}>
+              {active && <motion.div layoutId="activeTabProfile" className="absolute inset-0 bg-primary rounded-lg" transition={{ type: "spring", bounce: 0.2, duration: 0.4 }} />}
               <span className="relative z-10 flex items-center gap-1.5"><Icon className="h-4 w-4" /><span className="hidden sm:inline">{label}</span></span>
             </button>
           )
