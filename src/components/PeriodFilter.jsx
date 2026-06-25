@@ -1,38 +1,20 @@
 'use client'
 
-import { Button } from './ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
-import { Calendar } from 'lucide-react'
-
-const PERIOD_OPTIONS = [
-  { value: 'week', label: 'Última semana' },
-  { value: 'month', label: 'Mes actual' },
-  { value: 'year', label: 'Año actual' },
-  { value: 'all', label: 'Toda la vida' },
+const OPTIONS = [
+  { value: 'week', label: 'Semana' },
+  { value: 'month', label: 'Mes' },
+  { value: 'year', label: 'Año' },
+  { value: 'all', label: 'Todo' },
 ];
 
 export default function PeriodFilter({ period, onPeriodChange }) {
   return (
-    <Card className="surface-panel rounded-2xl">
-      <CardContent className="p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-2 font-semibold text-lg font-display">
-           <Calendar className="h-5 w-5" />
-           Periodo de Tiempo
-        </div>
-        
-        <div className="flex flex-wrap gap-2 justify-end">
-          {PERIOD_OPTIONS.map((option) => (
-            <Button
-              key={option.value}
-              variant={period === option.value ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => onPeriodChange(option.value)}
-            >
-              {option.label}
-            </Button>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+    <div className="inline-flex rounded-lg border border-border/30 bg-card p-0.5 shadow-sm">
+      {OPTIONS.map(({ value, label }) => (
+        <button key={value} onClick={() => onPeriodChange(value)}
+          className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all ${period === value ? 'bg-indigo-600 text-white shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+        >{label}</button>
+      ))}
+    </div>
   )
 }

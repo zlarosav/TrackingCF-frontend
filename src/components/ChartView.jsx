@@ -1,158 +1,74 @@
 'use client'
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { 
-  BarChart, 
-  Bar, 
-  LineChart, 
-  Line, 
-  PieChart, 
-  Pie, 
-  Cell,
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  Legend, 
-  ResponsiveContainer 
-} from 'recharts'
+import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
-const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#0088FE', '#00C49F']
+const COLORS = ['#6366F1', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6', '#EC4899']
+const CustomTooltip = ({ active, payload, label }) => {
+  if (active && payload?.length) return <div className="rounded-lg border border-border/40 bg-card px-2.5 py-1.5 shadow-sm text-xs"><p className="font-medium text-[10px]">{label}</p>{payload.map((e, i) => <p key={i} style={{ color: e.color }} className="text-[10px] font-mono">{e.name}: {e.value}</p>)}</div>
+  return null
+}
 
 export default function ChartView({ stats }) {
   if (!stats) return null
-
   const { ratingDistribution, temporalProgress, topTags } = stats
-
-  // Preparar datos para gráficos
   const ratingData = ratingDistribution || []
-  
-  // Filter temporal progress to show only last 7 days
-  const getLast7DaysData = (temporalProgress) => {
-    if (!temporalProgress || temporalProgress.length === 0) return []
-    
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    const last7Days = []
-    
-    for (let i = 6; i >= 0; i--) {
-      const targetDate = new Date(today)
-      targetDate.setDate(targetDate.getDate() - i)
-      targetDate.setHours(0, 0, 0, 0)
-      
-      // Find matching data for this day
-      const existingData = temporalProgress.find(item => {
-        // item.month is now a string "YYYY-MM-DD" from backend
-        // We must parse it as local time, not UTC (which new Date("YYYY-MM-DD") does)
+
+  const getLast7 = (tp) => {
+    if (!tp?.length) return []
+    const today = new Date(); today.setHours(0, 0, 0, 0)
+    return Array.from({ length: 7 }, (_, i) => {
+      const target = new Date(today); target.setDate(target.getDate() - (6 - i))
+      const existing = tp.find(item => {
         if (typeof item.month === 'string' && item.month.includes('-')) {
-          const [year, month, day] = item.month.split('-').map(Number)
-          const itemDate = new Date(year, month - 1, day)
-          return itemDate.getFullYear() === targetDate.getFullYear() &&
-                 itemDate.getMonth() === targetDate.getMonth() &&
-                 itemDate.getDate() === targetDate.getDate()
+          const [y, m, d] = item.month.split('-').map(Number)
+          const itemDate = new Date(y, m - 1, d)
+          return itemDate.getFullYear() === target.getFullYear() && itemDate.getMonth() === target.getMonth() && itemDate.getDate() === target.getDate()
         }
-        
-        // Fallback for Date objects if any
-        const itemDate = new Date(item.month)
-        itemDate.setHours(0, 0, 0, 0)
-        return itemDate.getTime() === targetDate.getTime()
+        const id = new Date(item.month); id.setHours(0, 0, 0, 0)
+        return id.getTime() === target.getTime()
       })
-      
-      last7Days.push({
-        month: targetDate.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit' }),
-        count: existingData ? Number(existingData.count) : 0
-      })
-    }
-    
-    return last7Days
+      return { month: target.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit' }), count: existing ? Number(existing.count) : 0 }
+    })
   }
-  
-  const progressData = getLast7DaysData(temporalProgress)
+
+  const progressData = getLast7(temporalProgress)
   const tagsData = (topTags || []).slice(0, 6)
 
   return (
     <div className="grid gap-4 md:grid-cols-2">
-      {/* Rating Distribution */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Distribución por Rating</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={ratingData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis 
-                dataKey="category" 
-                angle={-45}
-                textAnchor="end"
-                height={80}
-                fontSize={12}
-              />
-              <YAxis allowDecimals={false} />
-              <Tooltip />
-              <Bar dataKey="count" fill="#8884d8" />
-            </BarChart>
-          </ResponsiveContainer>
-        </CardContent>
+      <Card className="border-border/30">
+        <CardHeader className="p-3 pb-1"><CardTitle className="text-xs">Distribución por Rating</CardTitle></CardHeader>
+        <CardContent className="p-3"><div className="h-[220px]"><ResponsiveContainer width="100%" height="100%"><BarChart data={ratingData}>
+          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" strokeOpacity={0.3} />
+          <XAxis dataKey="category" angle={-30} textAnchor="end" height={55} fontSize={10} tick={{ fill: 'hsl(var(--muted-foreground))' }} />
+          <YAxis allowDecimals={false} fontSize={10} tick={{ fill: 'hsl(var(--muted-foreground))' }} />
+          <Tooltip content={<CustomTooltip />} />
+          <Bar dataKey="count" fill="#6366F1" radius={[3, 3, 0, 0]} />
+        </BarChart></ResponsiveContainer></div></CardContent>
       </Card>
 
-      {/* Temporal Progress */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Últimos 7 Días</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={progressData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis 
-                dataKey="month" 
-                angle={-45}
-                textAnchor="end"
-                height={80}
-                fontSize={12}
-              />
-              <YAxis 
-                allowDecimals={false} 
-              />
-              <Tooltip />
-              <Line 
-                type="monotone" 
-                dataKey="count" 
-                stroke="#82ca9d" 
-                strokeWidth={2}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </CardContent>
+      <Card className="border-border/30">
+        <CardHeader className="p-3 pb-1"><CardTitle className="text-xs">Últimos 7 Días</CardTitle></CardHeader>
+        <CardContent className="p-3"><div className="h-[220px]"><ResponsiveContainer width="100%" height="100%"><LineChart data={progressData}>
+          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" strokeOpacity={0.3} />
+          <XAxis dataKey="month" angle={-30} textAnchor="end" height={55} fontSize={10} tick={{ fill: 'hsl(var(--muted-foreground))' }} />
+          <YAxis allowDecimals={false} fontSize={10} tick={{ fill: 'hsl(var(--muted-foreground))' }} />
+          <Tooltip content={<CustomTooltip />} />
+          <Line type="monotone" dataKey="count" stroke="#6366F1" strokeWidth={2} dot={{ fill: '#6366F1', strokeWidth: 1.5, r: 3 }} activeDot={{ r: 4 }} />
+        </LineChart></ResponsiveContainer></div></CardContent>
       </Card>
 
-      {/* Top Tags */}
       {tagsData.length > 0 && (
-        <Card className="md:col-span-2">
-          <CardHeader>
-            <CardTitle className="text-lg">Tags Más Frecuentes</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={tagsData}
-                  dataKey="count"
-                  nameKey="tag"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={100}
-                  label={(entry) => `${entry.tag} (${entry.count})`}
-                >
-                  {tagsData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </CardContent>
+        <Card className="md:col-span-2 border-border/30">
+          <CardHeader className="p-3 pb-1"><CardTitle className="text-xs">Tags Más Frecuentes</CardTitle></CardHeader>
+          <CardContent className="p-3"><div className="h-[240px]"><ResponsiveContainer width="100%" height="100%"><PieChart>
+            <Pie data={tagsData} dataKey="count" nameKey="tag" cx="50%" cy="50%" outerRadius={80} innerRadius={35}
+              label={({ tag, percent }) => `${tag} ${(percent * 100).toFixed(0)}%`} labelLine={false}>
+              {tagsData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+            </Pie>
+            <Tooltip content={<CustomTooltip />} />
+          </PieChart></ResponsiveContainer></div></CardContent>
         </Card>
       )}
     </div>

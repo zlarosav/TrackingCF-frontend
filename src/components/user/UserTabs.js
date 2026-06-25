@@ -11,7 +11,6 @@ import { LayoutDashboard, List, BarChart2, MessageSquare, Trophy } from 'lucide-
 
 export default function UserTabs({ user, submissions, stats, handle }) {
   const [activeTab, setActiveTab] = useState('general')
-
   const tabs = [
     { id: 'general', label: 'General', icon: LayoutDashboard },
     { id: 'submissions', label: 'Envíos', icon: List },
@@ -19,71 +18,29 @@ export default function UserTabs({ user, submissions, stats, handle }) {
     { id: 'contests', label: 'Contests', icon: Trophy },
     { id: 'chat', label: 'Chat AI', icon: MessageSquare },
   ]
-
   return (
-    <div className="w-full space-y-6">
-      {/* Tab Navigation */}
-      <div className="flex p-1 bg-muted/50 rounded-lg w-full md:w-fit overflow-x-auto">
-        {tabs.map((tab) => {
-          const Icon = tab.icon
-          const isActive = activeTab === tab.id
-          
+    <div className="w-full space-y-5">
+      <div className="flex rounded-lg border border-border/30 bg-card p-0.5 overflow-x-auto shadow-sm">
+        {tabs.map(({ id, label, icon: Icon }) => {
+          const active = activeTab === id
           return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`
-                relative flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-all duration-200
-                ${isActive 
-                  ? 'text-primary-foreground' 
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                }
-              `}
-            >
-              {isActive && (
-                <motion.div
-                  layoutId="activeTab"
-                  className="absolute inset-0 bg-primary rounded-md shadow-sm"
-                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                />
-              )}
-              <span className="relative z-10 flex items-center gap-2">
-                <Icon className="w-4 h-4" />
-                {tab.label}
-              </span>
+            <button key={id} onClick={() => setActiveTab(id)}
+              className={`relative flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-md transition-all whitespace-nowrap ${active ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}>
+              {active && <motion.div layoutId="activeTabProfile" className="absolute inset-0 bg-indigo-600 rounded-md shadow-sm" transition={{ type: "spring", bounce: 0.2, duration: 0.4 }} />}
+              <span className="relative z-10 flex items-center gap-1.5"><Icon className="h-4 w-4" /><span className="hidden sm:inline">{label}</span></span>
             </button>
           )
         })}
       </div>
-
-      {/* Tab Content */}
-      <div className="w-full">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3 }}
-          >
-            {activeTab === 'general' && (
-              <GeneralTab user={user} stats={stats} submissions={submissions} />
-            )}
-            {activeTab === 'submissions' && (
-              <SubmissionsTable submissions={submissions} />
-            )}
-            {activeTab === 'metrics' && (
-              <MetricsTab stats={stats} />
-            )}
-            {activeTab === 'contests' && (
-              <ContestsTab handle={handle} submissions={submissions} />
-            )}
-            {activeTab === 'chat' && (
-              <ChatTab handle={handle} userAvatar={user?.avatar_url} />
-            )}
-          </motion.div>
-        </AnimatePresence>
-      </div>
+      <AnimatePresence mode="wait">
+        <motion.div key={activeTab} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}>
+          {activeTab === 'general' && <GeneralTab user={user} stats={stats} submissions={submissions} handle={handle} />}
+          {activeTab === 'submissions' && <SubmissionsTable submissions={submissions} />}
+          {activeTab === 'metrics' && <MetricsTab stats={stats} handle={handle} />}
+          {activeTab === 'contests' && <ContestsTab handle={handle} />}
+          {activeTab === 'chat' && <ChatTab handle={handle} userAvatar={user?.avatar_url} />}
+        </motion.div>
+      </AnimatePresence>
     </div>
   )
 }
