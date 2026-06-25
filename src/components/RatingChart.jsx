@@ -31,19 +31,19 @@ const CustomTooltip = ({ active, payload, label }) => {
     const item = payload[0]?.payload
     if (!item) return null
     return (
-      <div className="rounded-lg border border-border/40 bg-card px-3 py-2 shadow-md text-xs max-w-[200px]">
+      <div className="rounded-lg border border-hairline-on-dark/60 bg-canvas px-3 py-2 text-xs max-w-[200px]">
         <p className="font-semibold text-xs mb-1">{item.contestName || 'Proyección'}</p>
-        <p className="text-muted-foreground">{formatDate(item.date)}</p>
+        <p className="text-muted">{formatDate(item.date)}</p>
         {item.actualRating != null && (
           <p className="font-mono font-bold" style={{ color: getTierColor(item.actualRating) }}>
             Rating: {item.actualRating}
           </p>
         )}
         {item.actualRating != null && item.fittedRating != null && (
-          <p className="text-muted-foreground">Trend: {item.fittedRating}</p>
+          <p className="text-muted">Trend: {item.fittedRating}</p>
         )}
         {item.isProjection && (
-          <p className="font-mono font-bold text-indigo-500">Proyección: {item.rating}</p>
+          <p className="font-mono font-bold text-primary">Proyección: {item.rating}</p>
         )}
       </div>
     )
@@ -89,10 +89,10 @@ export default function RatingChart({ ratingHistory }) {
   const { data, rSquared, stdError } = chartData
 
   return (
-    <Card className="border-border/30">
+    <Card className="border-hairline">
       <CardHeader className="p-3 pb-1 flex flex-row items-center justify-between">
         <CardTitle className="text-xs">Evolución de Rating</CardTitle>
-        <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+        <div className="flex items-center gap-2 text-[10px] text-muted">
           <span>R²: {rSquared.toFixed(2)}</span>
           {stdError > 0 && <span>±{Math.round(stdError)}</span>}
         </div>
@@ -101,19 +101,19 @@ export default function RatingChart({ ratingHistory }) {
         <div className="h-[280px]">
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" strokeOpacity={0.3} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" strokeOpacity={0.3} />
               <XAxis
                 dataKey="contestIndex"
                 tickFormatter={(v) => `#${v + 1}`}
                 fontSize={10}
-                tick={{ fill: 'hsl(var(--muted-foreground))' }}
-                label={{ value: 'Contest', position: 'insideBottom', offset: -5, fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+                tick={{ fill: '#7a7a7a' }}
+                label={{ value: 'Contest', position: 'insideBottom', offset: -5, fontSize: 10, fill: '#7a7a7a' }}
               />
               <YAxis
                 domain={['auto', 'auto']}
                 fontSize={10}
-                tick={{ fill: 'hsl(var(--muted-foreground))' }}
-                label={{ value: 'Rating', angle: -90, position: 'insideLeft', offset: 0, fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+                tick={{ fill: '#7a7a7a' }}
+                label={{ value: 'Rating', angle: -90, position: 'insideLeft', offset: 0, fontSize: 10, fill: '#7a7a7a' }}
               />
               <Tooltip content={<CustomTooltip />} />
 
@@ -129,7 +129,7 @@ export default function RatingChart({ ratingHistory }) {
                 type="monotone"
                 dataKey="fittedRating"
                 stroke="none"
-                fill="#6366F1"
+                fill="#0066cc"
                 fillOpacity={0.08}
               />
 
@@ -137,7 +137,7 @@ export default function RatingChart({ ratingHistory }) {
               <Line
                 type="monotone"
                 dataKey="fittedRating"
-                stroke="#6366F1"
+                stroke="#0066cc"
                 strokeWidth={1.5}
                 strokeDasharray="6 3"
                 dot={false}
@@ -148,10 +148,10 @@ export default function RatingChart({ ratingHistory }) {
               <Line
                 type="monotone"
                 dataKey="rating"
-                stroke="#818CF8"
+                stroke="#2997ff"
                 strokeWidth={2}
                 strokeDasharray="4 4"
-                dot={{ r: 4, fill: '#818CF8', strokeWidth: 1, stroke: '#fff' }}
+                dot={{ r: 4, fill: '#2997ff', strokeWidth: 1, stroke: '#fff' }}
                 connectNulls={false}
                 activeDot={{ r: 5 }}
               />
@@ -160,7 +160,7 @@ export default function RatingChart({ ratingHistory }) {
               <Line
                 type="monotone"
                 dataKey="actualRating"
-                stroke="#4F46E5"
+                stroke="#0066cc"
                 strokeWidth={2.5}
                 dot={(props) => {
                   const { cx, cy, payload } = props

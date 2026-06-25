@@ -19,8 +19,8 @@ export default function MetricsTab({ stats, handle }) {
 
   if (!stats && loadingRating) return (
     <div className="flex items-center justify-center py-12">
-      <div className="flex flex-col items-center gap-2 text-muted-foreground">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-indigo-600 border-t-transparent" />
+        <div className="flex flex-col items-center gap-2 text-muted">
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
         <p className="text-xs">Cargando métricas...</p>
       </div>
     </div>
