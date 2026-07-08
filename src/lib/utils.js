@@ -1,5 +1,45 @@
 import { clsx } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { extendTailwindMerge } from "tailwind-merge"
+
+// Our custom font-size scale (text-body-sm, text-title-lg, ...) and our custom
+// color scale (text-on-primary, text-on-surface, ...) both live under the `text-`
+// prefix. Plain tailwind-merge doesn't know either scale, so it can't tell them
+// apart and silently drops one when both are combined on one element (e.g.
+// "text-on-primary text-body-sm" collapsed to only the size, leaving text with no
+// explicit color — invisible whenever the inherited body color happens to clash).
+// Registering both scales explicitly fixes that class of bug everywhere in the app.
+const CUSTOM_FONT_SIZES = [
+  'hero-display', 'display-lg', 'display-md', 'display-sm',
+  'title-lg', 'title-md', 'title-sm',
+  'number-display', 'number-md', 'number-sm',
+  'body-md', 'body-sm', 'caption', 'btn', 'nav-link',
+]
+
+const CUSTOM_COLORS = [
+  'primary', 'primary-active', 'primary-disabled', 'ink', 'body', 'body-on-light',
+  'muted', 'muted-strong', 'muted-foreground', 'hairline-on-light', 'hairline-on-dark',
+  'border-strong', 'canvas-light', 'canvas-dark', 'surface-card-dark', 'surface-elevated-dark',
+  'surface-soft-light', 'surface-strong-light', 'on-primary', 'on-dark', 'on-surface',
+  'trading-up', 'trading-down', 'accent-turquoise', 'info',
+  'canvas', 'surface-card', 'surface-elevated', 'hairline',
+  'background', 'foreground', 'primary-foreground',
+  'card', 'card-foreground', 'popover', 'popover-foreground',
+  'secondary', 'secondary-foreground', 'accent', 'accent-foreground',
+  'destructive', 'destructive-foreground', 'border', 'input', 'ring',
+]
+
+const twMerge = extendTailwindMerge({
+  extend: {
+    classGroups: {
+      'font-size': [{ text: CUSTOM_FONT_SIZES }],
+      'text-color': [{ text: CUSTOM_COLORS }],
+      'bg-color': [{ bg: CUSTOM_COLORS }],
+      'border-color': [{ border: CUSTOM_COLORS }],
+      'ring-color': [{ ring: CUSTOM_COLORS }],
+      'ring-offset-color': [{ 'ring-offset': CUSTOM_COLORS }],
+    },
+  },
+})
 
 export function cn(...inputs) {
   return twMerge(clsx(inputs))

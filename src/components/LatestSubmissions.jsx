@@ -1,16 +1,23 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { memo, useEffect, useState } from 'react'
 import { Badge } from "@/components/ui/badge"
-import { ExternalLink, User, Search } from 'lucide-react'
+import { ExternalLink, User, Search, BarChart3 } from 'lucide-react'
 import { Skeleton } from "@/components/ui/skeleton"
+import { JudgeIcon } from "@/components/JudgeIcon"
 import Image from 'next/image'
 import Link from 'next/link'
 
 const RC = { gray: 'bg-muted-foreground/30', green: 'bg-green-500', cyan: 'bg-cyan-500', blue: 'bg-blue-600', purple: 'bg-purple-600', orange: 'bg-orange-500', red: 'bg-red-600' }
 const getColor = (r) => { if (!r) return RC.gray; if (r < 1200) return RC.gray; if (r < 1400) return RC.green; if (r < 1600) return RC.cyan; if (r < 1900) return RC.blue; if (r < 2100) return RC.purple; if (r < 2300) return RC.orange; return RC.red }
 
-export default function LatestSubmissions({ submissions, loading, sortBy, sortOrder, platformFilter, atcoderEnabled, onPlatformChange, onSortChange }) {
+const PLATFORM_TABS = [
+  { key: 'all', label: 'Todas' },
+  { key: 'codeforces', label: 'Codeforces', platform: 'CODEFORCES' },
+  { key: 'atcoder', label: 'Atcoder', platform: 'ATCODER' },
+]
+
+function LatestSubmissions({ submissions, loading, sortBy, sortOrder, platformFilter, atcoderEnabled, onPlatformChange, onSortChange }) {
   const PER_PAGE = 10; const [page, setPage] = useState(1)
   const totalPages = Math.max(1, Math.ceil(submissions.length / PER_PAGE))
   const visible = submissions.slice((page - 1) * PER_PAGE, page * PER_PAGE)
@@ -24,15 +31,26 @@ export default function LatestSubmissions({ submissions, loading, sortBy, sortOr
 
   return (
     <div>
-      <div className="flex flex-wrap items-center gap-2 border-b border-hairline/60 bg-surface-card px-3 sm:px-4 py-2.5">
-        <div className="flex items-center gap-2.5 flex-wrap">
-          <span className="text-caption-strong uppercase tracking-wider text-muted">Submissions</span>
-          <div className="flex rounded-md border border-hairline/60 bg-surface-elevated p-0.5">
-            {[{ key: 'all', label: 'Todas' }, { key: 'codeforces', label: 'CF' }, { key: 'atcoder', label: 'AC', disabled: !atcoderEnabled }].map(({ key, label, disabled }) => (
+      <div className="flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3 bg-surface-elevated border-b border-hairline/60">
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <BarChart3 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-trading-up" />
+          <span className="text-body-sm sm:text-body-md font-semibold text-on-surface">Últimos envíos</span>
+        </div>
+        <span className="text-caption sm:text-body-sm text-muted whitespace-nowrap">{submissions.length} envíos</span>
+      </div>
+
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-hairline/60 bg-surface-card px-3 sm:px-4 py-2">
+        <div className="flex rounded-md border border-hairline/60 bg-surface-elevated p-0.5">
+          {PLATFORM_TABS.map(({ key, label, platform, disabled: fixedDisabled }) => {
+            const disabled = fixedDisabled || (key === 'atcoder' && !atcoderEnabled)
+            return (
               <button key={key} onClick={() => !disabled && onPlatformChange(key)} disabled={disabled}
-                className={`px-2.5 py-1 text-xs font-medium rounded-sm transition-all ${platformFilter === key ? 'bg-primary text-on-primary' : 'text-muted hover:text-on-surface'} ${disabled ? 'opacity-40 cursor-not-allowed' : ''}`}>{label}</button>
-            ))}
-          </div>
+                className={`flex items-center gap-1 justify-center px-2.5 py-1 text-xs font-medium rounded-sm transition-all ${platformFilter === key ? 'bg-primary text-on-primary' : 'text-muted hover:text-on-surface'} ${disabled ? 'opacity-40 cursor-not-allowed' : ''}`}>
+                {platform && <JudgeIcon platform={platform} className="h-3.5 w-3.5" />}
+                {label}
+              </button>
+            )
+          })}
         </div>
         <div className="flex items-center gap-1.5">
           <span className="text-xs text-muted hidden sm:inline">Orden:</span>
@@ -52,7 +70,7 @@ export default function LatestSubmissions({ submissions, loading, sortBy, sortOr
               <div className="flex-1 min-w-0 leading-tight">
                 <div className="flex items-center gap-1.5 flex-wrap">
                   <a href={url} target="_blank" rel="noopener noreferrer" className="text-xs sm:text-sm font-semibold hover:text-primary transition-colors truncate max-w-[180px] sm:max-w-[280px]" title={sub.problem_name}>{sub.problem_name}</a>
-                  <span className={`text-[10px] sm:text-[11px] font-mono font-medium px-1.5 rounded-sm ${plat === 'ATCODER' ? 'bg-orange-900/30 text-orange-400' : 'bg-blue-900/30 text-blue-400'}`}>{plat}</span>
+                  <JudgeIcon platform={plat} className="h-4 w-4" />
                   {sub.rating != null && <span className="text-[10px] sm:text-xs font-mono text-muted">{sub.rating}</span>}
                   {cfEq && <span className="text-[10px] sm:text-xs font-mono text-cyan-400 bg-cyan-900/30 px-1.5 rounded-sm">{cfEq}</span>}
                   <a href={url} target="_blank" rel="noopener noreferrer" className="shrink-0 text-muted opacity-0 hover:text-primary hover:opacity-100 transition-opacity"><ExternalLink className="h-3 w-3" /></a>
@@ -83,3 +101,5 @@ export default function LatestSubmissions({ submissions, loading, sortBy, sortOr
     </div>
   )
 }
+
+export default memo(LatestSubmissions)

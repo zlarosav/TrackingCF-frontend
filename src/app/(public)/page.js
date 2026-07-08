@@ -1,28 +1,29 @@
 "use client"
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import axios from 'axios'
 import { DateTime } from 'luxon'
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from '@/components/ui/table'
 import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Badge } from '@/components/ui/badge'
 import {
-  RefreshCw, User, ArrowUpDown, ArrowUp, ArrowDown,
-  Trophy, BarChart3, Flame, Users, TrendingUp, ExternalLink,
+  RefreshCw, User, Trophy, Flame, Users, TrendingUp, ExternalLink,
 } from 'lucide-react'
 import { apiClient } from '@/lib/api'
 import LatestSubmissions from '@/components/LatestSubmissions'
 import PeriodFilter from '@/components/PeriodFilter'
-import StreakBadge from '@/components/StreakBadge'
-import { getRatingColorClass } from '@/lib/utils'
+import LeaderboardTable from '@/components/LeaderboardTable'
+import { JudgeIcon } from '@/components/JudgeIcon'
+
+const CONTESTS_PER_PAGE = 5
+
+// Helpers puros a nivel de módulo (no se recrean por render).
+const getContestLink = (c) => { const p = String(c.platform || 'CODEFORCES').toUpperCase(); const id = c.id || c.contestId; if (p === 'LEETCODE') return `https://leetcode.com/contest/${id}`; if (p === 'ATCODER') return `https://atcoder.jp/contests/${id}`; if (p === 'CODECHEF') return `https://www.codechef.com/${id}`; return `https://codeforces.com/contest/${id}` }
+const getPlatformIcon = (p) => { const v = String(p || '').toLowerCase(); if (v === 'codeforces') return '/codeforces.svg'; if (v === 'leetcode') return '/leetcode.svg'; if (v === 'atcoder') return '/atcoder.svg'; if (v === 'codechef') return '/codechef.svg'; return null }
+const fmtDate = (s) => s ? DateTime.fromSeconds(s).setZone('America/Lima').setLocale('es').toFormat('dd LLL yyyy, HH:mm') : ''
+const fmtDur = (s) => { const d = s > 3e9 ? 0 : s; return `${Math.floor(d / 3600)}h ${Math.floor((d % 3600) / 60)}m` }
 
 export default function HomePage() {
-  const CONTESTS_PER_PAGE = 5
   const [users, setUsers] = useState([])
   const [submissions, setSubmissions] = useState([])
   const [contestFeed, setContestFeed] = useState([])
@@ -39,47 +40,77 @@ export default function HomePage() {
   const [userSortBy, setUserSortBy] = useState('total_score')
   const [userSortOrder, setUserSortOrder] = useState('desc')
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try { setLoading(true); const r = await apiClient.getUsers(period); if (r.success) { setUsers(r.data); setLastTrackerRun(r.lastTrackerRun || (r.data.length ? r.data[0].last_updated : null)) } } catch (_) {} finally { setLoading(false) }
-  }
-  const fetchSubmissions = async () => {
+  }, [period])
+
+  const fetchSubmissions = useCallback(async () => {
     try { setLoadingSubmissions(true); const r = await apiClient.getAllLatestSubmissions(period, sortBy, sortOrder, 80, platformFilter); if (r.success) { setSubmissions(r.data.submissions); setAtcoderEnabled(!!r.data?.flags?.atcoderSubmissions); if (r.data?.platform && r.data.platform !== platformFilter) setPlatformFilter(r.data.platform) } } catch (_) {} finally { setLoadingSubmissions(false) }
-  }
-  const fetchContestFeed = async () => {
-    try { setLoadingContests(true); const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'; const r = await axios.get(`${apiUrl}/contests`); if (!r.data.success || !Array.isArray(r.data.data)) { setContestFeed([]); return }
-      const now = Math.floor(Date.now() / 1000); const sorted = [...r.data.data].sort((a, b) => (b.startTimeSeconds || 0) - (a.startTimeSeconds || 0))
-      const f = sorted.filter(c => (c.startTimeSeconds || 0) + (c.durationSeconds > 3e9 ? 0 : (c.durationSeconds || 0)) <= now)
-      const candidates = [...f, ...sorted].slice(0, 120); const found = []; const visited = new Set()
-      for (const c of candidates) { const id = String(c.id || c.contestId || ''); if (!id) continue; const key = `${String(c.platform || 'CODEFORCES').toUpperCase()}:${id}`; if (visited.has(key)) continue; visited.add(key); try { const p = await apiClient.getContestParticipants(c.platform || 'CODEFORCES', id); const participants = p.success ? (p.data || []) : []; if (!participants.length) continue; found.push({ ...c, id, participants: participants.slice(0, 4), participantCount: participants.length }); if (found.length >= 25) break } catch (_) {} }
-      setContestFeed(found) } catch (_) { setContestFeed([]) } finally { setLoadingContests(false) }
-  }
-  const getContestLink = (c) => { const p = String(c.platform || 'CODEFORCES').toUpperCase(); const id = c.id || c.contestId; if (p === 'LEETCODE') return `https://leetcode.com/contest/${id}`; if (p === 'ATCODER') return `https://atcoder.jp/contests/${id}`; if (p === 'CODECHEF') return `https://www.codechef.com/${id}`; return `https://codeforces.com/contest/${id}` }
-  const getPlatformIcon = (p) => { const v = String(p || '').toLowerCase(); if (v === 'codeforces') return '/codeforces.svg'; if (v === 'leetcode') return '/leetcode.svg'; if (v === 'atcoder') return '/atcoder.svg'; if (v === 'codechef') return '/codechef.svg'; return null }
-  const fmtDate = (s) => s ? DateTime.fromSeconds(s).setZone('America/Lima').setLocale('es').toFormat('dd LLL yyyy, HH:mm') : ''
-  const fmtDur = (s) => { const d = s > 3e9 ? 0 : s; return `${Math.floor(d / 3600)}h ${Math.floor((d % 3600) / 60)}m` }
-  const handleSort = (col) => { if (userSortBy === col) setUserSortOrder(userSortOrder === 'asc' ? 'desc' : 'asc'); else { setUserSortBy(col); setUserSortOrder('desc') } }
-  const sortedUsers = [...users].sort((a, b) => ((a[userSortBy] || 0) - (b[userSortBy] || 0)) * (userSortOrder === 'asc' ? 1 : -1))
-  const totalScore = users.reduce((a, u) => a + Number(u.total_score || 0), 0)
-  const totalSubs = users.reduce((a, u) => a + Number(u.total_submissions || 0), 0)
-  const topStreak = users.reduce((m, u) => Math.max(m, Number(u.current_streak || 0)), 0)
-  const totalContestPages = Math.max(1, Math.ceil(contestFeed.length / CONTESTS_PER_PAGE))
-  const visibleContests = contestFeed.slice((contestPage - 1) * CONTESTS_PER_PAGE, contestPage * CONTESTS_PER_PAGE)
+  }, [period, sortBy, sortOrder, platformFilter])
+
+  const fetchContestFeed = useCallback(async () => {
+    try { setLoadingContests(true); const r = await apiClient.getRecentContests(25); setContestFeed(r.success && Array.isArray(r.data) ? r.data : []) } catch (_) { setContestFeed([]) } finally { setLoadingContests(false) }
+  }, [])
+
+  // Efectos separados por dependencia real: ordenar submissions ya no refetchea
+  // usuarios ni el feed de contests.
+  useEffect(() => { fetchUsers() }, [fetchUsers])
+  useEffect(() => { fetchSubmissions() }, [fetchSubmissions])
+  useEffect(() => { fetchContestFeed() }, [fetchContestFeed])
+
+  // Ref con los fetchers más recientes para que los listeners (montados una vez)
+  // siempre llamen a la versión actual sin re-registrarse en cada cambio de orden.
+  const fetchersRef = useRef({ fetchUsers, fetchSubmissions, fetchContestFeed })
+  fetchersRef.current = { fetchUsers, fetchSubmissions, fetchContestFeed }
+
+  // Revalidación exacta: al montar y al volver a la pestaña, un GET /meta barato
+  // (throttleado) detecta si el cron corrió. Solo refetchea las porciones que
+  // cambiaron — si nada cambió, cero red y cero parpadeo de loading.
+  useEffect(() => {
+    let cancelled = false
+    const applyChanges = ({ trackerChanged, contestChanged }) => {
+      if (cancelled) return
+      const f = fetchersRef.current
+      if (trackerChanged) { f.fetchUsers(); f.fetchSubmissions() }
+      if (contestChanged) { f.fetchContestFeed() }
+    }
+    const revalidate = async () => { applyChanges(await apiClient.checkFreshness()) }
+    apiClient.checkFreshness({ force: true }).then(applyChanges)
+    const onVisible = () => { if (document.visibilityState === 'visible') revalidate() }
+    window.addEventListener('focus', revalidate)
+    document.addEventListener('visibilitychange', onVisible)
+    return () => { cancelled = true; window.removeEventListener('focus', revalidate); document.removeEventListener('visibilitychange', onVisible) }
+  }, [])
+
   useEffect(() => { setContestPage(1) }, [contestFeed.length])
-  useEffect(() => { fetchUsers(); fetchSubmissions(); fetchContestFeed() }, [period, sortBy, sortOrder, platformFilter])
-  if (loading && !users.length) return <div className="space-y-3"><Skeleton className="h-11 w-full rounded-lg" /><Skeleton className="h-72 w-full rounded-lg" /></div>
 
-  const SortableHeader = ({ column, children }) => { const active = userSortBy === column; return (
-    <TableHead className="cursor-pointer text-center text-caption uppercase tracking-wider text-muted p-2 sm:p-3 h-9 font-medium" onClick={() => handleSort(column)}>
-      <div className="inline-flex items-center gap-0.5">{children}{active ? (userSortOrder === 'asc' ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />) : <ArrowUpDown className="h-3 w-3 opacity-30" />}</div>
-    </TableHead>
-  )}
+  const handleSort = useCallback((col) => {
+    if (userSortBy === col) { setUserSortOrder(o => o === 'asc' ? 'desc' : 'asc') }
+    else { setUserSortBy(col); setUserSortOrder('desc') }
+  }, [userSortBy])
 
-  const statItems = [
+  const handleSubmissionSort = useCallback((f, o) => { setSortBy(f); setSortOrder(o) }, [])
+
+  const sortedUsers = useMemo(
+    () => [...users].sort((a, b) => ((a[userSortBy] || 0) - (b[userSortBy] || 0)) * (userSortOrder === 'asc' ? 1 : -1)),
+    [users, userSortBy, userSortOrder]
+  )
+  const { totalScore, totalSubs, topStreak } = useMemo(() => ({
+    totalScore: users.reduce((a, u) => a + Number(u.total_score || 0), 0),
+    totalSubs: users.reduce((a, u) => a + Number(u.total_submissions || 0), 0),
+    topStreak: users.reduce((m, u) => Math.max(m, Number(u.current_streak || 0)), 0),
+  }), [users])
+  const totalContestPages = useMemo(() => Math.max(1, Math.ceil(contestFeed.length / CONTESTS_PER_PAGE)), [contestFeed.length])
+  const visibleContests = useMemo(() => contestFeed.slice((contestPage - 1) * CONTESTS_PER_PAGE, contestPage * CONTESTS_PER_PAGE), [contestFeed, contestPage])
+
+  const statItems = useMemo(() => [
     { label: 'Usuarios rastreados', value: users.length, icon: Users, suffix: '' },
     { label: 'Score total', value: totalScore.toLocaleString(), icon: Trophy, suffix: 'pts', isYellow: true },
     { label: 'Envíos totales', value: totalSubs.toLocaleString(), icon: TrendingUp, suffix: '', isGreen: true },
     { label: 'Mejor racha', value: `${topStreak}`, icon: Flame, suffix: 'días', isYellow: true },
-  ]
+  ], [users.length, totalScore, totalSubs, topStreak])
+
+  if (loading && !users.length) return <div className="space-y-3"><Skeleton className="h-11 w-full rounded-lg" /><Skeleton className="h-72 w-full rounded-lg" /></div>
 
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 pb-6">
@@ -120,98 +151,27 @@ export default function HomePage() {
         )}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1.6fr_0.9fr] lg:items-start">
-        <div className="space-y-5">
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_400px] lg:items-start">
+        <div className="min-w-0 space-y-5">
           {/* Markets table */}
-          <div className="rounded-xl border border-hairline/60 overflow-hidden">
-            <div className="px-3 sm:px-4 py-2.5 sm:py-3 bg-surface-elevated flex items-center justify-between border-b border-hairline/60">
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
-                <span className="text-body-sm sm:text-body-md font-semibold text-on-surface">Clasificación</span>
-              </div>
-              <span className="text-caption sm:text-body-sm text-muted whitespace-nowrap">{sortedUsers.length} participantes</span>
-            </div>
-            <div className="overflow-x-auto">
-              <Table className="min-w-[600px] sm:min-w-0">
-                <TableHeader>
-                  <TableRow className="bg-surface-elevated/50">
-                    <TableHead className="w-8 text-center text-caption uppercase text-muted p-2 sm:p-3 font-medium">#</TableHead>
-                    <TableHead className="text-caption uppercase text-muted p-2 sm:p-3 font-medium">Usuario</TableHead>
-                    <SortableHeader column="count_no_rating">Sin rtg</SortableHeader>
-                    <SortableHeader column="count_800_900">800</SortableHeader>
-                    <SortableHeader column="count_1000">1000</SortableHeader>
-                    <SortableHeader column="count_1100">1100</SortableHeader>
-                    <SortableHeader column="count_1200_plus">1200+</SortableHeader>
-                    <SortableHeader column="total_submissions">Envíos</SortableHeader>
-                    <SortableHeader column="total_score">Score</SortableHeader>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {sortedUsers.map((user, index) => {
-                    const handles = [user.leetcode_handle && `LC:${user.leetcode_handle}`, user.atcoder_handle && `AC:${user.atcoder_handle}`, user.codechef_handle && `CC:${user.codechef_handle}`].filter(Boolean)
-                    const rankColor = index === 0 ? 'text-primary' : index === 1 ? 'text-muted-strong' : index === 2 ? 'text-amber-600' : ''
-                    return (
-                      <TableRow key={user.id} className="transition-colors hover:bg-surface-elevated/50 border-t border-hairline/60">
-                        <TableCell className="text-center p-2 sm:p-3">
-                          <span className={`text-body-sm sm:text-body-md font-bold ${rankColor || 'text-muted'}`}>{index + 1}</span>
-                        </TableCell>
-                        <TableCell className="p-2 sm:p-3">
-                          <div className="flex items-center gap-2 sm:gap-3">
-                            <Link href={`/user/${user.handle}`}>
-                              {user.avatar_url ? <div className="h-7 w-7 sm:h-9 sm:w-9 shrink-0 overflow-hidden rounded-full ring-1 ring-surface-elevated"><Image src={user.avatar_url} alt={user.handle} width={36} height={36} className="h-full w-full object-cover" unoptimized /></div>
-                                : <div className="flex h-7 w-7 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full bg-surface-elevated"><User className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted" /></div>}
-                            </Link>
-                            <div className="min-w-0 leading-tight">
-                              <div className="flex items-center gap-1 sm:gap-1.5">
-                                <Link href={`/user/${user.handle}`} className="hover:underline leading-none">
-                                  <span className={`text-body-sm sm:text-body-md font-semibold ${getRatingColorClass(user.rating)}`}>{user.handle}</span>
-                                </Link>
-                                <StreakBadge streak={user.current_streak} isActive={user.streak_active} />
-                              </div>
-                              {handles.length > 0 && (
-                                <div className="flex flex-wrap gap-1 mt-0.5">
-                                  {handles.map(h => <span key={h} className="rounded-sm bg-surface-elevated px-1 py-0.5 text-[9px] sm:text-[10px] text-muted">{h}</span>)}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="text-center p-2 sm:p-3"><span className="font-mono text-body-sm sm:text-body-md tabular-nums text-on-surface">{user.count_no_rating || 0}</span></TableCell>
-                        <TableCell className="text-center p-2 sm:p-3"><span className="font-mono text-body-sm sm:text-body-md tabular-nums text-on-surface">{user.count_800_900 || 0}</span></TableCell>
-                        <TableCell className="text-center p-2 sm:p-3"><span className="font-mono text-body-sm sm:text-body-md tabular-nums text-on-surface">{user.count_1000 || 0}</span></TableCell>
-                        <TableCell className="text-center p-2 sm:p-3"><span className="font-mono text-body-sm sm:text-body-md tabular-nums text-on-surface">{user.count_1100 || 0}</span></TableCell>
-                        <TableCell className="text-center p-2 sm:p-3"><span className="font-mono text-body-sm sm:text-body-md tabular-nums text-on-surface">{user.count_1200_plus || 0}</span></TableCell>
-                        <TableCell className="text-center p-2 sm:p-3"><span className="font-mono text-body-sm sm:text-body-md tabular-nums text-on-surface">{user.total_submissions || 0}</span></TableCell>
-                        <TableCell className="text-center p-2 sm:p-3">
-                          <Badge className="bg-primary text-on-primary font-bold font-mono text-body-sm sm:text-body-md px-1.5 sm:px-2.5 py-0.5 rounded-sm">{user.total_score || 0}</Badge>
-                        </TableCell>
-                      </TableRow>
-                    )
-                  })}
-                </TableBody>
-              </Table>
-            </div>
-          </div>
+          <LeaderboardTable users={sortedUsers} sortBy={userSortBy} sortOrder={userSortOrder} onSort={handleSort} />
 
           {/* Latest submissions */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <BarChart3 className="h-4 w-4 text-trading-up" />
-              <h2 className="text-title-sm text-on-surface">Últimos envíos</h2>
-            </div>
-            <div className="rounded-xl border border-hairline/60 overflow-hidden">
-              <LatestSubmissions submissions={submissions} loading={loadingSubmissions} sortBy={sortBy} sortOrder={sortOrder} platformFilter={platformFilter} atcoderEnabled={atcoderEnabled}
-                onPlatformChange={setPlatformFilter} onSortChange={(f, o) => { setSortBy(f); setSortOrder(o) }} />
-            </div>
+          <div className="rounded-xl border border-hairline/60 overflow-hidden">
+            <LatestSubmissions submissions={submissions} loading={loadingSubmissions} sortBy={sortBy} sortOrder={sortOrder} platformFilter={platformFilter} atcoderEnabled={atcoderEnabled}
+              onPlatformChange={setPlatformFilter} onSortChange={handleSubmissionSort} />
           </div>
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-4">
+        <div className="min-w-0 space-y-4">
           <div className="rounded-xl border border-hairline/60 overflow-hidden">
-            <div className="p-4 border-b border-hairline/60 flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-primary" />
-              <span className="text-body-md font-semibold text-on-surface">Contests recientes</span>
+            <div className="flex items-center justify-between px-3 sm:px-4 py-2.5 sm:py-3 bg-surface-elevated border-b border-hairline/60">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <TrendingUp className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
+                <span className="text-body-sm sm:text-body-md font-semibold text-on-surface">Contests recientes</span>
+              </div>
+              <span className="text-caption sm:text-body-sm text-muted whitespace-nowrap">{contestFeed.length}</span>
             </div>
             <div className="p-3 space-y-2">
               {loadingContests ? (
@@ -225,7 +185,7 @@ export default function HomePage() {
                     <a key={`${contest.platform}:${contest.id}`} href={getContestLink(contest)} target="_blank" rel="noopener noreferrer"
                       className="flex items-start gap-3 rounded-lg bg-surface-elevated/50 px-3 py-2.5 transition-colors hover:bg-surface-elevated group">
                       {getPlatformIcon(contest.platform) && (
-                        <Image src={getPlatformIcon(contest.platform)} alt={contest.platform} width={16} height={16} className="mt-0.5 h-4 w-4 shrink-0 object-contain" unoptimized />
+                        <JudgeIcon platform={contest.platform} className="mt-0.5 h-4 w-4" />
                       )}
                       <div className="min-w-0 flex-1 leading-tight">
                         <div className="truncate text-body-md font-semibold text-on-surface">{contest.name}</div>

@@ -1,5 +1,7 @@
 'use client'
 
+import { memo } from 'react'
+
 const OPTIONS = [
   { value: 'week', label: 'Semana' },
   { value: 'month', label: 'Mes' },
@@ -7,7 +9,7 @@ const OPTIONS = [
   { value: 'all', label: 'Todo' },
 ];
 
-export default function PeriodFilter({ period, onPeriodChange }) {
+function PeriodFilter({ period, onPeriodChange }) {
   return (
     <div className="inline-flex rounded-lg bg-surface-card p-0.5 border border-hairline/60">
       {OPTIONS.map(({ value, label }) => (
@@ -18,3 +20,5 @@ export default function PeriodFilter({ period, onPeriodChange }) {
     </div>
   )
 }
+
+export default memo(PeriodFilter)

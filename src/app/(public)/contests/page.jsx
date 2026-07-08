@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import axios from 'axios'
 import { DateTime } from 'luxon'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -22,11 +21,15 @@ export default function ContestsPage() {
   const [loadingParticipants, setLoadingParticipants] = useState({})
   const [now, setNow] = useState(DateTime.now())
 
-  useEffect(() => { fetchContests(); const t = setInterval(() => setNow(DateTime.now()), 1000); return () => clearInterval(t) }, [])
-  useEffect(() => { if (allContests.length) applyFilters() }, [filter, allContests, now])
+  // El tick de 1 s solo alimenta el contador regresivo (display).
+  useEffect(() => { fetchContests(); apiClient.checkFreshness(); const t = setInterval(() => setNow(DateTime.now()), 1000); return () => clearInterval(t) }, [])
+  // La partición upcoming/past (filtro + orden de toda la lista) solo se recalcula
+  // por minuto y ante cambios de filtro/data — no cada segundo.
+  const nowMinute = Math.floor(now.toSeconds() / 60)
+  useEffect(() => { if (allContests.length) applyFilters() }, [filter, allContests, nowMinute])
 
   const fetchContests = async () => {
-    try { const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'; const r = await axios.get(`${apiUrl}/contests`); if (r.data.success) { setAllContests(r.data.data); if (r.data.lastUpdated) setLastUpdated(r.data.lastUpdated) } } catch (_) {} finally { setLoading(false) }
+    try { const r = await apiClient.getContests(); if (r.success) { setAllContests(r.data); if (r.lastUpdated) setLastUpdated(r.lastUpdated) } } catch (_) {} finally { setLoading(false) }
   }
   const applyFilters = () => {
     let filtered = allContests; if (filter !== 'ALL') filtered = filtered.filter(c => c.platform === filter)
