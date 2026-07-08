@@ -11,11 +11,11 @@ export function NotificationBell() {
   if (loading && !notifications.length) return null;
   return (
     <div className="relative">
-      <IconButton onClick={() => setIsOpen(!isOpen)}><Bell className="h-[1.1rem] w-[1.1rem]" />{unreadCount > 0 && <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-trading-down text-on-dark text-[9px] font-bold flex items-center justify-center rounded-full z-10">{unreadCount > 9 ? '9+' : unreadCount}</span>}</IconButton>
-      {isOpen && <><div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} /><div className="absolute right-0 mt-2 w-80 rounded-xl border border-hairline-on-dark/60 bg-surface-card-dark shadow-lg z-50 overflow-hidden">
-        <div className="border-b border-hairline-on-dark/60 bg-surface-elevated-dark p-3 flex justify-between items-center"><span className="text-body-md font-semibold">Notificaciones</span>{unreadCount > 0 && <button onClick={markAll} className="text-body-sm text-primary hover:text-primary/80">Marcar leídas</button>}</div>
+      <IconButton onClick={() => setIsOpen(!isOpen)}><Bell className="h-[1.1rem] w-[1.1rem]" />{unreadCount > 0 && <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-trading-down text-white text-[9px] font-bold flex items-center justify-center rounded-full z-10">{unreadCount > 9 ? '9+' : unreadCount}</span>}</IconButton>
+      {isOpen && <><div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} /><div className="absolute right-0 mt-2 w-80 rounded-xl border border-hairline/60 bg-surface-card shadow-lg z-50 overflow-hidden">
+        <div className="border-b border-hairline/60 bg-surface-elevated p-3 flex justify-between items-center"><span className="text-body-md font-semibold">Notificaciones</span>{unreadCount > 0 && <button onClick={markAll} className="text-body-sm text-primary hover:text-primary/80">Marcar leídas</button>}</div>
         <div className="max-h-80 overflow-y-auto">{!notifications.length ? <div className="p-5 text-center text-body-md text-muted">No hay notificaciones</div>
-          : notifications.map(notif => (<div key={notif.id} onClick={() => { if (notif.link) window.location.href = notif.link }} className={`p-3 border-b border-hairline-on-dark/30 last:border-0 hover:bg-surface-elevated-dark/50 transition-colors ${!notif.isRead ? 'bg-primary/5' : ''} ${notif.link ? 'cursor-pointer' : ''}`}>
+          : notifications.map(notif => (<div key={notif.id} onClick={() => { if (notif.link) window.location.href = notif.link }} className={`p-3 border-b border-hairline/30 last:border-0 hover:bg-surface-elevated/50 transition-colors ${!notif.isRead ? 'bg-primary/5' : ''} ${notif.link ? 'cursor-pointer' : ''}`}>
             <div className="flex gap-2.5"><span className="mt-0.5 text-base shrink-0">{notif.type === 'CONTEST' ? '🏆' : notif.type === 'RANK_UP' ? '🚀' : notif.type === 'SYSTEM' ? '📢' : '⚠️'}</span>
             <div><p className={`text-body-md ${!notif.isRead ? 'font-semibold' : 'text-muted'}`}>{notif.message}</p><span className="text-caption text-muted">{new Date(notif.created_at).toLocaleDateString()}</span></div></div></div>))}</div>
       </div></>}

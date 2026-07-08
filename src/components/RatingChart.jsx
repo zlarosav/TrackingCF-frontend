@@ -31,7 +31,7 @@ const CustomTooltip = ({ active, payload, label }) => {
     const item = payload[0]?.payload
     if (!item) return null
     return (
-      <div className="rounded-lg border border-hairline-on-dark/60 bg-canvas px-3 py-2 text-xs max-w-[200px]">
+      <div className="rounded-lg border border-hairline/60 bg-canvas px-3 py-2 text-xs max-w-[200px]">
         <p className="font-semibold text-xs mb-1">{item.contestName || 'Proyección'}</p>
         <p className="text-muted">{formatDate(item.date)}</p>
         {item.actualRating != null && (
@@ -101,19 +101,19 @@ export default function RatingChart({ ratingHistory }) {
         <div className="h-[280px]">
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e0e0e0" strokeOpacity={0.3} />
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--hairline))" strokeOpacity={0.6} />
               <XAxis
                 dataKey="contestIndex"
                 tickFormatter={(v) => `#${v + 1}`}
                 fontSize={10}
-                tick={{ fill: '#7a7a7a' }}
-                label={{ value: 'Contest', position: 'insideBottom', offset: -5, fontSize: 10, fill: '#7a7a7a' }}
+                tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                label={{ value: 'Contest', position: 'insideBottom', offset: -5, fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
               />
               <YAxis
                 domain={['auto', 'auto']}
                 fontSize={10}
-                tick={{ fill: '#7a7a7a' }}
-                label={{ value: 'Rating', angle: -90, position: 'insideLeft', offset: 0, fontSize: 10, fill: '#7a7a7a' }}
+                tick={{ fill: 'hsl(var(--muted-foreground))' }}
+                label={{ value: 'Rating', angle: -90, position: 'insideLeft', offset: 0, fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
               />
               <Tooltip content={<CustomTooltip />} />
 

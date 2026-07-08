@@ -22,7 +22,7 @@ export function SiteHeader() {
   const pathname = usePathname()
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-canvas-dark border-b border-hairline-on-dark/60" style={{ height: 64 }}>
+    <header className="sticky top-0 z-50 w-full bg-canvas border-b border-hairline/60" style={{ height: 64 }}>
       <div className="mx-auto flex h-16 max-w-[1440px] items-center justify-between px-5 sm:px-8">
         <div className="flex items-center gap-8">
           <Link href="/" onClick={close} className="flex items-center">
@@ -35,7 +35,7 @@ export function SiteHeader() {
                 <Link
                   key={href}
                   href={href}
-                  className={`px-3 py-1.5 text-nav-link text-body hover:text-on-dark transition-colors rounded-sm ${isActive ? 'text-on-dark font-semibold' : ''}`}
+                  className={`px-3 py-1.5 text-nav-link text-body hover:text-on-surface transition-colors rounded-sm ${isActive ? 'text-on-surface font-semibold' : ''}`}
                 >
                   {label}
                 </Link>
@@ -53,7 +53,7 @@ export function SiteHeader() {
             Acerca de
           </Link>
           <button
-            className="md:hidden flex items-center justify-center h-10 w-10 text-body hover:text-on-dark"
+            className="md:hidden flex items-center justify-center h-10 w-10 text-body hover:text-on-surface"
             onClick={() => setIsOpen(!isOpen)}
           >
             {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -61,14 +61,14 @@ export function SiteHeader() {
         </div>
       </div>
       {isOpen && (
-        <div className="md:hidden border-t border-hairline-on-dark/60 bg-canvas-dark">
+        <div className="md:hidden border-t border-hairline/60 bg-canvas">
           <nav className="mx-auto max-w-[1440px] flex flex-col gap-0.5 px-5 py-3">
             {navItems.concat([{ href: "/about", label: "Acerca de" }]).map(({ href, label }) => (
               <Link
                 key={href}
                 href={href}
                 onClick={close}
-                className="px-3 py-2.5 text-body-md text-body hover:text-on-dark hover:bg-surface-card-dark rounded-md transition-colors"
+                className="px-3 py-2.5 text-body-md text-body hover:text-on-surface hover:bg-surface-card rounded-md transition-colors"
               >
                 {label}
               </Link>

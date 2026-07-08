@@ -70,11 +70,11 @@ export default function UserPage({ params }) {
             <Link href="/"><Button variant="secondary" size="icon" className="h-8 w-8 shrink-0 mt-1"><ArrowLeft className="h-3.5 w-3.5" /></Button></Link>
             <div className="relative shrink-0">
               {user?.avatar_url ? (
-                <div className="h-16 w-16 overflow-hidden rounded-full ring-2 ring-surface-elevated-dark">
+                <div className="h-16 w-16 overflow-hidden rounded-full ring-2 ring-surface-elevated">
                   <Image src={user.avatar_url} alt={handle} width={64} height={64} className="h-full w-full object-cover" unoptimized />
                 </div>
               ) : (
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-surface-elevated-dark ring-2 ring-surface-elevated-dark">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-surface-elevated ring-2 ring-surface-elevated">
                   <User className="h-8 w-8 text-muted" />
                 </div>
               )}
@@ -82,7 +82,7 @@ export default function UserPage({ params }) {
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
-                <h1 className={`text-title-lg text-on-dark ${getRatingColorClass(user?.rating)?.replace('font-', '') || ''}`}>{handle}</h1>
+                <h1 className={`text-title-lg text-on-surface ${getRatingColorClass(user?.rating)?.replace('font-', '') || ''}`}>{handle}</h1>
                 {user?.rating && <Badge variant="secondary" className="font-medium text-caption">{user.rank}</Badge>}
                 <a href={`https://codeforces.com/profile/${handle}`} target="_blank" rel="noopener noreferrer">
                   <Button variant="default" size="sm" className="h-7 gap-1.5 text-caption">
@@ -97,7 +97,7 @@ export default function UserPage({ params }) {
                       <Medal className="h-3.5 w-3.5 text-primary" />
                       <span className="font-semibold text-primary">{user.rating}</span>
                     </span>
-                    <span className="text-surface-elevated-dark">|</span>
+                    <span className="text-surface-elevated">|</span>
                   </>
                 )}
                 <span className="inline-flex items-center gap-1">
@@ -106,7 +106,7 @@ export default function UserPage({ params }) {
                 </span>
                 {user?.current_streak > 0 && (
                   <>
-                    <span className="text-surface-elevated-dark">|</span>
+                    <span className="text-surface-elevated">|</span>
                     <span className="inline-flex items-center gap-1">
                       <Flame className="h-3.5 w-3.5 text-orange-500" />
                       <span className="text-orange-500">{user.current_streak}d racha</span>
@@ -117,7 +117,7 @@ export default function UserPage({ params }) {
               {platforms.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 mt-2">
                   {platforms.map(({ label, handle: h, icon }) => (
-                    <span key={label} className="inline-flex items-center gap-1 rounded-sm bg-surface-elevated-dark px-1.5 py-0.5 text-[11px] text-muted">
+                    <span key={label} className="inline-flex items-center gap-1 rounded-sm bg-surface-elevated px-1.5 py-0.5 text-[11px] text-muted">
                       <img src={icon} alt={label} className="h-3 w-3 object-contain" />{h}
                     </span>
                   ))}
@@ -139,7 +139,7 @@ export default function UserPage({ params }) {
           ].map(({ label, value, isYellow, isGreen }) => (
             <Card key={label} className="flex flex-col p-3 rounded-xl">
               <span className="text-caption text-muted">{label}</span>
-              <span className={`text-title-lg mt-0.5 ${isYellow ? 'text-primary' : isGreen ? 'text-trading-up' : 'text-on-dark'}`}>{value}</span>
+              <span className={`text-title-lg mt-0.5 ${isYellow ? 'text-primary' : isGreen ? 'text-trading-up' : 'text-on-surface'}`}>{value}</span>
             </Card>
           ))}
         </div>

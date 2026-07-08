@@ -27,21 +27,21 @@ export default function ContestsTab({ handle }) {
             <table className="w-full text-left border-collapse text-sm">
               <colgroup><col className="w-[200px] min-w-[180px]" />{baseIndices.map(i => <col key={i} className="w-[140px] min-w-[120px]" />)}</colgroup>
               <thead>
-                <tr className="bg-surface-card-dark text-muted border-b border-hairline-on-dark/60">
+                <tr className="bg-surface-card text-muted border-b border-hairline/60">
                   <th className="p-3 font-semibold sticky left-0 bg-canvas z-10">Contest</th>
-                  {baseIndices.map(i => <th key={i} className="p-2.5 font-semibold text-center border-l border-hairline-on-dark/60">{i}</th>)}
+                  {baseIndices.map(i => <th key={i} className="p-2.5 font-semibold text-center border-l border-hairline/60">{i}</th>)}
                 </tr>
               </thead>
               <tbody className="divide-y divide-hairline/20">
                 {current.map(contest => (
-                  <tr key={contest.contestId} className="hover:bg-surface-card-dark transition-colors">
-                    <td className="p-3 sticky left-0 bg-canvas z-10 border-r border-hairline-on-dark/60">
+                  <tr key={contest.contestId} className="hover:bg-surface-card transition-colors">
+                    <td className="p-3 sticky left-0 bg-canvas z-10 border-r border-hairline/60">
                       <a href={`https://codeforces.com/contest/${contest.contestId}`} target="_blank" rel="noopener noreferrer" className="font-semibold text-foreground line-clamp-1 block hover:text-primary transition-colors text-sm" title={contest.contestName}>{clean(contest.contestName)}</a>
                       <div className="flex items-center gap-1.5 text-xs text-muted mt-0.5">
                         <span>{new Date(contest.ratingUpdateTimeSeconds * 1000).toLocaleDateString()}</span>
                         <span className={`inline-flex items-center gap-0.5 font-mono font-semibold rounded px-1.5 py-0.5 ${
                           contest.newRating > contest.oldRating ? 'text-green-600 bg-green-50 dark:text-green-400 dark:bg-green-900/20' :
-                          contest.newRating < contest.oldRating ? 'text-red-600 bg-red-50 dark:text-red-400 dark:bg-red-900/20' : 'text-muted bg-surface-elevated-dark'
+                          contest.newRating < contest.oldRating ? 'text-red-600 bg-red-50 dark:text-red-400 dark:bg-red-900/20' : 'text-muted bg-surface-elevated'
                         }`}>
                           {contest.newRating > contest.oldRating ? <TrendingUp className="h-3 w-3" /> : contest.newRating < contest.oldRating ? <TrendingDown className="h-3 w-3" /> : <Minus className="h-3 w-3" />}
                           {contest.newRating}
@@ -50,9 +50,9 @@ export default function ContestsTab({ handle }) {
                     </td>
                     {baseIndices.map(baseIdx => {
                       const problems = contest.problems?.filter(p => p.index.replace(/^([A-Z]+).*/, '$1') === baseIdx).sort((a, b) => a.index.localeCompare(b.index, undefined, { numeric: true }))
-                      if (!problems?.length) return <td key={baseIdx} className="p-0 border-l border-hairline-on-dark/60 bg-surface-card-dark/10"></td>
+                      if (!problems?.length) return <td key={baseIdx} className="p-0 border-l border-hairline/60 bg-surface-card/10"></td>
                       return (
-                        <td key={baseIdx} className="p-0 align-top border-l border-hairline-on-dark/60">
+                        <td key={baseIdx} className="p-0 align-top border-l border-hairline/60">
                           <div className="flex h-full min-h-[60px] divide-x divide-hairline/30">
                             {problems.map(p => (
                               <div key={p.index} className={`flex-1 p-2 flex flex-col justify-between relative overflow-hidden text-clip border-b-2 ${getVC(p.verdict)}`}>
@@ -72,7 +72,7 @@ export default function ContestsTab({ handle }) {
             </table>
           </div>
           {totalPages > 1 && (
-            <div className="flex items-center justify-between px-3 py-3 border-t border-hairline-on-dark/60 bg-surface-card-dark">
+            <div className="flex items-center justify-between px-3 py-3 border-t border-hairline/60 bg-surface-card">
               <span className="text-sm text-muted">{start + 1}-{Math.min(start + PER_PAGE, history.length)} de {history.length}</span>
               <div className="flex items-center gap-1.5">
                 <Button variant="outline" size="sm" onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1} className="h-8 w-8 p-0"><ChevronLeft className="h-4 w-4" /></Button>

@@ -86,7 +86,7 @@ export default function HomePage() {
       {/* Page header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-display-sm text-on-dark">Leaderboard</h1>
+          <h1 className="text-display-sm text-on-surface">Leaderboard</h1>
           <p className="text-body-sm sm:text-body-md text-muted mt-0.5 sm:mt-1">Rendimiento de los usuarios en el periodo actual</p>
         </div>
         <PeriodFilter period={period} onPeriodChange={setPeriod} />
@@ -101,7 +101,7 @@ export default function HomePage() {
               <span className="text-caption text-muted font-medium truncate">{label}</span>
             </div>
             <div className="mt-1 sm:mt-2">
-              <span className={`text-title-lg sm:text-number-display font-bold ${isYellow ? 'text-primary' : isGreen ? 'text-trading-up' : 'text-on-dark'}`}>
+              <span className={`text-title-lg sm:text-number-display font-bold ${isYellow ? 'text-primary' : isGreen ? 'text-trading-up' : 'text-on-surface'}`}>
                 {value}
               </span>
               {suffix && <span className="text-caption text-muted ml-0.5 sm:ml-1">{suffix}</span>}
@@ -123,18 +123,18 @@ export default function HomePage() {
       <div className="grid gap-6 lg:grid-cols-[1.6fr_0.9fr] lg:items-start">
         <div className="space-y-5">
           {/* Markets table */}
-          <div className="rounded-xl border border-hairline-on-dark/60 overflow-hidden">
-            <div className="px-3 sm:px-4 py-2.5 sm:py-3 bg-surface-elevated-dark flex items-center justify-between border-b border-hairline-on-dark/60">
+          <div className="rounded-xl border border-hairline/60 overflow-hidden">
+            <div className="px-3 sm:px-4 py-2.5 sm:py-3 bg-surface-elevated flex items-center justify-between border-b border-hairline/60">
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
-                <span className="text-body-sm sm:text-body-md font-semibold text-on-dark">Clasificación</span>
+                <span className="text-body-sm sm:text-body-md font-semibold text-on-surface">Clasificación</span>
               </div>
               <span className="text-caption sm:text-body-sm text-muted whitespace-nowrap">{sortedUsers.length} participantes</span>
             </div>
             <div className="overflow-x-auto">
               <Table className="min-w-[600px] sm:min-w-0">
                 <TableHeader>
-                  <TableRow className="bg-surface-elevated-dark/50">
+                  <TableRow className="bg-surface-elevated/50">
                     <TableHead className="w-8 text-center text-caption uppercase text-muted p-2 sm:p-3 font-medium">#</TableHead>
                     <TableHead className="text-caption uppercase text-muted p-2 sm:p-3 font-medium">Usuario</TableHead>
                     <SortableHeader column="count_no_rating">Sin rtg</SortableHeader>
@@ -151,15 +151,15 @@ export default function HomePage() {
                     const handles = [user.leetcode_handle && `LC:${user.leetcode_handle}`, user.atcoder_handle && `AC:${user.atcoder_handle}`, user.codechef_handle && `CC:${user.codechef_handle}`].filter(Boolean)
                     const rankColor = index === 0 ? 'text-primary' : index === 1 ? 'text-muted-strong' : index === 2 ? 'text-amber-600' : ''
                     return (
-                      <TableRow key={user.id} className="transition-colors hover:bg-surface-elevated-dark/50 border-t border-hairline-on-dark/60">
+                      <TableRow key={user.id} className="transition-colors hover:bg-surface-elevated/50 border-t border-hairline/60">
                         <TableCell className="text-center p-2 sm:p-3">
                           <span className={`text-body-sm sm:text-body-md font-bold ${rankColor || 'text-muted'}`}>{index + 1}</span>
                         </TableCell>
                         <TableCell className="p-2 sm:p-3">
                           <div className="flex items-center gap-2 sm:gap-3">
                             <Link href={`/user/${user.handle}`}>
-                              {user.avatar_url ? <div className="h-7 w-7 sm:h-9 sm:w-9 shrink-0 overflow-hidden rounded-full ring-1 ring-surface-elevated-dark"><Image src={user.avatar_url} alt={user.handle} width={36} height={36} className="h-full w-full object-cover" unoptimized /></div>
-                                : <div className="flex h-7 w-7 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full bg-surface-elevated-dark"><User className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted" /></div>}
+                              {user.avatar_url ? <div className="h-7 w-7 sm:h-9 sm:w-9 shrink-0 overflow-hidden rounded-full ring-1 ring-surface-elevated"><Image src={user.avatar_url} alt={user.handle} width={36} height={36} className="h-full w-full object-cover" unoptimized /></div>
+                                : <div className="flex h-7 w-7 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full bg-surface-elevated"><User className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted" /></div>}
                             </Link>
                             <div className="min-w-0 leading-tight">
                               <div className="flex items-center gap-1 sm:gap-1.5">
@@ -170,18 +170,18 @@ export default function HomePage() {
                               </div>
                               {handles.length > 0 && (
                                 <div className="flex flex-wrap gap-1 mt-0.5">
-                                  {handles.map(h => <span key={h} className="rounded-sm bg-surface-elevated-dark px-1 py-0.5 text-[9px] sm:text-[10px] text-muted">{h}</span>)}
+                                  {handles.map(h => <span key={h} className="rounded-sm bg-surface-elevated px-1 py-0.5 text-[9px] sm:text-[10px] text-muted">{h}</span>)}
                                 </div>
                               )}
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell className="text-center p-2 sm:p-3"><span className="font-mono text-body-sm sm:text-body-md tabular-nums text-on-dark">{user.count_no_rating || 0}</span></TableCell>
-                        <TableCell className="text-center p-2 sm:p-3"><span className="font-mono text-body-sm sm:text-body-md tabular-nums text-on-dark">{user.count_800_900 || 0}</span></TableCell>
-                        <TableCell className="text-center p-2 sm:p-3"><span className="font-mono text-body-sm sm:text-body-md tabular-nums text-on-dark">{user.count_1000 || 0}</span></TableCell>
-                        <TableCell className="text-center p-2 sm:p-3"><span className="font-mono text-body-sm sm:text-body-md tabular-nums text-on-dark">{user.count_1100 || 0}</span></TableCell>
-                        <TableCell className="text-center p-2 sm:p-3"><span className="font-mono text-body-sm sm:text-body-md tabular-nums text-on-dark">{user.count_1200_plus || 0}</span></TableCell>
-                        <TableCell className="text-center p-2 sm:p-3"><span className="font-mono text-body-sm sm:text-body-md tabular-nums text-on-dark">{user.total_submissions || 0}</span></TableCell>
+                        <TableCell className="text-center p-2 sm:p-3"><span className="font-mono text-body-sm sm:text-body-md tabular-nums text-on-surface">{user.count_no_rating || 0}</span></TableCell>
+                        <TableCell className="text-center p-2 sm:p-3"><span className="font-mono text-body-sm sm:text-body-md tabular-nums text-on-surface">{user.count_800_900 || 0}</span></TableCell>
+                        <TableCell className="text-center p-2 sm:p-3"><span className="font-mono text-body-sm sm:text-body-md tabular-nums text-on-surface">{user.count_1000 || 0}</span></TableCell>
+                        <TableCell className="text-center p-2 sm:p-3"><span className="font-mono text-body-sm sm:text-body-md tabular-nums text-on-surface">{user.count_1100 || 0}</span></TableCell>
+                        <TableCell className="text-center p-2 sm:p-3"><span className="font-mono text-body-sm sm:text-body-md tabular-nums text-on-surface">{user.count_1200_plus || 0}</span></TableCell>
+                        <TableCell className="text-center p-2 sm:p-3"><span className="font-mono text-body-sm sm:text-body-md tabular-nums text-on-surface">{user.total_submissions || 0}</span></TableCell>
                         <TableCell className="text-center p-2 sm:p-3">
                           <Badge className="bg-primary text-on-primary font-bold font-mono text-body-sm sm:text-body-md px-1.5 sm:px-2.5 py-0.5 rounded-sm">{user.total_score || 0}</Badge>
                         </TableCell>
@@ -197,9 +197,9 @@ export default function HomePage() {
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <BarChart3 className="h-4 w-4 text-trading-up" />
-              <h2 className="text-title-sm text-on-dark">Últimos envíos</h2>
+              <h2 className="text-title-sm text-on-surface">Últimos envíos</h2>
             </div>
-            <div className="rounded-xl border border-hairline-on-dark/60 overflow-hidden">
+            <div className="rounded-xl border border-hairline/60 overflow-hidden">
               <LatestSubmissions submissions={submissions} loading={loadingSubmissions} sortBy={sortBy} sortOrder={sortOrder} platformFilter={platformFilter} atcoderEnabled={atcoderEnabled}
                 onPlatformChange={setPlatformFilter} onSortChange={(f, o) => { setSortBy(f); setSortOrder(o) }} />
             </div>
@@ -208,31 +208,31 @@ export default function HomePage() {
 
         {/* Sidebar */}
         <div className="space-y-4">
-          <div className="rounded-xl border border-hairline-on-dark/60 overflow-hidden">
-            <div className="p-4 border-b border-hairline-on-dark/60 flex items-center gap-2">
+          <div className="rounded-xl border border-hairline/60 overflow-hidden">
+            <div className="p-4 border-b border-hairline/60 flex items-center gap-2">
               <TrendingUp className="h-4 w-4 text-primary" />
-              <span className="text-body-md font-semibold text-on-dark">Contests recientes</span>
+              <span className="text-body-md font-semibold text-on-surface">Contests recientes</span>
             </div>
             <div className="p-3 space-y-2">
               {loadingContests ? (
                 <div className="space-y-2">
-                  <div className="h-16 rounded-lg bg-surface-elevated-dark animate-pulse" />
-                  <div className="h-16 rounded-lg bg-surface-elevated-dark animate-pulse" />
+                  <div className="h-16 rounded-lg bg-surface-elevated animate-pulse" />
+                  <div className="h-16 rounded-lg bg-surface-elevated animate-pulse" />
                 </div>
               ) : contestFeed.length > 0 ? (
                 <div className="space-y-1.5">
                   {visibleContests.map(contest => (
                     <a key={`${contest.platform}:${contest.id}`} href={getContestLink(contest)} target="_blank" rel="noopener noreferrer"
-                      className="flex items-start gap-3 rounded-lg bg-surface-elevated-dark/50 px-3 py-2.5 transition-colors hover:bg-surface-elevated-dark group">
+                      className="flex items-start gap-3 rounded-lg bg-surface-elevated/50 px-3 py-2.5 transition-colors hover:bg-surface-elevated group">
                       {getPlatformIcon(contest.platform) && (
                         <Image src={getPlatformIcon(contest.platform)} alt={contest.platform} width={16} height={16} className="mt-0.5 h-4 w-4 shrink-0 object-contain" unoptimized />
                       )}
                       <div className="min-w-0 flex-1 leading-tight">
-                        <div className="truncate text-body-md font-semibold text-on-dark">{contest.name}</div>
+                        <div className="truncate text-body-md font-semibold text-on-surface">{contest.name}</div>
                         <div className="text-caption text-muted mt-0.5">{fmtDate(contest.startTimeSeconds)} · {fmtDur(contest.durationSeconds)}</div>
                         <div className="flex flex-wrap gap-1 mt-1">
                           {contest.participants.map(p => (
-                            <span key={p.id || p.handle} className="inline-flex items-center gap-1 rounded-sm bg-surface-card-dark px-1.5 py-0.5 text-[10px] text-muted">
+                            <span key={p.id || p.handle} className="inline-flex items-center gap-1 rounded-sm bg-surface-card px-1.5 py-0.5 text-[10px] text-muted">
                               {p.avatar_url ? <Image src={p.avatar_url} alt={p.handle} width={10} height={10} className="h-3 w-3 rounded-full object-cover" unoptimized /> : <User className="h-2.5 w-2.5" />}
                               {p.handle}
                             </span>
@@ -247,21 +247,21 @@ export default function HomePage() {
                   ))}
                 </div>
               ) : (
-                <div className="rounded-lg border border-dashed border-hairline-on-dark/60 p-4 text-center text-body-md text-muted">
+                <div className="rounded-lg border border-dashed border-hairline/60 p-4 text-center text-body-md text-muted">
                   Sin datos de contests
                 </div>
               )}
               {!loadingContests && contestFeed.length > 0 && (
-                <div className="flex items-center justify-between border-t border-hairline-on-dark/60 pt-3 mt-2">
+                <div className="flex items-center justify-between border-t border-hairline/60 pt-3 mt-2">
                   <span className="text-caption text-muted">
                     {(contestPage - 1) * CONTESTS_PER_PAGE + 1}-{Math.min(contestPage * CONTESTS_PER_PAGE, contestFeed.length)}
                   </span>
                   <div className="flex items-center gap-1">
                     <button onClick={() => setContestPage(p => Math.max(1, p - 1))} disabled={contestPage === 1}
-                      className="rounded-sm border border-hairline-on-dark/60 px-2 py-1 text-caption font-medium hover:bg-surface-elevated-dark disabled:opacity-30">Anterior</button>
+                      className="rounded-sm border border-hairline/60 px-2 py-1 text-caption font-medium hover:bg-surface-elevated disabled:opacity-30">Anterior</button>
                     <span className="text-caption text-muted px-1">{contestPage}/{totalContestPages}</span>
                     <button onClick={() => setContestPage(p => Math.min(totalContestPages, p + 1))} disabled={contestPage === totalContestPages}
-                      className="rounded-sm border border-hairline-on-dark/60 px-2 py-1 text-caption font-medium hover:bg-surface-elevated-dark disabled:opacity-30">Siguiente</button>
+                      className="rounded-sm border border-hairline/60 px-2 py-1 text-caption font-medium hover:bg-surface-elevated disabled:opacity-30">Siguiente</button>
                   </div>
                 </div>
               )}
@@ -269,7 +269,7 @@ export default function HomePage() {
           </div>
 
           {/* Quick links — Binance trust-badge style */}
-          <div className="rounded-xl border border-hairline-on-dark/60 overflow-hidden p-3 sm:p-4">
+          <div className="rounded-xl border border-hairline/60 overflow-hidden p-3 sm:p-4">
             <p className="text-caption text-muted uppercase tracking-wider mb-2 sm:mb-3">Explora</p>
             <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
               {[
@@ -279,7 +279,7 @@ export default function HomePage() {
                 { href: '/communities', label: 'Comunidades', icon: Flame },
               ].map(({ href, label, icon: Icon }) => (
                 <Link key={href} href={href}
-                  className="flex items-center gap-2 rounded-lg bg-surface-elevated-dark/50 px-3 py-2.5 text-body-sm text-muted hover:text-primary hover:bg-surface-elevated-dark transition-colors">
+                  className="flex items-center gap-2 rounded-lg bg-surface-elevated/50 px-3 py-2.5 text-body-sm text-muted hover:text-primary hover:bg-surface-elevated transition-colors">
                   <Icon className="h-3.5 w-3.5" />
                   {label}
                 </Link>

@@ -21,7 +21,7 @@ export default function JudgesPage() {
           <Award className="h-4 w-4" />
           Plataformas
         </div>
-        <h1 className="text-display-sm text-on-dark">Jueces Virtuales</h1>
+        <h1 className="text-display-sm text-on-surface">Jueces Virtuales</h1>
         <p className="text-body-md text-muted max-w-2xl">Plataformas líderes para practicar CP y participar en concursos.</p>
       </div>
 
@@ -29,15 +29,15 @@ export default function JudgesPage() {
       <div className="space-y-3">
         {judges.map((j, i) => (
           <a key={i} href={j.url} target="_blank" rel="noopener noreferrer"
-            className="flex items-center gap-5 rounded-xl bg-surface-card-dark p-4 transition-all hover:bg-surface-elevated-dark group border border-hairline-on-dark/60 hover:border-primary/30">
+            className="flex items-center gap-5 rounded-xl bg-surface-card p-4 transition-all hover:bg-surface-elevated group border border-hairline/60 hover:border-primary/30">
             {/* Icon */}
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-surface-elevated-dark p-3">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-surface-elevated p-3">
               <img src={j.icon} alt={j.title} className="h-full w-full object-contain" onError={e => e.target.style.display = 'none'} />
             </div>
             {/* Content */}
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-title-sm text-on-dark">{j.title}</h3>
+                <h3 className="text-title-sm text-on-surface">{j.title}</h3>
                 <div className="flex items-center gap-1 text-caption text-trading-up">
                   <TrendingUp className="h-3 w-3" />
                   <span>{j.stat}</span>

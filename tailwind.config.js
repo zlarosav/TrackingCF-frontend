@@ -43,7 +43,7 @@ module.exports = {
         'primary-active': '#f0b90b',
         'primary-disabled': '#3a3a1f',
         ink: '#181a20',
-        body: '#eaecef',
+        body: 'hsl(var(--text-body) / <alpha-value>)',
         'body-on-light': '#181a20',
         muted: '#707a8a',
         'muted-strong': '#929aa5',
@@ -62,6 +62,42 @@ module.exports = {
         'trading-down': '#f6465d',
         'accent-turquoise': '#2dbdb6',
         info: '#3b82f6',
+
+        // Theme-reactive Binance-style surface tokens (swap with CSS vars in globals.css)
+        canvas: 'hsl(var(--canvas) / <alpha-value>)',
+        'surface-card': 'hsl(var(--surface-card) / <alpha-value>)',
+        'surface-elevated': 'hsl(var(--surface-elevated) / <alpha-value>)',
+        hairline: 'hsl(var(--hairline) / <alpha-value>)',
+        'on-surface': 'hsl(var(--on-surface) / <alpha-value>)',
+
+        // shadcn/ui semantic tokens, wired to the CSS vars already defined in globals.css
+        background: 'hsl(var(--background) / <alpha-value>)',
+        foreground: 'hsl(var(--foreground) / <alpha-value>)',
+        card: {
+          DEFAULT: 'hsl(var(--card) / <alpha-value>)',
+          foreground: 'hsl(var(--card-foreground) / <alpha-value>)',
+        },
+        popover: {
+          DEFAULT: 'hsl(var(--popover) / <alpha-value>)',
+          foreground: 'hsl(var(--popover-foreground) / <alpha-value>)',
+        },
+        secondary: {
+          DEFAULT: 'hsl(var(--secondary) / <alpha-value>)',
+          foreground: 'hsl(var(--secondary-foreground) / <alpha-value>)',
+        },
+        accent: {
+          DEFAULT: 'hsl(var(--accent) / <alpha-value>)',
+          foreground: 'hsl(var(--accent-foreground) / <alpha-value>)',
+        },
+        destructive: {
+          DEFAULT: 'hsl(var(--destructive) / <alpha-value>)',
+          foreground: 'hsl(var(--destructive-foreground) / <alpha-value>)',
+        },
+        'muted-foreground': 'hsl(var(--muted-foreground) / <alpha-value>)',
+        'primary-foreground': 'hsl(var(--primary-foreground) / <alpha-value>)',
+        border: 'hsl(var(--border) / <alpha-value>)',
+        input: 'hsl(var(--input) / <alpha-value>)',
+        ring: 'hsl(var(--ring) / <alpha-value>)',
       },
       spacing: {
         'xxs': '4px',

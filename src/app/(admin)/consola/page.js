@@ -51,19 +51,19 @@ export default function AdminConsole() {
   const handleLogin = async (e) => { e.preventDefault(); setLoginError(''); setLoading(true); try { const r = await axios.post(`${API()}/admin/login`, { username, password }); const t = r.data.token; setToken(t); localStorage.setItem('admin_token', t); setIsAuthenticated(true); await fetchUsers(t); await fetchFlags(t) } catch (e) { setLoginError(e.response?.data?.error || 'Error') } finally { setLoading(false) } };
 
   if (!isAuthenticated && !loading) return (
-    <div className="min-h-screen bg-canvas-dark flex items-center justify-center p-4">
-      <div className="w-full max-w-sm rounded-xl bg-surface-card-dark p-6 border border-hairline-on-dark/60">
+    <div className="min-h-screen bg-canvas flex items-center justify-center p-4">
+      <div className="w-full max-w-sm rounded-xl bg-surface-card p-6 border border-hairline/60">
         <div className="flex justify-center mb-5">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10"><Lock className="h-6 w-6 text-primary" /></div>
         </div>
-        <h2 className="text-title-md text-on-dark text-center mb-0.5">Admin Console</h2>
+        <h2 className="text-title-md text-on-surface text-center mb-0.5">Admin Console</h2>
         <p className="text-body-sm text-muted text-center mb-6">Acceso restringido</p>
         <form onSubmit={handleLogin} className="space-y-3">
           <input type="text" placeholder="Usuario"
-            className="w-full h-10 rounded-lg bg-surface-elevated-dark text-body border border-hairline-on-dark/60 px-3 text-body-md placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/50"
+            className="w-full h-10 rounded-lg bg-surface-elevated text-body border border-hairline/60 px-3 text-body-md placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/50"
             value={username} onChange={e => setUsername(e.target.value)} />
           <input type="password" placeholder="Contraseña"
-            className="w-full h-10 rounded-lg bg-surface-elevated-dark text-body border border-hairline-on-dark/60 px-3 text-body-md placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/50"
+            className="w-full h-10 rounded-lg bg-surface-elevated text-body border border-hairline/60 px-3 text-body-md placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/50"
             value={password} onChange={e => setPassword(e.target.value)} />
           {loginError && <p className="text-body-sm text-trading-down text-center">{loginError}</p>}
           <button type="submit" disabled={loading}
@@ -74,33 +74,33 @@ export default function AdminConsole() {
       </div>
     </div>
   );
-  if (loading) return <div className="min-h-screen bg-canvas-dark flex items-center justify-center text-body-md text-muted">Cargando...</div>;
+  if (loading) return <div className="min-h-screen bg-canvas flex items-center justify-center text-body-md text-muted">Cargando...</div>;
 
   const NavBtn = ({ id, icon: Icon, label }) => (
     <button onClick={() => setView(id)}
       className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-body-md font-medium transition-all whitespace-nowrap ${
-        view === id ? 'bg-primary text-on-primary' : 'text-muted hover:text-on-dark hover:bg-surface-elevated-dark'
+        view === id ? 'bg-primary text-on-primary' : 'text-muted hover:text-on-surface hover:bg-surface-elevated'
       }`}>
       <Icon className="w-4 h-4" />{label}
     </button>
   );
 
   return (
-    <div className="min-h-screen bg-canvas-dark">
-      <nav className="sticky top-0 z-50 border-b border-hairline-on-dark/60 bg-canvas-dark">
+    <div className="min-h-screen bg-canvas">
+      <nav className="sticky top-0 z-50 border-b border-hairline/60 bg-canvas">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
           <div className="flex items-center gap-2">
             <Shield className="w-5 h-5 text-primary" />
-            <span className="text-title-sm text-on-dark">Console</span>
+            <span className="text-title-sm text-on-surface">Console</span>
           </div>
-          <button onClick={logout} className="flex items-center gap-1.5 text-body-md text-muted hover:text-on-dark transition-colors">
+          <button onClick={logout} className="flex items-center gap-1.5 text-body-md text-muted hover:text-on-surface transition-colors">
             <LogOut className="w-4 h-4" />Salir
           </button>
         </div>
       </nav>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
-        <div className="flex gap-1.5 mb-6 overflow-x-auto pb-1 rounded-xl bg-surface-card-dark border border-hairline-on-dark/60 p-1 w-fit">
+        <div className="flex gap-1.5 mb-6 overflow-x-auto pb-1 rounded-xl bg-surface-card border border-hairline/60 p-1 w-fit">
           <NavBtn id="users" icon={Users} label="Usuarios" />
           <NavBtn id="audit" icon={FileText} label="Auditoría" />
           <NavBtn id="chat" icon={MessageSquare} label="Chat IA" />
@@ -109,39 +109,39 @@ export default function AdminConsole() {
 
         {view === 'users' && <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="rounded-xl bg-surface-card-dark p-4 border border-hairline-on-dark/60">
+            <div className="rounded-xl bg-surface-card p-4 border border-hairline/60">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <span className="text-body-md font-semibold text-on-dark">AtCoder Submissions</span>
+                  <span className="text-body-md font-semibold text-on-surface">AtCoder Submissions</span>
                   <span className={`inline-flex items-center rounded-sm px-2 py-0.5 text-caption font-medium ${
-                    featureFlags.atcoderSubmissions ? 'bg-trading-up/10 text-trading-up' : 'bg-surface-elevated-dark text-muted'
+                    featureFlags.atcoderSubmissions ? 'bg-trading-up/10 text-trading-up' : 'bg-surface-elevated text-muted'
                   }`}>{featureFlags.atcoderSubmissions ? 'Activo' : 'Desactivado'}</span>
                 </div>
                 <button onClick={toggleFlag} disabled={featureSaving}
                   className={`px-3 py-1.5 rounded-md text-caption font-medium transition-all ${
-                    featureFlags.atcoderSubmissions ? 'bg-trading-up text-on-dark' : 'bg-surface-elevated-dark text-muted hover:text-on-dark'
+                    featureFlags.atcoderSubmissions ? 'bg-trading-up text-on-surface' : 'bg-surface-elevated text-muted hover:text-on-surface'
                   }`}>{featureSaving ? '...' : 'Toggle'}</button>
               </div>
             </div>
-            <div className="rounded-xl bg-surface-card-dark p-4 border border-hairline-on-dark/60">
+            <div className="rounded-xl bg-surface-card p-4 border border-hairline/60">
               <div className="flex items-center justify-between">
-                <div><span className="text-body-md font-semibold text-on-dark">Backfill 2024</span><p className="text-caption text-muted mt-0.5">Carga todas las submissions desde enero 2024</p></div>
+                <div><span className="text-body-md font-semibold text-on-surface">Backfill 2024</span><p className="text-caption text-muted mt-0.5">Carga todas las submissions desde enero 2024</p></div>
                 <button onClick={async () => { if (!confirm('¿Ejecutar backfill?')) return; setBackfilling(true); try { await axios.post(`${API()}/admin/backfill`, {}, { headers: { Authorization: `Bearer ${token}` } }); alert('Backfill completado!') } catch (e) { alert('Error: ' + (e.response?.data?.error || e.message)) } finally { setBackfilling(false) } }}
                   disabled={backfilling} className="px-3 py-1.5 rounded-md bg-primary text-on-primary text-caption font-medium hover:bg-primary-active disabled:opacity-50">{backfilling ? 'Procesando...' : 'Ejecutar'}</button>
               </div>
             </div>
           </div>
 
-          <div className="rounded-xl bg-surface-card-dark p-4 border border-hairline-on-dark/60">
+          <div className="rounded-xl bg-surface-card p-4 border border-hairline/60">
             <div className="flex items-center gap-2 mb-3">
               <UserPlus className="w-5 h-5 text-trading-up" />
-              <span className="text-body-md font-semibold text-on-dark">Agregar Usuario</span>
+              <span className="text-body-md font-semibold text-on-surface">Agregar Usuario</span>
             </div>
             <form onSubmit={handleAddUser} className="space-y-2">
               <div className="grid gap-2 grid-cols-2 md:grid-cols-4">
                 {[['handle','Handle'],['leetcodeHandle','LeetCode'],['atcoderHandle','AtCoder'],['codechefHandle','CodeChef']].map(([k, label]) => (
                   <input key={k} type="text" placeholder={label}
-                    className="h-10 rounded-lg bg-surface-elevated-dark text-body border border-hairline-on-dark/60 px-3 text-body-md placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    className="h-10 rounded-lg bg-surface-elevated text-body border border-hairline/60 px-3 text-body-md placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/50"
                     value={newUser[k]} onChange={e => setNewUser(p => ({ ...p, [k]: e.target.value }))} />
                 ))}
               </div>
@@ -151,22 +151,22 @@ export default function AdminConsole() {
 
           <div className="grid gap-3 grid-cols-3">
             {[
-              { label: 'Total', value: users.length, color: 'text-on-dark' },
+              { label: 'Total', value: users.length, color: 'text-on-surface' },
               { label: 'Visibles', value: users.filter(u => !u.is_hidden).length, color: 'text-trading-up' },
               { label: 'Tracking activo', value: users.filter(u => u.enabled).length, color: 'text-primary' },
             ].map(s => (
-              <div key={s.label} className="rounded-xl bg-surface-card-dark p-4 border border-hairline-on-dark/60">
+              <div key={s.label} className="rounded-xl bg-surface-card p-4 border border-hairline/60">
                 <p className="text-caption uppercase tracking-wider text-muted font-medium">{s.label}</p>
                 <p className={`text-display-sm mt-1 ${s.color}`}>{s.value}</p>
               </div>
             ))}
           </div>
 
-          <div className="rounded-xl bg-surface-card-dark border border-hairline-on-dark/60 overflow-hidden">
-            <div className="border-b border-hairline-on-dark/60 px-4 py-3 bg-surface-elevated-dark flex items-center justify-between">
+          <div className="rounded-xl bg-surface-card border border-hairline/60 overflow-hidden">
+            <div className="border-b border-hairline/60 px-4 py-3 bg-surface-elevated flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Users className="h-4 w-4 text-primary" />
-                <span className="text-body-md font-semibold text-on-dark">Usuarios</span>
+                <span className="text-body-md font-semibold text-on-surface">Usuarios</span>
                 <span className="text-caption text-muted">({filteredUsers.length})</span>
               </div>
               <div className="flex items-center gap-2">
@@ -178,7 +178,7 @@ export default function AdminConsole() {
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-surface-card-dark">
+                  <TableRow className="bg-surface-card">
                     <TableHead className="text-caption uppercase text-muted font-medium">Usuario</TableHead>
                     <TableHead className="text-caption uppercase text-muted font-medium">Estado</TableHead>
                     <TableHead className="text-caption uppercase text-muted font-medium">Última Act.</TableHead>
@@ -187,14 +187,14 @@ export default function AdminConsole() {
                 </TableHeader>
                 <TableBody>
                   {filteredUsers.map(u => (
-                    <TableRow key={u.handle} className="hover:bg-surface-elevated-dark/30 transition-colors border-t border-hairline-on-dark/60">
+                    <TableRow key={u.handle} className="hover:bg-surface-elevated/30 transition-colors border-t border-hairline/60">
                       <TableCell className="py-3.5 px-4">
                         <div className="flex items-center gap-3">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-elevated-dark text-muted text-caption font-bold">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-elevated text-muted text-caption font-bold">
                             {u.handle.charAt(0).toUpperCase()}
                           </div>
                           <div>
-                            <div className="text-body-md font-semibold text-on-dark">{u.handle}</div>
+                            <div className="text-body-md font-semibold text-on-surface">{u.handle}</div>
                             <div className="flex gap-1.5 mt-0.5">
                               {['LC','AC','CC'].map((p, i) => {
                                 const val = [u.leetcode_handle, u.atcoder_handle, u.codechef_handle][i]
@@ -222,13 +222,13 @@ export default function AdminConsole() {
                       <TableCell className="py-3.5 px-4">
                         <div className="flex justify-end gap-0.5">
                           <button onClick={() => toggleVisibility(u.handle, u.is_hidden)}
-                            className="p-1.5 rounded-md text-muted hover:text-on-dark hover:bg-surface-elevated-dark transition-colors"
+                            className="p-1.5 rounded-md text-muted hover:text-on-surface hover:bg-surface-elevated transition-colors"
                             title={u.is_hidden ? "Mostrar" : "Ocultar"}>{u.is_hidden ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}</button>
                           <button onClick={() => toggleEnabled(u.handle, u.enabled)}
-                            className={`p-1.5 rounded-md transition-colors ${u.enabled ? 'text-trading-up hover:bg-trading-up/10' : 'text-muted hover:text-on-dark hover:bg-surface-elevated-dark'}`}
+                            className={`p-1.5 rounded-md transition-colors ${u.enabled ? 'text-trading-up hover:bg-trading-up/10' : 'text-muted hover:text-on-surface hover:bg-surface-elevated'}`}
                             title={u.enabled ? "Pausar tracking" : "Reanudar tracking"}>{u.enabled ? <CheckCircle className="w-3.5 h-3.5" /> : <XCircle className="w-3.5 h-3.5" />}</button>
                           <button onClick={() => handleTrack(u.handle)} disabled={loadingUsers[u.handle]}
-                            className="p-1.5 rounded-md text-muted hover:text-on-dark hover:bg-surface-elevated-dark transition-colors disabled:opacity-40"
+                            className="p-1.5 rounded-md text-muted hover:text-on-surface hover:bg-surface-elevated transition-colors disabled:opacity-40"
                             title="Sincronizar ahora"><RefreshCw className={`w-3.5 h-3.5 ${loadingUsers[u.handle] ? 'animate-spin' : ''}`} /></button>
                           <button onClick={() => openEditor(u)}
                             className="p-1.5 rounded-md text-muted hover:text-primary hover:bg-primary/10 transition-colors"
@@ -250,19 +250,19 @@ export default function AdminConsole() {
 
           {nicknameEditorOpen && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-              <div className="w-full max-w-sm rounded-xl bg-surface-card-dark p-5 border border-hairline-on-dark/60">
-                <h3 className="text-title-sm text-on-dark mb-0.5">Editar Nicknames</h3>
+              <div className="w-full max-w-sm rounded-xl bg-surface-card p-5 border border-hairline/60">
+                <h3 className="text-title-sm text-on-surface mb-0.5">Editar Nicknames</h3>
                 <p className="text-body-sm text-muted mb-4">{editingUser?.handle}</p>
                 <div className="space-y-2">
                   {['newHandle:Handle principal','leetcodeHandle:LeetCode','atcoderHandle:AtCoder','codechefHandle:CodeChef'].map(f => {
                     const [k, label] = f.split(':');
                     return <input key={k} type="text" placeholder={label}
-                      className="w-full h-10 rounded-lg bg-surface-elevated-dark text-body border border-hairline-on-dark/60 px-3 text-body-md placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/50"
+                      className="w-full h-10 rounded-lg bg-surface-elevated text-body border border-hairline/60 px-3 text-body-md placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/50"
                       value={nicknameForm[k]} onChange={e => setNicknameForm(p => ({ ...p, [k]: e.target.value }))} />;
                   })}
                 </div>
                 <div className="flex justify-end gap-2 mt-4">
-                  <button onClick={closeEditor} className="h-9 px-3 rounded-lg border border-hairline-on-dark/60 text-body-md text-muted hover:text-on-dark hover:bg-surface-elevated-dark transition-colors">Cancelar</button>
+                  <button onClick={closeEditor} className="h-9 px-3 rounded-lg border border-hairline/60 text-body-md text-muted hover:text-on-surface hover:bg-surface-elevated transition-colors">Cancelar</button>
                   <button onClick={saveNicknames} disabled={nicknameSaving} className="h-9 px-3 rounded-lg bg-primary text-on-primary text-btn font-medium hover:bg-primary-active transition-colors">{nicknameSaving ? '...' : 'Guardar'}</button>
                 </div>
               </div>
@@ -271,24 +271,24 @@ export default function AdminConsole() {
         </div>}
 
         {view === 'audit' && <div className="space-y-4">
-          <div className="rounded-xl bg-surface-card-dark p-4 border border-hairline-on-dark/60 space-y-3">
+          <div className="rounded-xl bg-surface-card p-4 border border-hairline/60 space-y-3">
             <div className="flex flex-wrap items-center gap-3">
-              <div className="flex rounded-lg bg-surface-elevated-dark p-0.5">
+              <div className="flex rounded-lg bg-surface-elevated p-0.5">
                 <button onClick={() => setAuditViewMode('ip')}
-                  className={`px-3 py-1.5 rounded-md text-body-md font-medium transition-all ${auditViewMode === 'ip' ? 'bg-primary text-on-primary' : 'text-muted hover:text-on-dark'}`}>Por IP</button>
+                  className={`px-3 py-1.5 rounded-md text-body-md font-medium transition-all ${auditViewMode === 'ip' ? 'bg-primary text-on-primary' : 'text-muted hover:text-on-surface'}`}>Por IP</button>
                 <button onClick={() => setAuditViewMode('list')}
-                  className={`px-3 py-1.5 rounded-md text-body-md font-medium transition-all ${auditViewMode === 'list' ? 'bg-primary text-on-primary' : 'text-muted hover:text-on-dark'}`}>Lista</button>
+                  className={`px-3 py-1.5 rounded-md text-body-md font-medium transition-all ${auditViewMode === 'list' ? 'bg-primary text-on-primary' : 'text-muted hover:text-on-surface'}`}>Lista</button>
               </div>
               <label className="flex items-center gap-1.5 text-body-sm text-muted cursor-pointer">
-                <input type="checkbox" checked={adminActionsOnly} onChange={e => setAdminActionsOnly(e.target.checked)} className="rounded border-hairline-on-dark/60 text-primary" />Solo Admin</label>
+                <input type="checkbox" checked={adminActionsOnly} onChange={e => setAdminActionsOnly(e.target.checked)} className="rounded border-hairline/60 text-primary" />Solo Admin</label>
               <div className="flex items-center gap-1.5 ml-auto">
                 <input type="date" value={filters.startDate} onChange={e => applyFilter('startDate', e.target.value)}
-                  className="h-8 rounded-lg bg-surface-elevated-dark text-body border border-hairline-on-dark/60 text-body-sm px-2.5" />
+                  className="h-8 rounded-lg bg-surface-elevated text-body border border-hairline/60 text-body-sm px-2.5" />
                 <span className="text-muted text-xs">—</span>
                 <input type="date" value={filters.endDate} onChange={e => applyFilter('endDate', e.target.value)}
-                  className="h-8 rounded-lg bg-surface-elevated-dark text-body border border-hairline-on-dark/60 text-body-sm px-2.5" />
+                  className="h-8 rounded-lg bg-surface-elevated text-body border border-hairline/60 text-body-sm px-2.5" />
               </div>
-              {Object.keys(activeFilters).length > 0 && <button onClick={clearFilters} className="text-body-sm text-muted hover:text-on-dark underline">Limpiar</button>}
+              {Object.keys(activeFilters).length > 0 && <button onClick={clearFilters} className="text-body-sm text-muted hover:text-on-surface underline">Limpiar</button>}
             </div>
             {Object.keys(activeFilters).length > 0 && (
               <div className="flex gap-1.5 flex-wrap">
@@ -302,42 +302,42 @@ export default function AdminConsole() {
             )}
           </div>
 
-          <div className="rounded-xl bg-surface-card-dark border border-hairline-on-dark/60 overflow-hidden">
-            <div className="border-b border-hairline-on-dark/60 bg-surface-elevated-dark p-3 flex justify-between items-center">
-              <span className="text-body-md font-semibold text-on-dark flex items-center gap-1.5"><Filter className="w-4 h-4 text-primary" />{auditViewMode === 'ip' ? 'Por IP' : 'Detallado'}</span>
+          <div className="rounded-xl bg-surface-card border border-hairline/60 overflow-hidden">
+            <div className="border-b border-hairline/60 bg-surface-elevated p-3 flex justify-between items-center">
+              <span className="text-body-md font-semibold text-on-surface flex items-center gap-1.5"><Filter className="w-4 h-4 text-primary" />{auditViewMode === 'ip' ? 'Por IP' : 'Detallado'}</span>
               <button onClick={() => auditViewMode === 'ip' ? fetchSummary(token) : fetchLogs(token, activeFilters)}
                 className="flex items-center gap-0.5 text-body-sm text-primary hover:text-primary/80"><RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />Refrescar</button>
             </div>
             {auditViewMode === 'ip' ? (
-              <div className="divide-y divide-hairline-on-dark/60">
+              <div className="divide-y divide-hairline/60">
                 {auditSummary.filter(i => !activeFilters.ip || i.ip.includes(activeFilters.ip)).map(item => (
                   <div key={item.ip}>
-                    <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-surface-elevated-dark/50 transition-colors" onClick={() => toggleIpExpand(item.ip)}>
+                    <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-surface-elevated/50 transition-colors" onClick={() => toggleIpExpand(item.ip)}>
                       <div className="flex items-center gap-3">
                         <div className={`w-2 h-2 rounded-full ${expandedIp === item.ip ? 'bg-primary' : 'bg-muted/30'}`} />
                         <span className="font-mono text-body-md font-semibold text-primary">{item.ip}</span>
                         <span className="text-caption text-muted">{new Date(item.lastActive).toLocaleString()}</span>
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-body-md font-bold text-on-dark">{item.totalRequests}</span>
+                        <span className="text-body-md font-bold text-on-surface">{item.totalRequests}</span>
                         <span className="text-caption text-muted">req</span>
                         {item.admins?.length > 0 && <span className="font-bold text-caption text-trading-up">{item.admins.join(',')}</span>}
                         {expandedIp === item.ip ? <ChevronUp className="w-4 h-4 text-muted" /> : <ChevronDown className="w-4 h-4 text-muted" />}
                       </div>
                     </div>
                     {expandedIp === item.ip && (
-                      <div className="border-t border-hairline-on-dark/60 bg-surface-elevated-dark/30 p-4 pl-8">
+                      <div className="border-t border-hairline/60 bg-surface-elevated/30 p-4 pl-8">
                         {loadingIpLogs ? <div className="flex items-center gap-1.5 text-body-sm text-muted">
                           <div className="h-3 w-3 animate-spin rounded-full border-2 border-primary border-t-transparent" />Cargando...</div>
                         : <div className="space-y-1">
                           {ipLogs.filter(l => !adminActionsOnly || (!l.action.includes('_REQUEST') && l.action !== 'LOGIN_FAILED')).map(l => (
-                            <div key={l.id} className="flex items-center gap-2 text-caption py-1 border-b border-hairline-on-dark/30 last:border-0 hover:bg-surface-elevated-dark/30 rounded px-2">
+                            <div key={l.id} className="flex items-center gap-2 text-caption py-1 border-b border-hairline/30 last:border-0 hover:bg-surface-elevated/30 rounded px-2">
                               <span className="text-muted font-mono w-24 shrink-0">{new Date(l.timestamp).toLocaleString()}</span>
                               <span className={`font-medium px-1.5 rounded-sm text-caption ${
                                 l.action.includes('DELETE') ? 'bg-trading-down/10 text-trading-down' :
                                 l.action.includes('CREATE') ? 'bg-trading-up/10 text-trading-up' :
                                 l.action.includes('LOGIN') ? 'bg-primary/10 text-primary' :
-                                'bg-surface-elevated-dark text-muted'
+                                'bg-surface-elevated text-muted'
                               }`}>{l.action}</span>
                               <span className="text-muted truncate flex-1">{l.details?.handle || JSON.stringify(l.details).slice(0, 60)}</span>
                             </div>
@@ -353,7 +353,7 @@ export default function AdminConsole() {
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow className="bg-surface-card-dark">
+                    <TableRow className="bg-surface-card">
                       <TableHead className="text-caption uppercase text-muted font-medium w-40">Timestamp</TableHead>
                       <TableHead className="text-caption uppercase text-muted font-medium">IP</TableHead>
                       <TableHead className="text-caption uppercase text-muted font-medium">Acción</TableHead>
@@ -362,7 +362,7 @@ export default function AdminConsole() {
                   </TableHeader>
                   <TableBody>
                     {logs.filter(l => !adminActionsOnly || (!l.action?.includes('_REQUEST') && l.action !== 'LOGIN_FAILED')).map(l => (
-                      <TableRow key={l.id} className="hover:bg-surface-elevated-dark/20 transition-colors border-t border-hairline-on-dark/60">
+                      <TableRow key={l.id} className="hover:bg-surface-elevated/20 transition-colors border-t border-hairline/60">
                         <TableCell className="py-3 px-4 text-muted font-mono text-caption whitespace-nowrap">{new Date(l.timestamp).toLocaleString()}</TableCell>
                         <TableCell className="py-3 px-4 font-mono text-body-sm text-primary">{l.ip}</TableCell>
                         <TableCell className="py-3 px-4">
@@ -384,15 +384,15 @@ export default function AdminConsole() {
           </div>
         </div>}
 
-        {view === 'chat' && <div className="rounded-xl bg-surface-card-dark border border-hairline-on-dark/60 overflow-hidden">
-          <div className="border-b border-hairline-on-dark/60 bg-surface-elevated-dark p-4 flex justify-between items-center">
-            <span className="text-body-md font-semibold text-on-dark flex items-center gap-1.5"><MessageSquare className="w-4 h-4 text-primary" />Chat IA</span>
+        {view === 'chat' && <div className="rounded-xl bg-surface-card border border-hairline/60 overflow-hidden">
+          <div className="border-b border-hairline/60 bg-surface-elevated p-4 flex justify-between items-center">
+            <span className="text-body-md font-semibold text-on-surface flex items-center gap-1.5"><MessageSquare className="w-4 h-4 text-primary" />Chat IA</span>
             <button onClick={() => fetchChat(token)} className="flex items-center gap-0.5 text-body-sm text-primary hover:text-primary/80">
               <RefreshCw className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`} />Refrescar</button>
           </div>
           {chatSummary.map(item => (
             <div key={item.ip}>
-              <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-surface-elevated-dark/50 border-b border-hairline-on-dark/60 transition-colors"
+              <div className="flex items-center justify-between p-4 cursor-pointer hover:bg-surface-elevated/50 border-b border-hairline/60 transition-colors"
                 onClick={() => toggleIpExpand(item.ip, 'chat')}>
                 <div className="flex items-center gap-3">
                   <div className={`w-2 h-2 rounded-full ${expandedIp === item.ip ? 'bg-primary' : 'bg-muted/30'}`} />
@@ -400,25 +400,25 @@ export default function AdminConsole() {
                   <span className="text-caption text-muted">{new Date(item.lastActive).toLocaleString()}</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="text-body-md font-bold text-on-dark">{item.totalRequests}</span>
+                  <span className="text-body-md font-bold text-on-surface">{item.totalRequests}</span>
                   <span className="text-caption text-muted">consultas</span>
                   {expandedIp === item.ip ? <ChevronUp className="w-4 h-4 text-muted" /> : <ChevronDown className="w-4 h-4 text-muted" />}
                 </div>
               </div>
               {expandedIp === item.ip && (
-                <div className="border-t border-hairline-on-dark/60 bg-surface-elevated-dark/30 p-4 pl-8">
+                <div className="border-t border-hairline/60 bg-surface-elevated/30 p-4 pl-8">
                   {loadingIpLogs ? <div className="flex items-center gap-1.5 text-body-sm text-muted">
                     <div className="h-3 w-3 animate-spin rounded-full border-2 border-primary border-t-transparent" />Cargando...</div>
                   : <div className="space-y-1.5">
                     {ipLogs.map(l => (
-                      <div key={l.id} className="rounded-lg bg-surface-card-dark p-3 text-body-sm border border-hairline-on-dark/30">
+                      <div key={l.id} className="rounded-lg bg-surface-card p-3 text-body-sm border border-hairline/30">
                         <div className="flex justify-between items-start mb-1.5">
                           <span className="bg-primary/10 text-primary rounded-sm px-2 py-0.5 text-caption font-medium border border-primary/30">
                             User: {l.details?.handle || 'Anon'}
                           </span>
                           <span className="text-caption text-muted">{new Date(l.timestamp).toLocaleString()}</span>
                         </div>
-                        <div className="text-body whitespace-pre-wrap font-mono text-caption bg-surface-elevated-dark/50 p-2 rounded-lg">
+                        <div className="text-body whitespace-pre-wrap font-mono text-caption bg-surface-elevated/50 p-2 rounded-lg">
                           {l.details?.message || JSON.stringify(l.details)}
                         </div>
                       </div>
@@ -432,30 +432,30 @@ export default function AdminConsole() {
         </div>}
 
         {view === 'announcements' && <div className="space-y-4">
-          <div className="rounded-xl bg-surface-card-dark p-5 border border-hairline-on-dark/60">
-            <h3 className="text-body-md font-semibold text-on-dark mb-4 flex items-center gap-1.5"><Megaphone className="w-5 h-5 text-primary" />Banner Global</h3>
+          <div className="rounded-xl bg-surface-card p-5 border border-hairline/60">
+            <h3 className="text-body-md font-semibold text-on-surface mb-4 flex items-center gap-1.5"><Megaphone className="w-5 h-5 text-primary" />Banner Global</h3>
             <div className="space-y-3">
               <input type="text" placeholder="Ej: Mantenimiento programado..."
-                className="w-full h-10 rounded-lg bg-surface-elevated-dark text-body border border-hairline-on-dark/60 px-3 text-body-md placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/50"
+                className="w-full h-10 rounded-lg bg-surface-elevated text-body border border-hairline/60 px-3 text-body-md placeholder:text-muted focus:outline-none focus:ring-2 focus:ring-primary/50"
                 value={bannerMsg} onChange={e => setBannerMsg(e.target.value)} />
               <div className="grid grid-cols-3 gap-2">
                 <select value={bannerType} onChange={e => setBannerType(e.target.value)}
-                  className="h-10 rounded-lg bg-surface-elevated-dark text-body border border-hairline-on-dark/60 px-3 text-body-md">
+                  className="h-10 rounded-lg bg-surface-elevated text-body border border-hairline/60 px-3 text-body-md">
                   <option value="info">ℹ️ Info</option>
                   <option value="warning">⚠️ Warning</option>
                   <option value="error">❌ Error</option>
                 </select>
                 <input type="number" min="1" value={bannerDuration} onChange={e => setBannerDuration(Number(e.target.value))}
-                  className="h-10 rounded-lg bg-surface-elevated-dark text-body border border-hairline-on-dark/60 px-3 text-body-md" />
+                  className="h-10 rounded-lg bg-surface-elevated text-body border border-hairline/60 px-3 text-body-md" />
                 <div className="flex gap-1">
                   <button onClick={setBannerHandler} className="flex-1 h-10 bg-primary text-on-primary text-btn rounded-lg hover:bg-primary-active transition-colors">Publicar</button>
                   {currentBanner && <button onClick={delBanner} className="h-10 px-3 rounded-lg border border-trading-down/30 text-trading-down hover:bg-trading-down/10 text-btn transition-colors">X</button>}
                 </div>
               </div>
               {currentBanner && (
-                <div className="rounded-lg bg-surface-elevated-dark/50 p-3 border border-hairline-on-dark/60">
+                <div className="rounded-lg bg-surface-elevated/50 p-3 border border-hairline/60">
                   <span className="text-caption uppercase font-semibold text-muted">Activo:</span>
-                  <p className="text-body-md text-on-dark mt-0.5">{currentBanner.message}</p>
+                  <p className="text-body-md text-on-surface mt-0.5">{currentBanner.message}</p>
                 </div>
               )}
             </div>

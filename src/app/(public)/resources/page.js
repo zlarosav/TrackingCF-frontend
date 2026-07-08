@@ -23,7 +23,7 @@ export default function ResourcesPage() {
           <BookOpen className="h-4 w-4" />
           Aprende
         </div>
-        <h1 className="text-display-sm text-on-dark">Recursos</h1>
+        <h1 className="text-display-sm text-on-surface">Recursos</h1>
         <p className="text-body-md text-muted max-w-2xl">Herramientas y materiales curados para mejorar en programación competitiva.</p>
       </div>
 

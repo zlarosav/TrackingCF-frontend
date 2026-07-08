@@ -30,17 +30,17 @@ export default function SubmissionsTable({ submissions }) {
         <span className="ml-auto text-sm text-muted">{filtered.length} problemas</span>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-0 rounded-lg border border-hairline overflow-hidden bg-surface-card-dark">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-0 rounded-lg border border-hairline overflow-hidden bg-surface-card">
         {COLS.map(title => {
           const items = columns[title] || []
           return (
-            <div key={title} className="flex flex-col border-r last:border-r-0 border-hairline-on-dark/60 min-h-[350px]">
-              <div className={`sticky top-0 z-10 p-2.5 text-center text-sm font-bold uppercase tracking-wide border-b border-hairline-on-dark/60 ${HC[title] || 'bg-surface-elevated-dark text-muted'}`}>
+            <div key={title} className="flex flex-col border-r last:border-r-0 border-hairline/60 min-h-[350px]">
+              <div className={`sticky top-0 z-10 p-2.5 text-center text-sm font-bold uppercase tracking-wide border-b border-hairline/60 ${HC[title] || 'bg-surface-elevated text-muted'}`}>
                 {title} <span className="text-xs opacity-70 font-normal">({items.length})</span>
               </div>
               <div className="p-1.5 space-y-1.5 flex-1">
                 {items.map((sub, i) => (
-                  <div key={i} className="group relative rounded-md border border-hairline-on-dark/60 bg-canvas p-2.5 hover:border-primary/30 dark:hover:border-primary/50 transition-colors">
+                  <div key={i} className="group relative rounded-md border border-hairline/60 bg-canvas p-2.5 hover:border-primary/30 dark:hover:border-primary/50 transition-colors">
                     <div className={`absolute left-0 top-0 bottom-0 w-0.5 rounded-l-sm ${getColor(sub.rating)}`} />
                     <div className="pl-2.5 leading-tight">
                       <div className="flex justify-between items-start gap-1">

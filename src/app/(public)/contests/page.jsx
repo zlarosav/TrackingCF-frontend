@@ -52,11 +52,11 @@ export default function ContestsPage() {
   return (
     <div className="mx-auto max-w-5xl space-y-6 animate-fade-in">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-        <div><h1 className="text-display-sm text-on-dark">Contests</h1>{lastUpdated && <p className="text-caption text-muted mt-0.5"><Calendar className="inline h-3 w-3 mr-0.5" />Actualizado: {DateTime.fromISO(lastUpdated).setZone('America/Lima').setLocale('es').toFormat('dd LLL HH:mm')}</p>}</div>
-        <div className="flex rounded-lg bg-surface-card-dark border border-hairline-on-dark/60 p-0.5">
+        <div><h1 className="text-display-sm text-on-surface">Contests</h1>{lastUpdated && <p className="text-caption text-muted mt-0.5"><Calendar className="inline h-3 w-3 mr-0.5" />Actualizado: {DateTime.fromISO(lastUpdated).setZone('America/Lima').setLocale('es').toFormat('dd LLL HH:mm')}</p>}</div>
+        <div className="flex rounded-lg bg-surface-card border border-hairline/60 p-0.5">
           {['ALL','CODEFORCES','LEETCODE','ATCODER','CODECHEF'].map(f => (
             <button key={f} onClick={() => setFilter(f)}
-              className={`px-3 py-1.5 text-body-md font-medium rounded-md transition-all ${filter === f ? 'bg-primary text-on-primary' : 'text-muted hover:text-on-dark'}`}
+              className={`px-3 py-1.5 text-body-md font-medium rounded-md transition-all ${filter === f ? 'bg-primary text-on-primary' : 'text-muted hover:text-on-surface'}`}
             >{f === 'ALL' ? 'Todos' : f.charAt(0) + f.slice(1).toLowerCase()}</button>
           ))}
         </div>
@@ -67,7 +67,7 @@ export default function ContestsPage() {
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-primary" />
-              <h2 className="text-title-lg text-on-dark">Próximos</h2>
+              <h2 className="text-title-lg text-on-surface">Próximos</h2>
             </div>
             <div className="h-px flex-1 bg-gradient-to-r from-primary/30 to-transparent" />
             <span className="text-caption text-muted">{upcoming.length} contests</span>
@@ -77,8 +77,8 @@ export default function ContestsPage() {
         </section>
         {past.length > 0 && <>
           <div className="relative">
-            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-hairline-on-dark/60" /></div>
-            <div className="relative flex justify-center"><span className="bg-canvas-dark px-4 text-caption text-muted">Historial</span></div>
+            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-hairline/60" /></div>
+            <div className="relative flex justify-center"><span className="bg-canvas px-4 text-caption text-muted">Historial</span></div>
           </div>
           <section className="space-y-3">
             <p className="text-caption text-muted-strong uppercase tracking-wider">Recientes</p>
@@ -98,43 +98,43 @@ function card(contest, isPast, link, icon, dur, timeLeft, toggle, expanded, part
   const isLive = nowMs >= startMs && nowMs < endMs; const isSoon = !isPast && !isLive && (startMs - nowMs) < 24 * 60 * 60 * 1000
   const border = isLive ? 'border-l-[3px] border-l-trading-up' : isSoon ? 'border-l-[3px] border-l-primary' : ''
   return (
-    <div className={`rounded-xl bg-surface-card-dark p-4 transition-colors hover:bg-surface-elevated-dark ${border} ${isPast ? 'opacity-60 grayscale hover:grayscale-0 hover:opacity-100' : ''}`}>
+    <div className={`rounded-xl bg-surface-card p-4 transition-colors hover:bg-surface-elevated ${border} ${isPast ? 'opacity-60 grayscale hover:grayscale-0 hover:opacity-100' : ''}`}>
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             {icon(contest.platform) && <img src={icon(contest.platform)} alt={contest.platform} className="h-5 w-5 shrink-0 object-contain" onError={e => e.target.style.display = 'none'} />}
             <h3 className="truncate text-body-md font-semibold">{contest.name}</h3>
-            {isLive && <Badge className="bg-trading-up text-on-dark text-caption px-1.5 py-0">En curso</Badge>}
+            {isLive && <Badge className="bg-trading-up text-on-surface text-caption px-1.5 py-0">En curso</Badge>}
             {isSoon && <Badge className="bg-primary text-on-primary text-caption px-1.5 py-0">Próximo</Badge>}
           </div>
           <div className="text-caption text-muted mt-0.5 font-mono">{contest.id} · {startDate.setLocale('es').toFormat('ccc dd LLL HH:mm')}</div>
         </div>
-        <a href={link(contest)} target="_blank" rel="noopener noreferrer" className="rounded-sm bg-surface-elevated-dark p-1.5 text-muted hover:text-primary"><ExternalLink size={14} /></a>
+        <a href={link(contest)} target="_blank" rel="noopener noreferrer" className="rounded-sm bg-surface-elevated p-1.5 text-muted hover:text-primary"><ExternalLink size={14} /></a>
       </div>
       <div className="flex items-center gap-2 mt-2 text-caption text-muted">
         <Badge variant="secondary" className="text-caption font-medium px-1.5 py-0.5">{contest.platform}</Badge>
         <span>{dur(contest.durationSeconds)}</span>
         {!isPast && <span className="inline-flex items-center gap-0.5"><Clock size={12} />{timeLeft(contest.startTimeSeconds, contest.durationSeconds)}</span>}
       </div>
-      <div className="mt-3 rounded-lg bg-surface-elevated-dark/50 p-2.5">
+      <div className="mt-3 rounded-lg bg-surface-elevated/50 p-2.5">
         <div className="flex items-center justify-between mb-1.5">
           <span className="text-caption uppercase tracking-wider text-muted flex items-center gap-1"><User className="h-3 w-3" />Participantes</span>
           <button onClick={() => toggle(contest)} className="text-caption font-medium text-primary hover:text-primary/80">{expanded === k ? 'Ocultar' : 'Ver'}</button>
         </div>
         {expanded === k ? (loadingP[k] ? <div className="flex items-center gap-1.5 text-caption text-muted"><div className="h-3 w-3 animate-spin rounded-full border-2 border-primary border-t-transparent" />Cargando...</div>
           : p.length > 0 ? <div className="flex flex-wrap gap-1.5">{p.map(pt => (
-            <Link key={pt.id} href={`/user/${pt.handle}`} className="inline-flex items-center gap-1 rounded-sm border border-hairline-on-dark/60 bg-surface-card-dark px-2 py-1 text-caption font-medium hover:border-primary/30">
+            <Link key={pt.id} href={`/user/${pt.handle}`} className="inline-flex items-center gap-1 rounded-sm border border-hairline/60 bg-surface-card px-2 py-1 text-caption font-medium hover:border-primary/30">
               {pt.avatar_url ? <Image src={pt.avatar_url} alt={pt.handle} width={14} height={14} className="h-3.5 w-3.5 rounded-full object-cover" unoptimized /> : <User className="h-3 w-3" />}
               <span className="truncate max-w-[80px]">{pt.handle}</span>
             </Link>
           ))}</div> : <span className="text-caption text-muted italic">Sin participantes rastreados.</span>
         ) : (
           <div className="flex flex-wrap gap-1.5">{p.slice(0, 4).map(pt => (
-            <span key={pt.id} className="inline-flex items-center gap-1 rounded-sm border border-hairline-on-dark/60 bg-surface-card-dark px-1.5 py-1 text-caption text-muted">
+            <span key={pt.id} className="inline-flex items-center gap-1 rounded-sm border border-hairline/60 bg-surface-card px-1.5 py-1 text-caption text-muted">
               {pt.avatar_url ? <Image src={pt.avatar_url} alt={pt.handle} width={12} height={12} className="h-3 w-3 rounded-full object-cover" unoptimized /> : <User className="h-2.5 w-2.5" />}
               <span className="truncate max-w-[60px]">{pt.handle}</span>
             </span>
-          ))}{p.length > 4 && <span className="inline-flex items-center rounded-sm border border-hairline-on-dark/60 bg-surface-card-dark px-1.5 py-1 text-caption text-muted">+{p.length - 4}</span>}{!p.length && <span className="text-caption text-muted">Sin participantes.</span>}</div>
+          ))}{p.length > 4 && <span className="inline-flex items-center rounded-sm border border-hairline/60 bg-surface-card px-1.5 py-1 text-caption text-muted">+{p.length - 4}</span>}{!p.length && <span className="text-caption text-muted">Sin participantes.</span>}</div>
         )}
       </div>
     </div>

@@ -20,7 +20,7 @@ export default function CommunitiesPage() {
           <Users className="h-4 w-4" />
           Comunidades
         </div>
-        <h1 className="text-display-sm text-on-dark">Comunidades</h1>
+        <h1 className="text-display-sm text-on-surface">Comunidades</h1>
         <p className="text-body-md text-muted max-w-2xl">Grupos y clubes para aprender y entrenar con otros.</p>
       </div>
 
@@ -45,13 +45,13 @@ export default function CommunitiesPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {communities.map((c, i) => (
           <a key={i} href={c.url} target="_blank" rel="noopener noreferrer"
-            className="rounded-xl bg-surface-card-dark overflow-hidden transition-all hover:bg-surface-elevated-dark group border border-hairline-on-dark/60 hover:border-primary/30">
-            <div className="aspect-[16/9] bg-surface-elevated-dark flex items-center justify-center p-6">
+            className="rounded-xl bg-surface-card overflow-hidden transition-all hover:bg-surface-elevated group border border-hairline/60 hover:border-primary/30">
+            <div className="aspect-[16/9] bg-surface-elevated flex items-center justify-center p-6">
               <img src={c.image} alt={c.title} className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105" />
             </div>
             <div className="p-4 space-y-2">
               <div className="flex items-center gap-2">
-                <h3 className="text-title-sm text-on-dark">{c.title}</h3>
+                <h3 className="text-title-sm text-on-surface">{c.title}</h3>
               </div>
               <div className="flex items-center gap-3 text-caption text-muted">
                 <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{c.location}</span>

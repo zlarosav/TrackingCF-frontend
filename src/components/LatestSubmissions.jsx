@@ -24,13 +24,13 @@ export default function LatestSubmissions({ submissions, loading, sortBy, sortOr
 
   return (
     <div>
-      <div className="flex flex-wrap items-center gap-2 border-b border-hairline-on-dark/60 bg-surface-card-dark px-3 sm:px-4 py-2.5">
+      <div className="flex flex-wrap items-center gap-2 border-b border-hairline/60 bg-surface-card px-3 sm:px-4 py-2.5">
         <div className="flex items-center gap-2.5 flex-wrap">
           <span className="text-caption-strong uppercase tracking-wider text-muted">Submissions</span>
-          <div className="flex rounded-md border border-hairline-on-dark/60 bg-surface-elevated-dark p-0.5">
+          <div className="flex rounded-md border border-hairline/60 bg-surface-elevated p-0.5">
             {[{ key: 'all', label: 'Todas' }, { key: 'codeforces', label: 'CF' }, { key: 'atcoder', label: 'AC', disabled: !atcoderEnabled }].map(({ key, label, disabled }) => (
               <button key={key} onClick={() => !disabled && onPlatformChange(key)} disabled={disabled}
-                className={`px-2.5 py-1 text-xs font-medium rounded-sm transition-all ${platformFilter === key ? 'bg-primary text-on-primary' : 'text-muted hover:text-on-dark'} ${disabled ? 'opacity-40 cursor-not-allowed' : ''}`}>{label}</button>
+                className={`px-2.5 py-1 text-xs font-medium rounded-sm transition-all ${platformFilter === key ? 'bg-primary text-on-primary' : 'text-muted hover:text-on-surface'} ${disabled ? 'opacity-40 cursor-not-allowed' : ''}`}>{label}</button>
             ))}
           </div>
         </div>
@@ -38,16 +38,16 @@ export default function LatestSubmissions({ submissions, loading, sortBy, sortOr
           <span className="text-xs text-muted hidden sm:inline">Orden:</span>
           {['rating', 'submission_time'].map(f => (
             <button key={f} onClick={() => onSortChange(f, sortBy === f ? (sortOrder === 'asc' ? 'desc' : 'asc') : 'desc')}
-              className={`px-2 py-1 text-xs font-medium rounded-sm transition-all ${sortBy === f ? 'bg-primary text-on-primary' : 'text-muted hover:text-on-dark'}`}>{f === 'rating' ? 'Rating' : 'Fecha'}</button>
+              className={`px-2 py-1 text-xs font-medium rounded-sm transition-all ${sortBy === f ? 'bg-primary text-on-primary' : 'text-muted hover:text-on-surface'}`}>{f === 'rating' ? 'Rating' : 'Fecha'}</button>
           ))}
         </div>
       </div>
 
-      <div className="divide-y divide-hairline-on-dark/60">
+      <div className="divide-y divide-hairline/60">
         {visible.map((sub, i) => {
           const url = getUrl(sub); const date = new Date(sub.submission_time); const plat = String(sub.platform || 'CODEFORCES').toUpperCase(); const cfEq = getCfEq(sub)
           return (
-            <div key={sub.id || i} className="flex items-center gap-3 px-3 sm:px-4 py-2.5 transition-colors hover:bg-surface-card-dark">
+            <div key={sub.id || i} className="flex items-center gap-3 px-3 sm:px-4 py-2.5 transition-colors hover:bg-surface-card">
               <div className={`h-7 w-0.5 shrink-0 rounded-full ${getColor(sub.rating)}`} />
               <div className="flex-1 min-w-0 leading-tight">
                 <div className="flex items-center gap-1.5 flex-wrap">
@@ -71,12 +71,12 @@ export default function LatestSubmissions({ submissions, loading, sortBy, sortOr
       </div>
 
       {totalPages > 1 && (
-        <div className="flex items-center justify-between border-t border-hairline-on-dark/60 px-4 py-2.5">
+        <div className="flex items-center justify-between border-t border-hairline/60 px-4 py-2.5">
           <span className="text-xs text-muted">{(page - 1) * PER_PAGE + 1}-{Math.min(page * PER_PAGE, submissions.length)}</span>
           <div className="flex items-center gap-1.5">
-            <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="rounded border border-hairline-on-dark/60 px-2 py-1 text-xs font-medium hover:bg-surface-elevated-dark disabled:opacity-30">Anterior</button>
+            <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1} className="rounded border border-hairline/60 px-2 py-1 text-xs font-medium hover:bg-surface-elevated disabled:opacity-30">Anterior</button>
             <span className="text-xs text-muted px-1">{page}/{totalPages}</span>
-            <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="rounded border border-hairline-on-dark/60 px-2 py-1 text-xs font-medium hover:bg-surface-elevated-dark disabled:opacity-30">Siguiente</button>
+            <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages} className="rounded border border-hairline/60 px-2 py-1 text-xs font-medium hover:bg-surface-elevated disabled:opacity-30">Siguiente</button>
           </div>
         </div>
       )}

@@ -6,15 +6,15 @@
   :root {
     color-scheme: dark;
     --radius: 0.75rem;
-    --background: 11 8% 5%;
+    --background: 210 21% 5%;
     --foreground: 0 0% 93%;
-    --card: 220 14% 14%;
+    --card: 213 15% 14%;
     --card-foreground: 0 0% 93%;
-    --popover: 220 14% 14%;
+    --popover: 213 15% 14%;
     --popover-foreground: 0 0% 93%;
     --primary: 48 97% 60%;
     --primary-foreground: 0 0% 9%;
-    --secondary: 220 14% 14%;
+    --secondary: 214 14% 20%;
     --secondary-foreground: 0 0% 93%;
     --muted: 218 10% 49%;
     --muted-foreground: 218 10% 49%;
@@ -22,9 +22,17 @@
     --accent-foreground: 0 0% 9%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 14% 20%;
-    --input: 220 14% 20%;
+    --border: 214 14% 20%;
+    --input: 214 14% 20%;
     --ring: 48 97% 60%;
+
+    /* Binance-style surface tokens, theme-reactive counterparts of the old *-dark literals */
+    --canvas: 210 21% 5%;
+    --surface-card: 213 15% 14%;
+    --surface-elevated: 214 14% 20%;
+    --hairline: 214 14% 20%;
+    --on-surface: 0 0% 100%;
+    --text-body: 216 14% 93%;
   }
 
   .light {
@@ -48,21 +56,24 @@
     --border: 0 0% 92%;
     --input: 0 0% 92%;
     --ring: 48 97% 60%;
+
+    --canvas: 0 0% 100%;
+    --surface-card: 0 0% 98%;
+    --surface-elevated: 0 0% 96%;
+    --hairline: 216 14% 93%;
+    --on-surface: 225 14% 11%;
+    --text-body: 225 14% 11%;
   }
 }
 
 @layer base {
   * {
-    @apply border-hairline-on-dark/80;
+    @apply border-hairline/80;
   }
 
   body {
-    @apply bg-canvas-dark text-body font-body antialiased;
+    @apply bg-canvas text-body font-body antialiased;
     min-height: 100vh;
-  }
-
-  .light body, body.light {
-    @apply bg-canvas-light text-ink;
   }
 
   h1, h2, h3, h4, h5, h6 {

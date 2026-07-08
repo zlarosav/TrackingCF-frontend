@@ -47,7 +47,7 @@ export default function GeneralTab({ user, stats, submissions, handle }) {
               <span className="text-caption text-muted font-medium">{label}</span>
               <Icon className={`h-4 w-4 ${active ? 'text-trading-up' : isYellow ? 'text-primary' : 'text-muted'}`} />
             </div>
-            <span className={`${small ? 'text-body-sm text-muted leading-tight line-clamp-1' : 'text-title-lg'} ${isYellow ? 'text-primary' : 'text-on-dark'}`}>
+            <span className={`${small ? 'text-body-sm text-muted leading-tight line-clamp-1' : 'text-title-lg'} ${isYellow ? 'text-primary' : 'text-on-surface'}`}>
               {value}
             </span>
           </Card>
@@ -57,8 +57,8 @@ export default function GeneralTab({ user, stats, submissions, handle }) {
       {!loadingHeatmap && heatmapData && <ActivityHeatmap data={heatmapData} />}
 
       <Card className="rounded-xl overflow-hidden">
-        <div className="flex flex-row items-center justify-between gap-2 p-4 border-b border-hairline-on-dark/60 bg-surface-elevated-dark">
-          <div><CardTitle className="text-body-md text-on-dark font-semibold">Actividad</CardTitle><p className="text-caption text-muted">{allFiltered.length} problemas</p></div>
+        <div className="flex flex-row items-center justify-between gap-2 p-4 border-b border-hairline/60 bg-surface-elevated">
+          <div><CardTitle className="text-body-md text-on-surface font-semibold">Actividad</CardTitle><p className="text-caption text-muted">{allFiltered.length} problemas</p></div>
           <div className="flex items-center gap-1.5">
             <Button variant={showFilters ? "secondary" : "ghost"} size="sm" onClick={() => setShowFilters(!showFilters)} className="h-8 text-caption gap-1">
               <Filter className={`h-3.5 w-3.5 ${hasFilters ? 'text-primary' : ''}`} />Filtros
@@ -66,33 +66,33 @@ export default function GeneralTab({ user, stats, submissions, handle }) {
             {hasFilters && <Button variant="ghost" size="sm" onClick={clear} className="h-8 text-caption text-muted"><X className="h-3.5 w-3.5" /></Button>}
             {['rating', 'submission_time'].map(f => (
               <button key={f} onClick={() => { if (sortBy === f) setSortOrder(o => o === 'asc' ? 'desc' : 'asc'); else { setSortBy(f); setSortOrder('desc') } }}
-                className={`px-2 py-1 text-caption font-medium rounded-sm transition-all ${sortBy === f ? 'bg-primary text-on-primary' : 'text-muted hover:text-on-dark'}`}>{f === 'rating' ? 'Rating' : 'Fecha'}</button>
+                className={`px-2 py-1 text-caption font-medium rounded-sm transition-all ${sortBy === f ? 'bg-primary text-on-primary' : 'text-muted hover:text-on-surface'}`}>{f === 'rating' ? 'Rating' : 'Fecha'}</button>
             ))}
           </div>
         </div>
         {showFilters && (
-          <div className="border-b border-hairline-on-dark/60 bg-surface-elevated-dark/50 px-4 py-3 animate-fade-in">
-            <div className="flex flex-wrap items-start gap-4 rounded-lg border border-dashed border-hairline-on-dark/60 bg-canvas-dark/50 p-3">
+          <div className="border-b border-hairline/60 bg-surface-elevated/50 px-4 py-3 animate-fade-in">
+            <div className="flex flex-wrap items-start gap-4 rounded-lg border border-dashed border-hairline/60 bg-canvas/50 p-3">
               <div className="flex-1 min-w-[220px] space-y-2">
                 <div className="flex items-center justify-between"><span className="text-caption uppercase font-semibold text-muted">Rating</span>
                   <div className="flex items-center gap-1.5">
-                    <input type="number" min={800} max={ratingMax} value={ratingMin} onChange={e => { setRatingMin(Math.min(Math.max(800, Number(e.target.value)), ratingMax)); setCurrentPage(1) }} className="w-14 h-7 text-caption font-mono bg-canvas-dark text-center rounded-sm border border-hairline-on-dark/60" />
+                    <input type="number" min={800} max={ratingMax} value={ratingMin} onChange={e => { setRatingMin(Math.min(Math.max(800, Number(e.target.value)), ratingMax)); setCurrentPage(1) }} className="w-14 h-7 text-caption font-mono bg-canvas text-center rounded-sm border border-hairline/60" />
                     <span className="text-muted text-xs">—</span>
-                    <input type="number" min={ratingMin} max={4000} value={ratingMax} onChange={e => { setRatingMax(Math.min(Math.max(ratingMin, Number(e.target.value)), 4000)); setCurrentPage(1) }} className="w-14 h-7 text-caption font-mono bg-canvas-dark text-center rounded-sm border border-hairline-on-dark/60" />
+                    <input type="number" min={ratingMin} max={4000} value={ratingMax} onChange={e => { setRatingMax(Math.min(Math.max(ratingMin, Number(e.target.value)), 4000)); setCurrentPage(1) }} className="w-14 h-7 text-caption font-mono bg-canvas text-center rounded-sm border border-hairline/60" />
                   </div>
                 </div>
                 <Slider min={800} max={4000} step={100} value={[ratingMin, ratingMax]} onValueChange={v => { setRatingMin(v[0]); setRatingMax(v[1]); setCurrentPage(1) }} className="w-full" />
                 <div className="flex justify-between text-caption text-muted"><span>800</span><span>4000</span></div>
               </div>
-              <label className="flex items-center gap-1.5 cursor-pointer mt-1"><input type="checkbox" checked={hideNoRating} onChange={e => { setHideNoRating(e.target.checked); setCurrentPage(1) }} className="h-4 w-4 rounded border-hairline-on-dark/60 text-primary" /><span className="text-body-md text-muted">Ocultar sin rating</span></label>
-              <div className="h-8 w-px bg-hairline-on-dark/60 hidden lg:block self-center" />
+              <label className="flex items-center gap-1.5 cursor-pointer mt-1"><input type="checkbox" checked={hideNoRating} onChange={e => { setHideNoRating(e.target.checked); setCurrentPage(1) }} className="h-4 w-4 rounded border-hairline/60 text-primary" /><span className="text-body-md text-muted">Ocultar sin rating</span></label>
+              <div className="h-8 w-px bg-hairline/60 hidden lg:block self-center" />
             </div>
           </div>
         )}
         <CardContent className="p-3">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
             {displayed.map((sub, i) => (
-              <div key={i} className="group relative flex items-start gap-3 rounded-lg bg-surface-elevated-dark/50 p-3 transition-colors hover:bg-surface-elevated-dark">
+              <div key={i} className="group relative flex items-start gap-3 rounded-lg bg-surface-elevated/50 p-3 transition-colors hover:bg-surface-elevated">
                 <div className={`mt-0.5 h-full min-h-[2.5rem] w-1 shrink-0 rounded-full ${getColor(sub.rating)}`} />
                 <div className="flex-1 min-w-0 leading-tight">
                   <div className="flex items-start justify-between gap-1">
@@ -112,7 +112,7 @@ export default function GeneralTab({ user, stats, submissions, handle }) {
             ))}
             {!displayed.length && <div className="col-span-full text-center text-muted py-10 text-body-md">Sin actividad</div>}
           </div>
-          {totalPages > 1 && <div className="mt-4 border-t border-hairline-on-dark/60 pt-3"><Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} /></div>}
+          {totalPages > 1 && <div className="mt-4 border-t border-hairline/60 pt-3"><Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} /></div>}
         </CardContent>
       </Card>
     </div>

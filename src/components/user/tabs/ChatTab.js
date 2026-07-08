@@ -31,7 +31,7 @@ export default function ChatTab({ handle }) {
 
   return (
     <div className="flex h-[550px] flex-col overflow-hidden rounded-lg border border-hairline bg-canvas">
-      <div className="flex items-center justify-between border-b border-hairline-on-dark/60 bg-surface-card-dark px-4 py-2.5">
+      <div className="flex items-center justify-between border-b border-hairline/60 bg-surface-card px-4 py-2.5">
         <div className="flex items-center gap-2"><div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary/10"><Bot className="h-4 w-4 text-primary" /></div><span className="text-sm font-semibold">TrackingCF AI</span></div>
         <Button variant="ghost" size="sm" onClick={handleReset} className="h-8 text-xs gap-1.5 text-muted"><RefreshCcw className="h-3.5 w-3.5" />Reiniciar</Button>
       </div>
@@ -39,24 +39,24 @@ export default function ChatTab({ handle }) {
         {messages.map((msg, i) => (
           <div key={i} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             {msg.role === 'model' && <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary/10"><Bot className="h-4 w-4 text-primary" /></div>}
-            <div className={`max-w-[85%] rounded-xl px-3.5 py-2.5 text-sm ${msg.role === 'user' ? 'bg-primary text-on-primary rounded-tr-sm' : 'bg-surface-card-dark border border-hairline-on-dark/60 rounded-tl-sm'}`}>
+            <div className={`max-w-[85%] rounded-xl px-3.5 py-2.5 text-sm ${msg.role === 'user' ? 'bg-primary text-on-primary rounded-tr-sm' : 'bg-surface-card border border-hairline/60 rounded-tl-sm'}`}>
               {msg.role === 'model' ? <div className="prose prose-sm dark:prose-invert max-w-none break-words prose-p:leading-relaxed prose-code:before:content-none prose-code:after:content-none"><ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>{msg.content}</ReactMarkdown></div>
                 : <div className="whitespace-pre-wrap break-words">{msg.content}</div>}
             </div>
           </div>
         ))}
-        {loading && <div className="flex gap-2 items-center"><div className="h-7 w-7 rounded-md bg-primary/10 animate-pulse" /><div className="flex items-center gap-1 rounded-xl rounded-tl-sm bg-surface-card-dark px-3.5 py-2.5 border border-hairline-on-dark/60"><span className="h-2 w-2 animate-bounce rounded-full bg-ink/40 [animation-delay:0ms]" /><span className="h-2 w-2 animate-bounce rounded-full bg-ink/40 [animation-delay:150ms]" /><span className="h-2 w-2 animate-bounce rounded-full bg-ink/40 [animation-delay:300ms]" /></div></div>}
+        {loading && <div className="flex gap-2 items-center"><div className="h-7 w-7 rounded-md bg-primary/10 animate-pulse" /><div className="flex items-center gap-1 rounded-xl rounded-tl-sm bg-surface-card px-3.5 py-2.5 border border-hairline/60"><span className="h-2 w-2 animate-bounce rounded-full bg-muted [animation-delay:0ms]" /><span className="h-2 w-2 animate-bounce rounded-full bg-muted [animation-delay:150ms]" /><span className="h-2 w-2 animate-bounce rounded-full bg-muted [animation-delay:300ms]" /></div></div>}
       </div>
       {showSuggestions && messages.length <= 2 && (
-        <div className="border-t border-hairline-on-dark/60 bg-surface-card-dark px-4 pt-3 pb-1.5">
+        <div className="border-t border-hairline/60 bg-surface-card px-4 pt-3 pb-1.5">
           <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
             {["Analiza su perfil 📊", "¿Cómo mejorar su rating? 🚀", "Compáralo con Top 1 🏆"].map((text, i) => (
-              <button key={i} onClick={() => setInput(text)} className="whitespace-nowrap rounded-pill border border-hairline-on-dark/60 bg-canvas px-3 py-1 text-xs text-muted hover:border-primary/30 hover:text-ink">{text}</button>
+              <button key={i} onClick={() => setInput(text)} className="whitespace-nowrap rounded-pill border border-hairline/60 bg-canvas px-3 py-1 text-xs text-muted hover:border-primary/30 hover:text-on-surface">{text}</button>
             ))}
           </div>
         </div>
       )}
-      <div className="border-t border-hairline-on-dark/60 bg-canvas px-4 py-3">
+      <div className="border-t border-hairline/60 bg-canvas px-4 py-3">
         <form onSubmit={e => { e.preventDefault(); handleSend() }} className="flex items-center gap-2">
           <Button type="button" variant="ghost" size="icon" onClick={() => setShowSuggestions(!showSuggestions)} className="h-8 w-8 text-muted shrink-0">{showSuggestions ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}</Button>
           <Input value={input} onChange={e => setInput(e.target.value)} placeholder={`Pregunta sobre ${handle}...`} disabled={loading} className="flex-1 h-8 text-sm" />
