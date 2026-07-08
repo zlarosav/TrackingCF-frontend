@@ -167,6 +167,13 @@ export const apiClient = {
     return cachedGet(`/users/${handle}`, opts);
   },
 
+  // Resumen liviano para el hover card (avatar, rating, rank, racha, últimos 7 días).
+  // "v=3" es un cache-bust: súbelo si vuelves a cambiar la forma de esta respuesta,
+  // para que las respuestas viejas en sessionStorage no queden pegadas indefinidamente.
+  getUserCard: async (handle, opts) => {
+    return cachedGet(`/users/${handle}/card?v=3`, opts);
+  },
+
   // Submissions
   getSubmissions: async (handle, filters = {}, opts) => {
     const params = new URLSearchParams();

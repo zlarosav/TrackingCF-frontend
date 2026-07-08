@@ -7,7 +7,7 @@ import { apiClient } from '@/lib/api'
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, User, ExternalLink, Medal, Calendar, TrendingUp, Star, Award, Flame } from 'lucide-react'
+import { ArrowLeft, User, Medal, Calendar, Award, Flame } from 'lucide-react'
 import StreakBadge from '@/components/StreakBadge'
 import { getRatingColorClass } from '@/lib/utils'
 import UserTabs from '@/components/user/UserTabs'
@@ -85,8 +85,9 @@ export default function UserPage({ params }) {
                 <h1 className={`text-title-lg text-on-surface ${getRatingColorClass(user?.rating)?.replace('font-', '') || ''}`}>{handle}</h1>
                 {user?.rating && <Badge variant="secondary" className="font-medium text-caption">{user.rank}</Badge>}
                 <a href={`https://codeforces.com/profile/${handle}`} target="_blank" rel="noopener noreferrer">
-                  <Button variant="default" size="sm" className="h-7 gap-1.5 text-caption">
-                    <ExternalLink className="h-3 w-3" />CF
+                  <Button variant="default" size="sm" className="h-8 gap-1.5 px-3 text-body-sm">
+                    <Image src="/codeforces.svg" alt="" width={14} height={14} className="h-3.5 w-3.5" />
+                    Codeforces
                   </Button>
                 </a>
               </div>

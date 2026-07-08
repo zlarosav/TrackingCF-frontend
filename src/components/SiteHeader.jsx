@@ -12,7 +12,7 @@ const navItems = [
   { href: "/contests", label: "Contests" },
   { href: "/resources", label: "Recursos" },
   { href: "/judges", label: "Jueces" },
-  { href: "/competitions", label: "Comp." },
+  { href: "/competitions", label: "Competiciones" },
   { href: "/communities", label: "Comunidades" },
 ]
 

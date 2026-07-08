@@ -2,7 +2,7 @@
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { ExternalLink, Trophy, Medal, Users, Globe } from 'lucide-react'
+import { ExternalLink, Trophy } from 'lucide-react'
 
 const competitions = [
   { title: "ICPC", description: "International Collegiate Programming Contest. La más prestigiosa del mundo.", url: "https://icpc.global/", image: "/icpc.png", scope: "Mundial", type: "Universitario", tags: ["ICPC","Equipos"] },
@@ -34,43 +34,28 @@ export default function CompetitionsPage() {
         <p className="text-body-md text-muted max-w-2xl">Las competencias más importantes a nivel nacional e internacional.</p>
       </div>
 
-      {/* Featured competition — largest card */}
-      <Card className="overflow-hidden rounded-xl">
-        <div className="grid grid-cols-1 md:grid-cols-2">
-          <div className="relative aspect-[4/3] md:aspect-auto bg-surface-elevated flex items-center justify-center p-8">
-            <img src={competitions[0].image} alt={competitions[0].title} className="h-full w-full object-contain" />
-          </div>
-          <div className="p-6 flex flex-col justify-center">
-            <div className="flex items-center gap-2 mb-2">
-              <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-sm border ${scopeColors[competitions[0].scope]}`}>{competitions[0].scope}</span>
-              <Badge variant="secondary" className="text-[10px]">{competitions[0].type}</Badge>
-            </div>
-            <h2 className="text-title-lg text-on-surface mb-2">{competitions[0].title}</h2>
-            <p className="text-body-md text-muted mb-3">{competitions[0].description}</p>
-            <div className="flex flex-wrap gap-1 mb-4">{competitions[0].tags.map(t => <Badge key={t} variant="outline" className="text-[10px]">{t}</Badge>)}</div>
-            <a href={competitions[0].url} target="_blank" rel="noopener noreferrer"><Button size="sm" className="gap-1"><ExternalLink className="h-3.5 w-3.5" />Conoce más</Button></a>
-          </div>
-        </div>
-      </Card>
-
-      {/* Rest of competitions in grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        {competitions.slice(1).map((c, i) => (
-          <a key={i} href={c.url} target="_blank" rel="noopener noreferrer"
-            className="rounded-xl bg-surface-card overflow-hidden transition-all hover:bg-surface-elevated group border border-hairline/60 hover:border-primary/30">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 auto-rows-fr">
+        {competitions.map((c, i) => (
+          <Card key={i} className="h-full overflow-hidden rounded-xl transition-all hover:bg-surface-elevated group border border-hairline/60 hover:border-primary/30">
             <div className="aspect-[4/3] bg-surface-elevated flex items-center justify-center p-6">
               <img src={c.image} alt={c.title} className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105" />
             </div>
-            <div className="p-3 space-y-1.5">
+            <div className="flex min-h-[13.5rem] flex-col p-4">
               <div className="flex items-center gap-1.5">
                 <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-sm border ${scopeColors[c.scope]}`}>{c.scope}</span>
                 <Badge variant="secondary" className="text-[10px]">{c.type}</Badge>
               </div>
-              <h3 className="text-body-md font-semibold text-on-surface">{c.title}</h3>
+              <h3 className="mt-2 text-body-md font-semibold text-on-surface">{c.title}</h3>
               <p className="text-body-sm text-muted line-clamp-2">{c.description}</p>
               <div className="flex flex-wrap gap-1 pt-1">{c.tags.map(t => <Badge key={t} variant="outline" className="text-[10px]">{t}</Badge>)}</div>
+              <a href={c.url} target="_blank" rel="noopener noreferrer" className="mt-auto pt-3">
+                <Button size="xs" className="gap-1">
+                  <ExternalLink className="h-3 w-3" />
+                  Conoce más
+                </Button>
+              </a>
             </div>
-          </a>
+          </Card>
         ))}
       </div>
     </div>

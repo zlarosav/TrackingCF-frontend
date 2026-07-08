@@ -1,7 +1,5 @@
 import { ResourceGrid } from "@/components/ResourceGrid"
-import { Card } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { BookOpen, Code, Trophy, Calendar, Globe, GraduationCap, Layers, Users } from 'lucide-react'
+import { BookOpen, Code, Calendar, Globe, GraduationCap, Layers } from 'lucide-react'
 
 const guidesAndTools = [
   { title: "CP Handbook (ES)", description: "Traducción del libro de Antti Laaksonen, la mejor introducción al CP en español.", pdfUrl: "https://github.com/zlarosav/cphb-es/blob/main/book.pdf", repoUrl: "https://github.com/zlarosav/cphb-es", extraLink: { url: "https://cses.fi/book/book.pdf", label: "Original EN" }, icon: <BookOpen className="h-5 w-5" />, iconName: "BookOpen", tags: ["Libro","PDF","Español"] },
@@ -27,8 +25,7 @@ export default function ResourcesPage() {
         <p className="text-body-md text-muted max-w-2xl">Herramientas y materiales curados para mejorar en programación competitiva.</p>
       </div>
 
-      {/* Featured + list layout */}
-      <ResourceGrid items={guidesAndTools} layout="featured" />
+      <ResourceGrid items={guidesAndTools} />
     </div>
   )
 }

@@ -1,8 +1,7 @@
 'use client'
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { ExternalLink, Users, MapPin, GraduationCap } from 'lucide-react'
+import { ExternalLink, Users, MapPin } from 'lucide-react'
 
 const communities = [
   { title: "CPC UNJFSC", description: "Club de Programación Competitiva de la UNJFSC (Huacho).", url: "https://www.facebook.com/cpcunjfsc", image: "/cpcunjfsc.jpg", location: "Huacho", type: "Universidad", tags: ["Perú","UNJFSC"] },
@@ -22,23 +21,6 @@ export default function CommunitiesPage() {
         </div>
         <h1 className="text-display-sm text-on-surface">Comunidades</h1>
         <p className="text-body-md text-muted max-w-2xl">Grupos y clubes para aprender y entrenar con otros.</p>
-      </div>
-
-      {/* Stats bar — trust-badge style */}
-      <div className="grid grid-cols-3 gap-3">
-        {[
-          { label: 'Clubes', value: communities.length, icon: Users },
-          { label: 'Miembros activos', value: '100+', icon: GraduationCap },
-          { label: 'Ciudades', value: '3', icon: MapPin },
-        ].map(({ label, value, icon: Icon }) => (
-          <Card key={label} className="flex items-center gap-3 p-4 rounded-xl">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10"><Icon className="h-5 w-5 text-primary" /></div>
-            <div>
-              <span className="text-number-display text-primary">{value}</span>
-              <span className="text-caption text-muted block">{label}</span>
-            </div>
-          </Card>
-        ))}
       </div>
 
       {/* Community cards — trust-badge style */}

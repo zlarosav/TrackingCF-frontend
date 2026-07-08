@@ -8,6 +8,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ExternalLink, Clock, User, Calendar, TrendingUp } from 'lucide-react'
 import { apiClient } from '@/lib/api'
+import { useUserHoverTrigger } from '@/components/user-hover-card/useUserHoverTrigger'
 
 export default function ContestsPage() {
   const [allContests, setAllContests] = useState([])
@@ -93,6 +94,24 @@ export default function ContestsPage() {
   )
 }
 
+function ParticipantChip({ participant: pt, variant }) {
+  const hoverProps = useUserHoverTrigger(pt.handle, pt)
+  if (variant === 'expanded') {
+    return (
+      <Link href={`/user/${pt.handle}`} className="inline-flex items-center gap-1 rounded-sm border border-hairline/60 bg-surface-card px-2 py-1 text-caption font-medium hover:border-primary/30" {...hoverProps}>
+        {pt.avatar_url ? <Image src={pt.avatar_url} alt={pt.handle} width={14} height={14} className="h-3.5 w-3.5 rounded-full object-cover" unoptimized /> : <User className="h-3 w-3" />}
+        <span className="truncate max-w-[80px]">{pt.handle}</span>
+      </Link>
+    )
+  }
+  return (
+    <span className="inline-flex items-center gap-1 rounded-sm border border-hairline/60 bg-surface-card px-1.5 py-1 text-caption text-muted" {...hoverProps}>
+      {pt.avatar_url ? <Image src={pt.avatar_url} alt={pt.handle} width={12} height={12} className="h-3 w-3 rounded-full object-cover" unoptimized /> : <User className="h-2.5 w-2.5" />}
+      <span className="truncate max-w-[60px]">{pt.handle}</span>
+    </span>
+  )
+}
+
 function card(contest, isPast, link, icon, dur, timeLeft, toggle, expanded, participants, loadingP, getKey) {
   const k = getKey(contest); const p = participants[k] || []
   const startDate = DateTime.fromSeconds(contest.startTimeSeconds).setZone('America/Lima')
@@ -126,17 +145,11 @@ function card(contest, isPast, link, icon, dur, timeLeft, toggle, expanded, part
         </div>
         {expanded === k ? (loadingP[k] ? <div className="flex items-center gap-1.5 text-caption text-muted"><div className="h-3 w-3 animate-spin rounded-full border-2 border-primary border-t-transparent" />Cargando...</div>
           : p.length > 0 ? <div className="flex flex-wrap gap-1.5">{p.map(pt => (
-            <Link key={pt.id} href={`/user/${pt.handle}`} className="inline-flex items-center gap-1 rounded-sm border border-hairline/60 bg-surface-card px-2 py-1 text-caption font-medium hover:border-primary/30">
-              {pt.avatar_url ? <Image src={pt.avatar_url} alt={pt.handle} width={14} height={14} className="h-3.5 w-3.5 rounded-full object-cover" unoptimized /> : <User className="h-3 w-3" />}
-              <span className="truncate max-w-[80px]">{pt.handle}</span>
-            </Link>
+            <ParticipantChip key={pt.id} participant={pt} variant="expanded" />
           ))}</div> : <span className="text-caption text-muted italic">Sin participantes rastreados.</span>
         ) : (
           <div className="flex flex-wrap gap-1.5">{p.slice(0, 4).map(pt => (
-            <span key={pt.id} className="inline-flex items-center gap-1 rounded-sm border border-hairline/60 bg-surface-card px-1.5 py-1 text-caption text-muted">
-              {pt.avatar_url ? <Image src={pt.avatar_url} alt={pt.handle} width={12} height={12} className="h-3 w-3 rounded-full object-cover" unoptimized /> : <User className="h-2.5 w-2.5" />}
-              <span className="truncate max-w-[60px]">{pt.handle}</span>
-            </span>
+            <ParticipantChip key={pt.id} participant={pt} variant="preview" />
           ))}{p.length > 4 && <span className="inline-flex items-center rounded-sm border border-hairline/60 bg-surface-card px-1.5 py-1 text-caption text-muted">+{p.length - 4}</span>}{!p.length && <span className="text-caption text-muted">Sin participantes.</span>}</div>
         )}
       </div>

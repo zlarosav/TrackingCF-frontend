@@ -14,6 +14,7 @@ import LatestSubmissions from '@/components/LatestSubmissions'
 import PeriodFilter from '@/components/PeriodFilter'
 import LeaderboardTable from '@/components/LeaderboardTable'
 import { JudgeIcon } from '@/components/JudgeIcon'
+import { useUserHoverTrigger } from '@/components/user-hover-card/useUserHoverTrigger'
 
 const CONTESTS_PER_PAGE = 5
 
@@ -22,6 +23,16 @@ const getContestLink = (c) => { const p = String(c.platform || 'CODEFORCES').toU
 const getPlatformIcon = (p) => { const v = String(p || '').toLowerCase(); if (v === 'codeforces') return '/codeforces.svg'; if (v === 'leetcode') return '/leetcode.svg'; if (v === 'atcoder') return '/atcoder.svg'; if (v === 'codechef') return '/codechef.svg'; return null }
 const fmtDate = (s) => s ? DateTime.fromSeconds(s).setZone('America/Lima').setLocale('es').toFormat('dd LLL yyyy, HH:mm') : ''
 const fmtDur = (s) => { const d = s > 3e9 ? 0 : s; return `${Math.floor(d / 3600)}h ${Math.floor((d % 3600) / 60)}m` }
+
+function ParticipantChip({ participant: p }) {
+  const hoverProps = useUserHoverTrigger(p.handle, p)
+  return (
+    <span className="inline-flex items-center gap-1 rounded-sm bg-surface-card px-1.5 py-0.5 text-[10px] text-muted" {...hoverProps}>
+      {p.avatar_url ? <Image src={p.avatar_url} alt={p.handle} width={10} height={10} className="h-3 w-3 rounded-full object-cover" unoptimized /> : <User className="h-2.5 w-2.5" />}
+      {p.handle}
+    </span>
+  )
+}
 
 export default function HomePage() {
   const [users, setUsers] = useState([])
@@ -192,10 +203,7 @@ export default function HomePage() {
                         <div className="text-caption text-muted mt-0.5">{fmtDate(contest.startTimeSeconds)} · {fmtDur(contest.durationSeconds)}</div>
                         <div className="flex flex-wrap gap-1 mt-1">
                           {contest.participants.map(p => (
-                            <span key={p.id || p.handle} className="inline-flex items-center gap-1 rounded-sm bg-surface-card px-1.5 py-0.5 text-[10px] text-muted">
-                              {p.avatar_url ? <Image src={p.avatar_url} alt={p.handle} width={10} height={10} className="h-3 w-3 rounded-full object-cover" unoptimized /> : <User className="h-2.5 w-2.5" />}
-                              {p.handle}
-                            </span>
+                            <ParticipantChip key={p.id || p.handle} participant={p} />
                           ))}
                           {contest.participantCount > contest.participants.length && (
                             <span className="text-[10px] text-muted">+{contest.participantCount - contest.participants.length}</span>
